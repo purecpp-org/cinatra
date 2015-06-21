@@ -1,5 +1,6 @@
 Debug
 Release
+build
 *.sdf
 *.opensdf
 *.suo
