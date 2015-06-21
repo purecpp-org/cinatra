@@ -2,6 +2,7 @@
 #pragma once
 
 #include "connection.hpp"
+#include "io_service_pool.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
@@ -18,8 +19,9 @@ namespace cinatra
 	class HTTPServer : boost::noncopyable
 	{
 	public:
-		HTTPServer(boost::asio::io_service& service)
-			:service_(service),acceptor_(service)
+		HTTPServer(std::size_t io_service_pool_size)
+			:io_service_pool_(io_service_pool_size),
+			acceptor_(io_service_pool_.get_io_service())
 		{
 
 		}
@@ -29,7 +31,7 @@ namespace cinatra
 
 		HTTPServer& listen(const std::string& address, const std::string& port)
 		{
-			boost::asio::ip::tcp::resolver resolver(service_);
+			boost::asio::ip::tcp::resolver resolver(acceptor_.get_io_service());
 			boost::asio::ip::tcp::resolver::query query(address, port);
 			boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
 			acceptor_.open(endpoint.protocol());
@@ -37,7 +39,7 @@ namespace cinatra
 			acceptor_.bind(endpoint);
 			acceptor_.listen();
 
-			boost::asio::spawn(service_,
+			boost::asio::spawn(acceptor_.get_io_service(),
 				std::bind(&HTTPServer::do_accept,
 				this, std::placeholders::_1));
 			return *this;
@@ -48,12 +50,17 @@ namespace cinatra
 			return listen(address, boost::lexical_cast<std::string>(port));
 		}
 
+		void run()
+		{
+			io_service_pool_.run();
+		}
+
 	private:
 		void do_accept(const boost::asio::yield_context& yield)
 		{
 			for (;;)
 			{
-				std::shared_ptr<Connection> conn(std::make_shared<Connection>(service_));
+				std::shared_ptr<Connection> conn(std::make_shared<Connection>(io_service_pool_.get_io_service()));
 				boost::system::error_code ec;
 				acceptor_.async_accept(conn->socket(), yield[ec]);
 				if (ec)
@@ -66,7 +73,7 @@ namespace cinatra
 			}
 		}
 	private:
-		boost::asio::io_service& service_;
+		IOServicePool io_service_pool_;
 		boost::asio::ip::tcp::acceptor acceptor_;
 	};
 }

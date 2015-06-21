@@ -4,10 +4,8 @@
 
 int main()
 {
-	boost::asio::io_service service;
-	cinatra::HTTPServer s(service);
-	s.listen("0.0.0.0", "HTTP");
+	cinatra::HTTPServer s(boost::thread::hardware_concurrency());
+	s.listen("0.0.0.0", "HTTP").run();
 
-	service.run();
 	return 0;
 }
