@@ -85,7 +85,11 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp" />
     <ClInclude Include="..\..\include\cinatra\connection.hpp" />
-    <ClInclude Include="..\..\include\cinatra\http_server.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_parser.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_parser_merged.h" />
+    <ClInclude Include="..\..\include\cinatra\request.hpp" />
+    <ClInclude Include="..\..\include\cinatra\utils.hpp" />
+    <ClInclude Include="http_parser.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
