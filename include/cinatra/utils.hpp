@@ -143,6 +143,14 @@ namespace cinatra
 				return seed;
 			}
 		};
-		std::unordered_multimap<std::string, std::string, NcaseHash> map_;
+
+		struct IsKeyEqu
+		{
+			bool operator()(const std::string& l, const std::string& r) const
+			{
+				return boost::iequals(l, r);
+			}
+		};
+		std::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu> map_;
 	};
 }
