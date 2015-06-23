@@ -29,9 +29,6 @@
     <ClInclude Include="..\..\include\cinatra\http_parser_merged.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="http_parser.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\http_parser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>

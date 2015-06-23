@@ -80,10 +80,7 @@ namespace cinatra
 				self->query_ = kv_parse(quert_str);
 			}
 
-			if (p->method == HTTP_POST)
-			{
-				self->body_ = kv_parse(self->raw_body_);
-			}
+			self->body_ = kv_parse(self->raw_body_);
 			self->is_completed_ = true;
 			return 0;
 		}
