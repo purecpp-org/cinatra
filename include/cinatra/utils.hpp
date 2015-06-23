@@ -3,9 +3,9 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/functional/hash.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <map>
-#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -151,6 +151,6 @@ namespace cinatra
 				return boost::iequals(l, r);
 			}
 		};
-		std::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu> map_;
+		boost::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu> map_;
 	};
 }
