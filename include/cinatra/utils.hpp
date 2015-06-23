@@ -51,6 +51,11 @@ namespace cinatra
 
 			return result;
 		}
+		
+		size_t size()
+		{
+			return map_.size();
+		}
 	private:
 		std::map<std::string, std::string> map_;
 	};
@@ -116,6 +121,11 @@ namespace cinatra
 			}
 
 			return result;
+		}
+
+		size_t size()
+		{
+			return map_.size();
 		}
 	private:
 		struct NcaseHash
