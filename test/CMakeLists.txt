@@ -6,6 +6,7 @@ ADD_COMPILE_OPTIONS("-std=c++1y")
 ADD_COMPILE_OPTIONS("-Wall")
 SET(TEST_SOURCES
 	test.cpp
+	http_parser/http_parser.cpp
 )
 ADD_EXECUTABLE(cinatra_test ${TEST_SOURCES})
 INCLUDE_DIRECTORIES(../include)

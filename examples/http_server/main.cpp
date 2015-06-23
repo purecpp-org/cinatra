@@ -5,7 +5,7 @@
 int main()
 {
 	cinatra::HTTPServer s(boost::thread::hardware_concurrency());
-	s.listen("0.0.0.0", "HTTP").run();
+	s.listen("0.0.0.0", "http").run();
 
 	return 0;
 }

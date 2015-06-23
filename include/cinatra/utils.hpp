@@ -98,7 +98,7 @@ namespace cinatra
 		}
 		bool val_ncase_equal(const std::string& key, const std::string& str)
 		{
-			boost::iequals(get_val(key), str);
+			return boost::iequals(get_val(key), str);
 		}
 
 		void clear()

@@ -43,7 +43,7 @@ namespace cinatra
 					std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
 					if (!parser.feed(buffer.data(), n))
 					{
-						throw std::exception("bad request");
+						throw std::invalid_argument("bad request");
 					}
 				}
 

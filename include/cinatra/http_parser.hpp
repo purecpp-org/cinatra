@@ -66,7 +66,7 @@ namespace cinatra
 		{
 			HTTPParser* self = static_cast<HTTPParser*>(p);
 			self->method_ = (http_method)p->method;
-			std::string& url = urldecode(self->raw_url_);
+			std::string url = urldecode(self->raw_url_);
 
 			std::string::size_type qmak_pos = url.find("?");
 			if (qmak_pos == std::string::npos)
