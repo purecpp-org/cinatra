@@ -13,9 +13,10 @@
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/bind.hpp>
-#include <boost/thread.hpp>
+//#include <boost/thread.hpp>
 #include <memory>
 #include <vector>
+#include <thread>
 
 namespace cinatra
 {
@@ -46,11 +47,11 @@ namespace cinatra
 		void run()
 		{
 			// Create a pool of threads to run all of the io_services.
-			std::vector<std::shared_ptr<boost::thread> > threads;
+			std::vector<std::shared_ptr<std::thread> > threads;
 			for (auto service : io_services_)
 			{
-				std::shared_ptr<boost::thread> thread(
-					std::make_shared<boost::thread>(
+				std::shared_ptr<std::thread> thread(
+					std::make_shared<std::thread>(
 					boost::bind(&boost::asio::io_service::run, service)));
 				threads.push_back(thread);
 			}
