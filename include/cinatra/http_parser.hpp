@@ -41,6 +41,10 @@ namespace cinatra
 			return Request{ raw_url_, raw_body_, method_, path_, query_, body_, header_ };
 		}
 
+		bool check_version(int major, int minor) const
+		{
+			return http_major == major && http_minor == minor;
+		}
 	private:
 		void reset()
 		{

@@ -88,6 +88,7 @@
     <ClInclude Include="..\..\include\cinatra\http_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_parser_merged.h" />
     <ClInclude Include="..\..\include\cinatra\request.hpp" />
+    <ClInclude Include="..\..\include\cinatra\response.hpp" />
     <ClInclude Include="..\..\include\cinatra\utils.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

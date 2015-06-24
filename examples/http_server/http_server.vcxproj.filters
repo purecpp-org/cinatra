@@ -38,5 +38,8 @@
     <ClInclude Include="..\..\include\cinatra\utils.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\response.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

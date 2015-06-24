@@ -2,6 +2,7 @@
 #pragma once
 
 #include "http_parser.hpp"
+#include "response.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
@@ -33,59 +34,132 @@ namespace cinatra
 	private:
 		void do_work(const boost::asio::yield_context& yield)
 		{
-			try
+			for (;;)
 			{
-				std::array<char, 8192> buffer;
-				HTTPParser parser;
-
-				while (!parser.is_completed())
+				try
 				{
-					std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
-					if (!parser.feed(buffer.data(), n))
+					std::array<char, 8192> buffer;
+					HTTPParser parser;
+
+					while (!parser.is_completed())
 					{
-						throw std::invalid_argument("bad request");
+						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
+						if (!parser.feed(buffer.data(), n))
+						{
+							// TODO:添加专用的异常类型.
+							throw std::invalid_argument("bad request");
+						}
+					}
+
+					Request req = parser.get_request();
+
+					bool keep_alive;
+					bool close_connection;
+					if (parser.check_version(1, 0))
+					{
+						// HTTP/1.0
+						if (req.header.val_ncase_equal("Connetion", "Keep-Alive"))
+						{
+							keep_alive = true;
+							close_connection = false;
+						}
+						else
+						{
+							keep_alive = false;
+							close_connection = true;
+						}
+					}
+					else if (parser.check_version(1, 1))
+					{
+						// HTTP/1.1
+						if (req.header.val_ncase_equal("Connetion", "close"))
+						{
+							keep_alive = false;
+							close_connection = true;
+						}
+						else if (req.header.val_ncase_equal("Connetion", "Keep-Alive"))
+						{
+							keep_alive = true;
+							close_connection = false;
+						}
+						else
+						{
+							keep_alive = false;
+							close_connection = false;
+						}
+
+						if (req.header.get_count("host") == 0)
+						{
+							// TODO:添加专用的异常类型.
+							throw std::invalid_argument("bad request");
+						}
+					}
+					Response res;
+					auto self = shared_from_this();
+					res.direct_write_func_ = 
+						[&yield, self, this]
+					(const char* data, std::size_t len)->bool
+					{
+						boost::system::error_code ec;
+						boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
+						if (ec)
+						{
+							// TODO: log ec.message().
+							return false;
+						}
+						return true;
+					};
+
+					if (keep_alive)
+					{
+						res.header.add("Connetion", "Keep-Alive");
+					}
+
+					//TODO: 添加router.
+					//TODO: 如果在router中没有找到匹配的，则查找public dir是否有该文件.
+					//TODO: 如果都没有找到，404.
+
+					{
+						// test.
+						if (req.path == "/")
+						{
+							res.write("Hello,world");
+						}
+						else if (req.path == "/123")
+						{
+							int n = boost::lexical_cast<int>(req.query.get_val("n"));
+							for (int i = 0; i < n; ++i)
+							{
+								res.direct_write("Hello " + boost::lexical_cast<std::string>(i) + "\n");
+							}
+						}
+					}
+
+					if (!res.is_complete_)
+					{
+						res.end();
+					}
+
+					if (!res.is_chunked_encoding_)
+					{
+						// 如果是chunked编码数据应该都发完了.
+						std::string header_str = res.get_header_str();
+						boost::asio::async_write(socket_, boost::asio::buffer(header_str), yield);
+						boost::asio::async_write(socket_, res.buffer_, 
+							boost::asio::transfer_exactly(res.buffer_.size()), yield);
+					}
+
+					if (close_connection)
+					{
+						break;
 					}
 				}
-
-				Request req = parser.get_request();
-				//输出一下request
+				catch (std::exception& e)
 				{
-					std::cout << "request:" << std::endl;
-					std::cout << "method: " << req.method << std::endl;
-					std::cout << "raw url: " << req.raw_url << std::endl;
-					std::cout << "raw body: " << req.raw_body << std::endl;
-					std::cout << "path: " << req.path << std::endl;
-					
-					std::cout << "query:" << std::endl;
-					for (auto iter : req.query.get_all())
-					{
-						std::cout << "\t" << iter.first << ": " << iter.second << std::endl;
-					}
-					std::cout << "body:" << std::endl;
-					for (auto iter : req.body.get_all())
-					{
-						std::cout << "\t" << iter.first << ": " << iter.second << std::endl;
-					}
-					std::cout << "header:" << std::endl;
-					for (auto iter : req.header.get_all())
-					{
-						std::cout << "\t" << iter.first << ": " << iter.second << std::endl;
-					}
-
-					std::cout << "\n\n\n\n";
+					// TODO: log err and response 500
+					std::cout << "error: " << e.what() << std::endl;
+					break;
 				}
-
-
-				std::string res_str =
-					"HTTP/1.0 200 OK\r\n"
-					"Content-Length: 23\r\n"
-					"Content-Type: text/html\r\n\r\n"
-					"Hello,world!";
-				boost::asio::async_write(socket_, boost::asio::buffer(res_str), yield);
-			}
-			catch (std::exception& /*e*/)
-			{
-				// TODO: log err and response 500
 			}
 
 			boost::system::error_code ignored_ec;
