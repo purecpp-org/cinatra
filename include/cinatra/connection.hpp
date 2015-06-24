@@ -53,8 +53,8 @@ namespace cinatra
 
 					Request req = parser.get_request();
 
-					bool keep_alive;
-					bool close_connection;
+					bool keep_alive{};
+					bool close_connection{};
 					if (parser.check_version(1, 0))
 					{
 						// HTTP/1.0
