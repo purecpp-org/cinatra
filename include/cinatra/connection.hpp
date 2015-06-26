@@ -163,6 +163,7 @@ namespace cinatra
 				}
 				catch (std::exception& e)
 				{
+					// FIXME: 单独处理网络错误，在read得到eof的时候close连接
 					// TODO: log err and response 500
 					std::cout << "error: " << e.what() << std::endl;
 					break;
