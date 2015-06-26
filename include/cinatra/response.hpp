@@ -10,6 +10,7 @@
 #include <functional>
 #include <cassert>
 #include <map>
+#include <sstream>
 #include <time.h>
 
 namespace cinatra
@@ -64,7 +65,10 @@ namespace cinatra
 			}
 
 			//要发送数据的长度
-			std::string str = boost::lexical_cast<std::string>(len);
+			std::stringstream ss;
+			ss << std::hex << len;
+			std::string str;
+			ss >> str;
 			str += "\r\n";
 			buf.sputn(str.data(), str.size());
 			buf.sputn(data, len);

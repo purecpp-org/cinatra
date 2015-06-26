@@ -112,8 +112,6 @@ namespace cinatra
 						[&yield, self, this]
 					(const char* data, std::size_t len)->bool
 					{
-						//FIXME:direct write调用次数过多连接会关闭，怀疑是浏览器自动关闭的.
-						// 使用nc接收数据不会出现此情况.
 						boost::system::error_code ec;
 						boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
 						if (ec)
