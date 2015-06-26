@@ -8,10 +8,13 @@
 #include <boost/asio/spawn.hpp>
 #include <memory>
 #include <string>
+#include <functional>
 #include <iostream>
 
 namespace cinatra
 {
+	typedef std::function<bool(const Request&, Response&)> handler_t;
+
 	class Connection
 		: public std::enable_shared_from_this<Connection>
 	{
@@ -29,6 +32,11 @@ namespace cinatra
 			boost::asio::spawn(service_,
 				std::bind(&Connection::do_work,
 				shared_from_this(), std::placeholders::_1));
+		}
+
+		void set_request_handler(handler_t handler)
+		{
+			request_handler_ = handler;
 		}
 
 	private:
@@ -94,6 +102,10 @@ namespace cinatra
 							throw std::invalid_argument("bad request");
 						}
 					}
+					else
+					{
+						throw std::invalid_argument("bad request");
+					}
 					Response res;
 					auto self = shared_from_this();
 					res.direct_write_func_ = 
@@ -115,24 +127,18 @@ namespace cinatra
 						res.header.add("Connetion", "Keep-Alive");
 					}
 
-					//TODO: 添加router.
+					bool found = false;
+					if (request_handler_)
+					{
+						found = request_handler_(req, res);
+					}
 					//TODO: 如果在router中没有找到匹配的，则查找public dir是否有该文件.
 					//TODO: 如果都没有找到，404.
 
+					//用户没有指定Content-Type，默认设置成text/html
+					if (res.header.get_count("Content-Type") == 0)
 					{
-						// test.
-						if (req.path == "/")
-						{
-							res.write("Hello,world");
-						}
-						else if (req.path == "/123")
-						{
-							int n = boost::lexical_cast<int>(req.query.get_val("n"));
-							for (int i = 0; i < n; ++i)
-							{
-								res.direct_write("Hello " + boost::lexical_cast<std::string>(i) + "\n");
-							}
-						}
+						res.header.add("Content-Type", "text/html");
 					}
 
 					if (!res.is_complete_)
@@ -168,5 +174,6 @@ namespace cinatra
 	private:
 		boost::asio::io_service& service_;
 		boost::asio::ip::tcp::socket socket_;
+		handler_t request_handler_;
 	};
 }

@@ -147,7 +147,7 @@ namespace cinatra
 
 			std::map<int, std::string>::const_iterator it = codes_detail_.find(status_code_);
 			std::string header_str = it->second;
-			header_str += "Server: webpp/0.1\r\n";
+			header_str += "Server: cinatra/0.1\r\n";
 
 			std::string date_str;
 			time_t last_time_t = time(0);
@@ -162,6 +162,7 @@ namespace cinatra
 
 			size_t date_str_sz = strftime(&date_str[0], 99, "%a, %d %b %Y %H:%M:%S GMT", &my_tm);
 			date_str.resize(date_str_sz);
+			header_str += "Date: ";
 			header_str += date_str;
 			header_str += "\r\n";
 

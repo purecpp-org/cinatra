@@ -29,6 +29,12 @@ namespace cinatra
 		~HTTPServer()
 		{}
 
+		HTTPServer& set_request_handler(handler_t handler)
+		{
+			request_handler_ = handler;
+			return *this;
+		}
+
 		HTTPServer& listen(const std::string& address, const std::string& port)
 		{
 			boost::asio::ip::tcp::resolver resolver(acceptor_.get_io_service());
@@ -69,11 +75,14 @@ namespace cinatra
 					continue;
 				}
 
+				conn->set_request_handler(request_handler_);
 				conn->start();
 			}
 		}
 	private:
 		IOServicePool io_service_pool_;
 		boost::asio::ip::tcp::acceptor acceptor_;
+
+		handler_t request_handler_;
 	};
 }
