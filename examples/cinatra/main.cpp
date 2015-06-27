@@ -35,7 +35,7 @@ int main()
 		res.write("Hello " + req.body.get_val("uid") + "! Your password is " + req.body.get_val("pwd") + "...hahahahaha...");
 	});
 
-	app.threads(2).listen("0.0.0.0", "http").run();
+	app.public_dir("./public").threads(2).listen("0.0.0.0", "http").run();
 
 	return 0;
 }

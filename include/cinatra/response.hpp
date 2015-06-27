@@ -116,7 +116,7 @@ namespace cinatra
 
 		std::string get_header_str()
 		{
-			std::map<int, std::string>codes_detail_ =
+			std::map<int, std::string>codes_detail =
 			{
 				{ 100, "HTTP/1.1 100 Continue\r\n" },
 				{ 101, "HTTP/1.1 101 Switching Protocols\r\n" },
@@ -149,25 +149,12 @@ namespace cinatra
 				{ 503, "HTTP/1.1 503 Service Unavailable\r\n" },
 			};
 
-			std::map<int, std::string>::const_iterator it = codes_detail_.find(status_code_);
+			std::map<int, std::string>::const_iterator it = codes_detail.find(status_code_);
 			std::string header_str = it->second;
 			header_str += "Server: cinatra/0.1\r\n";
 
-			std::string date_str;
-			time_t last_time_t = time(0);
-			tm my_tm;
-#ifdef _MSC_VER
-			gmtime_s(&my_tm, &last_time_t);
-#else
-			gmtime_r(&last_time_t, &my_tm);
-#endif
-
-			date_str.resize(100);
-
-			size_t date_str_sz = strftime(&date_str[0], 99, "%a, %d %b %Y %H:%M:%S GMT", &my_tm);
-			date_str.resize(date_str_sz);
 			header_str += "Date: ";
-			header_str += date_str;
+			header_str += date_str();
 			header_str += "\r\n";
 
 			if (!is_chunked_encoding_)

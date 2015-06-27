@@ -40,6 +40,12 @@ namespace cinatra
 			return *this;
 		}
 
+		Cinatra& public_dir(const std::string& dir)
+		{
+			public_dir_ = dir;
+			return *this;
+		}
+
 		void run()
 		{
 			HTTPServer s(num_threads_);
@@ -54,12 +60,16 @@ namespace cinatra
 				}
 
 				return false;
-			}).listen(listen_addr_, listen_port_).run();
+			})
+				.public_dir(public_dir_)
+				.listen(listen_addr_, listen_port_)
+				.run();
 		}
 	private:
 		std::vector<Router> routers_;
 		int num_threads_;
 		std::string listen_addr_;
 		std::string listen_port_;
+		std::string public_dir_;
 	};
 }

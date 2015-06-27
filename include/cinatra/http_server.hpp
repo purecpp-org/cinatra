@@ -56,6 +56,12 @@ namespace cinatra
 			return listen(address, boost::lexical_cast<std::string>(port));
 		}
 
+		HTTPServer& public_dir(const std::string& dir)
+		{
+			public_dir_ = dir;
+			return *this;
+		}
+
 		void run()
 		{
 			io_service_pool_.run();
@@ -66,7 +72,12 @@ namespace cinatra
 		{
 			for (;;)
 			{
-				std::shared_ptr<Connection> conn(std::make_shared<Connection>(io_service_pool_.get_io_service()));
+				std::shared_ptr<Connection> conn(
+					std::make_shared<Connection>(
+					io_service_pool_.get_io_service(),
+					request_handler_,
+					public_dir_));
+
 				boost::system::error_code ec;
 				acceptor_.async_accept(conn->socket(), yield[ec]);
 				if (ec)
@@ -75,7 +86,6 @@ namespace cinatra
 					continue;
 				}
 
-				conn->set_request_handler(request_handler_);
 				conn->start();
 			}
 		}
@@ -84,5 +94,7 @@ namespace cinatra
 		boost::asio::ip::tcp::acceptor acceptor_;
 
 		handler_t request_handler_;
+
+		std::string public_dir_;
 	};
 }

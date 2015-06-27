@@ -6,10 +6,13 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
+#include <boost/format.hpp>
+
 #include <memory>
 #include <string>
 #include <functional>
 #include <iostream>
+#include <fstream>
 
 namespace cinatra
 {
@@ -19,8 +22,13 @@ namespace cinatra
 		: public std::enable_shared_from_this<Connection>
 	{
 	public:
-		Connection(boost::asio::io_service& service)
-			:service_(service), socket_(service)
+		Connection(boost::asio::io_service& service,
+			const handler_t& handler,
+			const std::string& public_dir)
+			:service_(service),
+			socket_(service),
+			request_handler_(handler),
+			public_dir_(public_dir)
 		{}
 		~Connection()
 		{}
@@ -32,11 +40,6 @@ namespace cinatra
 			boost::asio::spawn(service_,
 				std::bind(&Connection::do_work,
 				shared_from_this(), std::placeholders::_1));
-		}
-
-		void set_request_handler(handler_t handler)
-		{
-			request_handler_ = handler;
 		}
 
 	private:
@@ -133,7 +136,10 @@ namespace cinatra
 					{
 						found = request_handler_(req, res);
 					}
-					//TODO: 如果在router中没有找到匹配的，则查找public dir是否有该文件.
+					if (!found && response_file(req, keep_alive, yield))
+					{
+						continue;
+					}
 					//TODO: 如果都没有找到，404.
 
 					//用户没有指定Content-Type，默认设置成text/html
@@ -173,9 +179,52 @@ namespace cinatra
 			boost::system::error_code ignored_ec;
 			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
 		}
+
+		bool response_file(const Request& req, bool keep_alive, const boost::asio::yield_context& yield)
+		{
+			std::string path = public_dir_ + req.path;
+			std::fstream in(path, std::ios::binary | std::ios::in);
+			if (!in)
+			{
+				return false;
+			}
+
+			in.seekg(0, std::ios::end);
+
+			std::string header =
+				boost::str(boost::format(
+				"HTTP/1.1 200 OK\r\n"
+				"Server: cinatra/0.1\r\n"
+				"Date: %1%\r\n"
+				"Content-Type: %2%\r\n"
+				"Content-Length: %3%\r\n"
+				)
+				% date_str()
+				% content_type(path)
+				% in.tellg());
+
+			if (keep_alive)
+			{
+				header += "Connection: Keep-Alive\r\n";
+			}
+
+			header += "\r\n";
+			in.seekg(0, std::ios::beg);
+
+			boost::asio::async_write(socket_, boost::asio::buffer(header), yield);
+			std::vector<char> data(1024 * 1024);
+			while (!in.eof())
+			{
+				in.read(&data[0], data.size());
+				boost::asio::async_write(socket_, boost::asio::buffer(data, in.gcount()), yield);
+			}
+
+			return true;
+		}
 	private:
 		boost::asio::io_service& service_;
 		boost::asio::ip::tcp::socket socket_;
-		handler_t request_handler_;
+		const handler_t& request_handler_;
+		const std::string& public_dir_;
 	};
 }
