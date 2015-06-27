@@ -167,6 +167,16 @@ namespace cinatra
 						break;
 					}
 				}
+				catch (boost::system::system_error& e)
+				{
+					//网络通信异常，关socket.
+					if (e.code() != boost::asio::error::eof)
+					{
+						std::cout << "socket error:" << e.code().message() << std::endl;
+					}
+					boost::system::error_code ignored_ec;
+					socket_.close(ignored_ec);
+				}
 				catch (std::exception& e)
 				{
 					// FIXME: 单独处理网络错误，在read得到eof的时候close连接
