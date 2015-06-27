@@ -190,6 +190,10 @@ namespace cinatra
 					// TODO: log err.
 					response_5xx(e.what(), yield);
 				}
+				catch (...)
+				{
+					response_5xx("", yield);
+				}
 			}
 		}
 
