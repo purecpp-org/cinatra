@@ -14,7 +14,7 @@ int main()
 	app.route("/test_post").method(HTTP_GET)
 		([](const cinatra::Request&, cinatra::Response& res)
 	{
-		std::ifstream in("login.html", std::ios::binary | std::ios::in);
+		std::ifstream in("./view/login.html", std::ios::binary | std::ios::in);
 		if (!in)
 		{
 			res.write("can not open login.html");

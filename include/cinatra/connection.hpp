@@ -216,6 +216,7 @@ namespace cinatra
 			while (!in.eof())
 			{
 				in.read(&data[0], data.size());
+				//FIXME: warning C4244: “参数”: 从“std::streamoff”转换到“unsigned int”，可能丢失数据.
 				boost::asio::async_write(socket_, boost::asio::buffer(data, in.gcount()), yield);
 			}
 
