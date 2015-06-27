@@ -29,9 +29,15 @@ namespace cinatra
 		~HTTPServer()
 		{}
 
-		HTTPServer& set_request_handler(handler_t handler)
+		HTTPServer& set_request_handler(request_handler_t handler)
 		{
 			request_handler_ = handler;
+			return *this;
+		}
+
+		HTTPServer& set_error_handler(error_handler_t error_handler)
+		{
+			error_handler_ = error_handler;
 			return *this;
 		}
 
@@ -76,6 +82,7 @@ namespace cinatra
 					std::make_shared<Connection>(
 					io_service_pool_.get_io_service(),
 					request_handler_,
+					error_handler_,
 					public_dir_));
 
 				boost::system::error_code ec;
@@ -93,7 +100,8 @@ namespace cinatra
 		IOServicePool io_service_pool_;
 		boost::asio::ip::tcp::acceptor acceptor_;
 
-		handler_t request_handler_;
+		request_handler_t request_handler_;
+		error_handler_t error_handler_;
 
 		std::string public_dir_;
 	};

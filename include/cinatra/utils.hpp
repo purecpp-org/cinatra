@@ -531,4 +531,48 @@ namespace cinatra
 
 		return "application/octet-stream";
 	}
+
+	std::pair<int,std::string> status_header(int status_code)
+	{
+		static std::map<int, std::string> codes_detail =
+		{
+			{ 100, "Continue\r\n" },
+			{ 101, "Switching Protocols\r\n" },
+			{ 102, "Processing\r\n" },
+
+			{ 200, "OK\r\n" },
+			{ 201, "Created\r\n" },
+			{ 202, "Accepted\r\n" },
+			{ 203, "Non-Authoritative Information\r\n" },
+			{ 204, "No Content\r\n" },
+			{ 205, "Reset Content\r\n" },
+			{ 206, "Partial Content\r\n" },
+			{ 207, "Muti Status\r\n" },
+
+			{ 300, "Multiple Choices\r\n" },
+			{ 301, "Moved Permanently\r\n" },
+			{ 302, "Moved Temporarily\r\n" },
+			{ 303, "See Other\r\n" },
+			{ 304, "Not Modified\r\n" },
+
+			{ 400, "Bad Request\r\n" },
+			{ 401, "Unauthorized\r\n" },
+			{ 402, "Payment Required\r\n" },
+			{ 403, "Forbidden\r\n" },
+			{ 404, "Not Found\r\n" },
+
+			{ 500, "Internal Server Error\r\n" },
+			{ 501, "Not Implemented\r\n" },
+			{ 502, "Bad Gateway\r\n" },
+			{ 503, "Service Unavailable\r\n" },
+		};
+
+		std::map<int, std::string>::const_iterator it = codes_detail.find(status_code);
+		if (it != codes_detail.end())
+		{
+			return *it;
+		}
+
+		return std::make_pair(500, "Internal Server Error\r\n");
+	}
 }

@@ -114,43 +114,16 @@ namespace cinatra
 			return true;
 		}
 
+		void set_status_code(int code)
+		{
+			status_code_ = code;
+		}
+
 		std::string get_header_str()
 		{
-			std::map<int, std::string>codes_detail =
-			{
-				{ 100, "HTTP/1.1 100 Continue\r\n" },
-				{ 101, "HTTP/1.1 101 Switching Protocols\r\n" },
-				{ 102, "HTTP/1.1 102 Processing\r\n" },
-			
-				{ 200, "HTTP/1.1 200 OK\r\n" },
-				{ 201, "HTTP/1.1 201 Created\r\n" },
-				{ 202, "HTTP/1.1 202 Accepted\r\n" },
-				{ 203, "HTTP/1.1 203 Non-Authoritative Information\r\n" },
-				{ 204, "HTTP/1.1 204 No Content\r\n" },
-				{ 205, "HTTP/1.1 205 Reset Content\r\n" },
-				{ 206, "HTTP/1.1 206 Partial Content\r\n" },
-				{ 207, "HTTP/1.1 207 Muti Status\r\n" },
+			auto s = status_header(status_code_);
+			std::string header_str = "HTTP/1.1 " + boost::lexical_cast<std::string>(s.first) + " " + s.second;
 
-				{ 300, "HTTP/1.1 300 Multiple Choices\r\n" },
-				{ 301, "HTTP/1.1 301 Moved Permanently\r\n" },
-				{ 302, "HTTP/1.1 302 Moved Temporarily\r\n" },
-				{ 303, "HTTP/1.1 303 See Other\r\n" },
-				{ 304, "HTTP/1.1 304 Not Modified\r\n" },
-
-				{ 400, "HTTP/1.1 400 Bad Request\r\n" },
-				{ 401, "HTTP/1.1 401 Unauthorized\r\n" },
-				{ 402, "HTTP/1.1 402 Payment Required\r\n" },
-				{ 403, "HTTP/1.1 403 Forbidden\r\n" },
-				{ 404, "HTTP/1.1 404 Not Found\r\n" },
-
-				{ 500, "HTTP/1.1 500 Internal Server Error\r\n" },
-				{ 501, "HTTP/1.1 501 Not Implemented\r\n" },
-				{ 502, "HTTP/1.1 502 Bad Gateway\r\n" },
-				{ 503, "HTTP/1.1 503 Service Unavailable\r\n" },
-			};
-
-			std::map<int, std::string>::const_iterator it = codes_detail.find(status_code_);
-			std::string header_str = it->second;
 			header_str += "Server: cinatra/0.1\r\n";
 
 			header_str += "Date: ";

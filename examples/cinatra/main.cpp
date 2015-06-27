@@ -35,6 +35,30 @@ int main()
 		res.write("Hello " + req.body.get_val("uid") + "! Your password is " + req.body.get_val("pwd") + "...hahahahaha...");
 	});
 
+	app.error_handler(
+		[](int code, const std::string&, const cinatra::Request&, cinatra::Response& res)
+	{
+		if (code != 404)
+		{
+			return false;
+		}
+
+		res.set_status_code(404);
+		res.write(
+			R"(<html>
+			<head>
+				<meta charset="GB2312">
+				<title>悲剧啊</title>
+			</head>
+			<body>
+			<img src="/img/404.jpg" width="100%" height="100%" />
+			</body>
+			</html>)"
+		);
+
+		return true;
+	});
+
 	app.public_dir("./public").threads(2).listen("0.0.0.0", "http").run();
 
 	return 0;

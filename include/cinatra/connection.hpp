@@ -16,18 +16,21 @@
 
 namespace cinatra
 {
-	typedef std::function<bool(const Request&, Response&)> handler_t;
+	typedef std::function<bool(const Request&, Response&)> request_handler_t;
+	typedef std::function<bool(int,const std::string&, const Request&, Response&)> error_handler_t;
 
 	class Connection
 		: public std::enable_shared_from_this<Connection>
 	{
 	public:
 		Connection(boost::asio::io_service& service,
-			const handler_t& handler,
+			const request_handler_t& request_handler,
+			const error_handler_t& error_handler,
 			const std::string& public_dir)
 			:service_(service),
 			socket_(service),
-			request_handler_(handler),
+			request_handler_(request_handler),
+			error_handler_(error_handler),
 			public_dir_(public_dir)
 		{}
 		~Connection()
@@ -45,6 +48,7 @@ namespace cinatra
 	private:
 		void do_work(const boost::asio::yield_context& yield)
 		{
+			//FIXME: 拆分成多个子函数..
 			for (;;)
 			{
 				try
@@ -57,12 +61,12 @@ namespace cinatra
 						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
 						if (!parser.feed(buffer.data(), n))
 						{
-							// TODO:添加专用的异常类型.
-							throw std::invalid_argument("bad request");
+							throw std::runtime_error("HTTP Parser error");
 						}
 					}
 
 					Request req = parser.get_request();
+					Response res;
 
 					bool keep_alive{};
 					bool close_connection{};
@@ -101,15 +105,14 @@ namespace cinatra
 
 						if (req.header.get_count("host") == 0)
 						{
-							// TODO:添加专用的异常类型.
-							throw std::invalid_argument("bad request");
+							error_handler_(400,"", req, res);
 						}
 					}
 					else
 					{
-						throw std::invalid_argument("bad request");
+						error_handler_(400, "Unsupported HTTP version.", req, res);
 					}
-					Response res;
+
 					auto self = shared_from_this();
 					res.direct_write_func_ = 
 						[&yield, self, this]
@@ -140,7 +143,11 @@ namespace cinatra
 					{
 						continue;
 					}
-					//TODO: 如果都没有找到，404.
+					//如果都没有找到，404
+					if (!found)
+					{
+						error_handler_(404, "", req, res);
+					}
 
 					//用户没有指定Content-Type，默认设置成text/html
 					if (res.header.get_count("Content-Type") == 0)
@@ -164,7 +171,7 @@ namespace cinatra
 
 					if (close_connection)
 					{
-						break;
+						shutdown();
 					}
 				}
 				catch (boost::system::system_error& e)
@@ -176,18 +183,14 @@ namespace cinatra
 					}
 					boost::system::error_code ignored_ec;
 					socket_.close(ignored_ec);
+					return;
 				}
 				catch (std::exception& e)
 				{
-					// FIXME: 单独处理网络错误，在read得到eof的时候close连接
-					// TODO: log err and response 500
-					std::cout << "error: " << e.what() << std::endl;
-					break;
+					// TODO: log err.
+					response_5xx(e.what(), yield);
 				}
 			}
-
-			boost::system::error_code ignored_ec;
-			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
 		}
 
 		bool response_file(const Request& req, bool keep_alive, const boost::asio::yield_context& yield)
@@ -232,10 +235,34 @@ namespace cinatra
 
 			return true;
 		}
+
+		void shutdown()
+		{
+			boost::system::error_code ignored_ec;
+			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+		}
+
+		void response_5xx(const std::string& msg, const boost::asio::yield_context& yield)
+		{
+			Request req;
+			Response res;
+			error_handler_(500, msg, req, res);
+			boost::system::error_code ignored_ec;
+			boost::asio::async_write(socket_,
+				boost::asio::buffer(res.get_header_str()),
+				yield[ignored_ec]);
+			boost::asio::async_write(socket_,
+				res.buffer_,
+				boost::asio::transfer_exactly(res.buffer_.size()),
+				yield[ignored_ec]);
+
+			shutdown();
+		}
 	private:
 		boost::asio::io_service& service_;
 		boost::asio::ip::tcp::socket socket_;
-		const handler_t& request_handler_;
+		const request_handler_t& request_handler_;
+		const error_handler_t& error_handler_;
 		const std::string& public_dir_;
 	};
 }
