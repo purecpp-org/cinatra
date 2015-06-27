@@ -48,7 +48,7 @@ int main()
 			R"(<html>
 			<head>
 				<meta charset="GB2312">
-				<title>悲剧啊</title>
+				<title>鎮插墽鍟�</title>
 			</head>
 			<body>
 			<img src="/img/404.jpg" width="100%" height="100%" />

@@ -48,7 +48,7 @@ namespace cinatra
 	private:
 		void do_work(const boost::asio::yield_context& yield)
 		{
-			//FIXME: ²ğ·Ö³É¶à¸ö×Óº¯Êı..
+			//FIXME: æ‹†åˆ†æˆå¤šä¸ªå­å‡½æ•°..
 			for (;;)
 			{
 				try
@@ -143,13 +143,13 @@ namespace cinatra
 					{
 						continue;
 					}
-					//Èç¹û¶¼Ã»ÓĞÕÒµ½£¬404
+					//å¦‚æœéƒ½æ²¡æœ‰æ‰¾åˆ°ï¼Œ404
 					if (!found)
 					{
 						error_handler_(404, "", req, res);
 					}
 
-					//ÓÃ»§Ã»ÓĞÖ¸¶¨Content-Type£¬Ä¬ÈÏÉèÖÃ³Étext/html
+					//ç”¨æˆ·æ²¡æœ‰æŒ‡å®šContent-Typeï¼Œé»˜è®¤è®¾ç½®æˆtext/html
 					if (res.header.get_count("Content-Type") == 0)
 					{
 						res.header.add("Content-Type", "text/html");
@@ -162,7 +162,7 @@ namespace cinatra
 
 					if (!res.is_chunked_encoding_)
 					{
-						// Èç¹ûÊÇchunked±àÂëÊı¾İÓ¦¸Ã¶¼·¢ÍêÁË.
+						// å¦‚æœæ˜¯chunkedç¼–ç æ•°æ®åº”è¯¥éƒ½å‘å®Œäº†.
 						std::string header_str = res.get_header_str();
 						boost::asio::async_write(socket_, boost::asio::buffer(header_str), yield);
 						boost::asio::async_write(socket_, res.buffer_, 
@@ -176,7 +176,7 @@ namespace cinatra
 				}
 				catch (boost::system::system_error& e)
 				{
-					//ÍøÂçÍ¨ĞÅÒì³££¬¹Øsocket.
+					//ç½‘ç»œé€šä¿¡å¼‚å¸¸ï¼Œå…³socket.
 					if (e.code() != boost::asio::error::eof)
 					{
 						std::cout << "socket error:" << e.code().message() << std::endl;
@@ -233,7 +233,7 @@ namespace cinatra
 			while (!in.eof())
 			{
 				in.read(&data[0], data.size());
-				//FIXME: warning C4244: ¡°²ÎÊı¡±: ´Ó¡°std::streamoff¡±×ª»»µ½¡°unsigned int¡±£¬¿ÉÄÜ¶ªÊ§Êı¾İ.
+				//FIXME: warning C4244: â€œå‚æ•°â€: ä»â€œstd::streamoffâ€è½¬æ¢åˆ°â€œunsigned intâ€ï¼Œå¯èƒ½ä¸¢å¤±æ•°æ®.
 				boost::asio::async_write(socket_, boost::asio::buffer(data, in.gcount()), yield);
 			}
 

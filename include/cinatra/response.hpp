@@ -64,7 +64,7 @@ namespace cinatra
 				buf.sputn(str.data(), str.size());
 			}
 
-			//要发送数据的长度
+			//瑕佸彂閫佹暟鎹殑闀垮害
 			std::stringstream ss;
 			ss << std::hex << len;
 			std::string str;
@@ -157,9 +157,9 @@ namespace cinatra
 		bool is_complete_;
 		boost::asio::streambuf buffer_;
 
-		// 是否是chunked编码.
+		// 鏄惁鏄痗hunked缂栫爜.
 		bool is_chunked_encoding_;
-		// 是否已经在header中添加了Transfer-Encoding: chunked.
+		// 鏄惁宸茬粡鍦╤eader涓坊鍔犱簡Transfer-Encoding: chunked.
 		bool has_chunked_encoding_header_;
 
 	};

@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <boost/algorithm/string/predicate.hpp>
@@ -155,7 +154,7 @@ namespace cinatra
 		boost::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu> map_;
 	};
 
-	std::string date_str()
+	inline std::string date_str()
 	{
 		std::string str;
 		time_t last_time_t = time(0);
@@ -174,7 +173,7 @@ namespace cinatra
 		return str;
 	}
 
-	std::string content_type(const std::string& path)
+	inline std::string content_type(const std::string& path)
 	{
 		static std::map<std::string,std::string> detail = 
 		{
@@ -532,7 +531,7 @@ namespace cinatra
 		return "application/octet-stream";
 	}
 
-	std::pair<int,std::string> status_header(int status_code)
+	inline std::pair<int,std::string> status_header(int status_code)
 	{
 		static std::map<int, std::string> codes_detail =
 		{
