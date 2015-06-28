@@ -20,7 +20,7 @@ namespace cinatra
 
 		bool feed(const char* data, size_t len)
 		{
-			static http_parser_settings settings =
+			http_parser_settings settings =
 			{
 				&HTTPParser::on_message_begin,
 				&HTTPParser::on_url,

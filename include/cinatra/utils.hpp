@@ -11,6 +11,8 @@
 
 namespace cinatra
 {
+	static const std::string _empty_str;
+
 	class CaseMap
 	{
 	public:
@@ -23,8 +25,7 @@ namespace cinatra
 			auto iter = map_.find(key);
 			if (iter == map_.end())
 			{
-				static const std::string empty_str;
-				return empty_str;
+				return _empty_str;
 			}
 
 			return iter->second;
@@ -74,8 +75,7 @@ namespace cinatra
 			{
 				return map_.find(key)->second;
 			}
-			static const std::string empty_str;
-			return empty_str;
+			return _empty_str;
 		}
 
 		std::size_t get_count(const std::string& key)
