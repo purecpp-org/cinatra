@@ -11,7 +11,7 @@ int main()
 		res.write("Hello Cinatra!");
 	});
 
-	app.route("/test_post").method(HTTP_GET)
+	app.route("/test_post").method("GET")
 		([](const cinatra::Request&, cinatra::Response& res)
 	{
 		std::ifstream in("./view/login.html", std::ios::binary | std::ios::in);
@@ -29,7 +29,7 @@ int main()
 
 		res.write(html);
 	});	
-	app.route("/test_post").method(HTTP_POST)
+	app.route("/test_post").method("POST")
 		([](const cinatra::Request& req, cinatra::Response& res)
 	{
 		res.write("Hello " + req.body.get_val("uid") + "! Your password is " + req.body.get_val("pwd") + "...hahahahaha...");

@@ -26,12 +26,6 @@
     <ClInclude Include="..\..\include\cinatra\connection.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\http_parser.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\http_parser_merged.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\http_server.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -48,6 +42,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\cinatra\utils.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\request_parser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "http_parser_merged.h"
 #include <string>
+#include <vector>
 #include "utils.hpp"
 
 namespace cinatra
@@ -10,8 +10,8 @@ namespace cinatra
 	struct Request
 	{
 		std::string raw_url;
-		std::string raw_body;
-		http_method method;
+		std::vector<char> raw_body;
+		std::string method;
 		std::string path;
 		CaseMap query;
 		CaseMap body;

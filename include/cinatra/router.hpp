@@ -3,7 +3,6 @@
 
 #include <string>
 #include <functional>
-#include "http_parser.hpp"
 #include "request.hpp"
 #include "response.hpp"
 
@@ -14,7 +13,7 @@ namespace cinatra
 	class Router
 	{
 	public:
-		Router& method(http_method method)
+		Router& method(const std::string& method)
 		{
 			method_ = method;
 			return *this;
@@ -34,7 +33,7 @@ namespace cinatra
 	private:
 		friend Cinatra;
 		Router(const std::string& rule)
-			:rule_(rule), method_((http_method)-1)
+			:rule_(rule)
 		{}
 
 		bool handle(const Request& req, Response& res)
@@ -44,7 +43,7 @@ namespace cinatra
 				return false;
 			}
 
-			if (method_ != (http_method)-1 && method_ != req.method)
+			if (!method_.empty() && method_ != req.method)
 			{
 				return false;
 			}
@@ -54,7 +53,7 @@ namespace cinatra
 		}
 	private:
 		std::string rule_;
-		http_method method_;
+		std::string method_;
 		handler_t handler_;
 	};
 }

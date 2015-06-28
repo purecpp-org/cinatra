@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "http_parser.hpp"
 #include "response.hpp"
+#include "request_parser.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
@@ -54,12 +54,17 @@ namespace cinatra
 				try
 				{
 					std::array<char, 8192> buffer;
-					HTTPParser parser;
+					RequestParser parser;
 
-					while (!parser.is_completed())
+					for (;;)
 					{
 						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
-						if (!parser.feed(buffer.data(), n))
+						auto ret = parser.parse(buffer.data(), buffer.data() + n);
+						if (ret == RequestParser::good)
+						{
+							break;
+						}
+						if (ret == RequestParser::bad)
 						{
 							throw std::runtime_error("HTTP Parser error");
 						}
