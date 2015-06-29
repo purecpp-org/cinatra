@@ -6,7 +6,7 @@ ADD_COMPILE_OPTIONS("-std=c++1y")
 ADD_COMPILE_OPTIONS("-Wall")
 SET(TEST_SOURCES
 	test.cpp
-	http_parser/http_parser.cpp
+	request_parser/request_parser.cpp
 	utils/case_map.cpp
 	utils/ncase_multi_map.cpp
 	response/response.cpp
