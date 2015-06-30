@@ -13,6 +13,9 @@ namespace cinatra
 	class Router
 	{
 	public:
+		Router()
+			:method_(Request::method_t::UNKNOWN)
+		{}
 		Router& method(Request::method_t method)
 		{
 			method_ = method;
@@ -33,7 +36,7 @@ namespace cinatra
 	private:
 		friend Cinatra;
 		Router(const std::string& rule)
-			:rule_(rule)
+			:rule_(rule), method_(Request::method_t::UNKNOWN)
 		{}
 
 		bool handle(Request& req, Response& res)

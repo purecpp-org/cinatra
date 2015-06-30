@@ -47,8 +47,8 @@ int main()
 		res.write(
 			R"(<html>
 			<head>
-				<meta charset="GB2312">
-				<title>悲剧啊</title>
+				<meta charset="UTF-8">
+				<title>404</title>
 			</head>
 			<body>
 			<img src="/img/404.jpg" width="100%" height="100%" />

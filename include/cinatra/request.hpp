@@ -84,6 +84,10 @@ namespace cinatra
 		const std::string& raw_url() const { return raw_url_; }
 		const std::vector<char> raw_body() const { return raw_body_; }
 		method_t method() const { return method_; }
+		const std::string& host() const
+		{
+			return header_.get_val("host");
+		}
 		const CaseMap& body()
 		{
 			if (!is_body_parsed_)
@@ -98,6 +102,17 @@ namespace cinatra
 		const std::string& path() const { return path_; }
 		const CaseMap& query() const { return query_; }
 		const NcaseMultiMap&  header() const { return header_; }
+
+		int content_length() const 
+		{
+			if (header_.get_count("Content-Length") == 0)
+			{
+				return 0;
+			}
+
+			// 这里可以不用担心cast抛异常，要抛异常在解析http header的时候就抛了
+			return boost::lexical_cast<int>(header_.get_val("Content-Length"));
+		}
 	private:
 		std::string raw_url_;
 		std::vector<char> raw_body_;
