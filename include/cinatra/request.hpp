@@ -20,14 +20,16 @@ namespace cinatra
 
 		Request(
 			const std::string& url,
-			const std::vector<char>& raw_body,
+			const std::vector<char>& body,
 			const std::string& method,
 			const std::string& path,
+			const CaseMap& query_map,
 			const NcaseMultiMap& header
 			)
 			:url_(url),
-			body_(raw_body),
+			body_(body),
 			path_(path),
+			query_(query_map),
 			header_(header),
 			is_body_parsed_(false)
 		{

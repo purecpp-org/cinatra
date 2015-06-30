@@ -36,7 +36,7 @@ namespace cinatra
 				result_type result = consume(*begin++);
 				if (result == good || result == bad)
 				{
-					std::string url = urldecode(raw_url_);
+					std::string url = urldecode(url_);
 					std::string::size_type qmak_pos = url.find("?");
 					if (qmak_pos == std::string::npos)
 					{
@@ -61,7 +61,7 @@ namespace cinatra
 
 		Request get_request()
 		{
-			return Request(raw_url_, raw_body_, method_, path_, header_);
+			return Request(url_, body_, method_, path_, query_, header_);
 		}
 	private:
 		/// Handle the next character of input.
@@ -107,7 +107,7 @@ namespace cinatra
 				}
 				else
 				{
-					raw_url_.push_back(input);
+					url_.push_back(input);
 					return indeterminate;
 				}
 			case http_version_h:
@@ -341,8 +341,8 @@ namespace cinatra
 			}
 			case request_body:
 			{
-				raw_body_.push_back(input);
-				if (raw_body_.size() < content_length_)
+				body_.push_back(input);
+				if (body_.size() < content_length_)
 				{
 					return indeterminate;
 				}
@@ -421,12 +421,12 @@ namespace cinatra
 		std::string current_header_val_;
 
 		std::string method_;
-		std::string raw_url_;
+		std::string url_;
 		std::string path_;
 		int version_major_;
 		int version_minor_;
 		CaseMap query_;
-		std::vector<char> raw_body_;
+		std::vector<char> body_;
 		NcaseMultiMap header_;
 	};
 }

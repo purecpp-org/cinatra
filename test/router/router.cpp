@@ -14,7 +14,7 @@ public:
 			flag = true;
 		});
 		BOOST_CHECK(!flag);
-		Request req("/test", std::vector<char>(), "GET", "/test", NcaseMultiMap());
+		Request req("/test", std::vector<char>(), "GET", "/test", CaseMap(), NcaseMultiMap());
 		Response res;
 		BOOST_CHECK(r.handle(req, res));
 		BOOST_CHECK(flag);

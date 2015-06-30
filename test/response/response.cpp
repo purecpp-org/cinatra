@@ -32,10 +32,10 @@ public:
 		Response res;
 		std::stringstream ss;
 		std::string first_line;
-		res.status_code_ = 404;
+		res.set_status_code(404);
 		ss << res.get_header_str();
 		getline(ss, first_line);
-		BOOST_CHECK(first_line == "HTTP/1.1 404 Not Found\r");
+		BOOST_CHECK(first_line == "HTTP/1.0 404 Not Found\r");
 	}
 };
 }
