@@ -23,7 +23,6 @@ BOOST_AUTO_TEST_CASE(http_parser_header_test)
 	std::string content = "POST /test HTTP/1.1\r\n";
 	BOOST_REQUIRE(parser.parse(content.begin(), content.end()) != RequestParser::bad);
 	
-	/** FIXME: 测试失败，key:val -> key: val则成功 */
 	content = "key1:val1\r\nkey1: val11\r\nkey2: val2\r\n\r\n";
 	BOOST_REQUIRE(parser.parse(content.begin(), content.end()) == RequestParser::good);
 	auto req = parser.get_request();
@@ -73,7 +72,6 @@ BOOST_AUTO_TEST_CASE(http_parser_map_test)
 		"Content-Length: 29\r\n\r\nkey1=val1&key2=val2&key3=val3";
 	const size_t size = content.size();
 
-	/** FIXME: 测试失败 */
 	size_t pos = 0;
 	for(; pos < size - 1; ++pos)
 		BOOST_CHECK(p.parse(content.begin() + pos, content.begin() + pos + 1) == RequestParser::indeterminate);
