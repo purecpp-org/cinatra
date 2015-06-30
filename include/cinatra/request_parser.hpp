@@ -285,15 +285,19 @@ namespace cinatra
 					return indeterminate;
 				}
 			case space_before_header_value:
-				if (input == ' ')
+				if (input != ' ')
 				{
-					state_ = header_value;
-					return indeterminate;
+					if (is_ctl(input))
+					{
+						return bad;
+					}
+					else
+					{
+						current_header_val_.push_back(input);
+					}
 				}
-				else
-				{
-					return bad;
-				}
+				state_ = header_value;
+				return indeterminate;
 			case header_value:
 				if (input == '\r')
 				{

@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(http_parser_map_test)
 {
 	RequestParser p;
 	std::string content = "GET /test?k1=v1&k2=v2&k3=v3 HTTP/1.1\r\nke1: va1\r\nke2: va2\r\n"
-		"Content-Length: 17\r\n\r\nkey1=val1&key2=val2&key3=val3";
+		"Content-Length: 29\r\n\r\nkey1=val1&key2=val2&key3=val3";
 	const size_t size = content.size();
 
 	/** FIXME: 测试失败 */
@@ -90,7 +90,6 @@ BOOST_AUTO_TEST_CASE(http_parser_map_test)
 
 	BOOST_CHECK(req.header.get_val("ke1") == "va1");
 	BOOST_CHECK(req.header.get_val("ke2") == "va2");
-	BOOST_CHECK(req.header.get_val("ke3") == "va3");
 	
 	BOOST_CHECK(req.body.get_val("key1") == "val1");
 	BOOST_CHECK(req.body.get_val("key2") == "val2");
