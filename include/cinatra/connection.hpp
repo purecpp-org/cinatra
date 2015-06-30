@@ -16,8 +16,8 @@
 
 namespace cinatra
 {
-	typedef std::function<bool(const Request&, Response&)> request_handler_t;
-	typedef std::function<bool(int,const std::string&, const Request&, Response&)> error_handler_t;
+	typedef std::function<bool(Request&, Response&)> request_handler_t;
+	typedef std::function<bool(int,const std::string&, Request&, Response&)> error_handler_t;
 
 	class Connection
 		: public std::enable_shared_from_this<Connection>
@@ -78,7 +78,7 @@ namespace cinatra
 					if (parser.check_version(1, 0))
 					{
 						// HTTP/1.0
-						if (req.header.val_ncase_equal("Connetion", "Keep-Alive"))
+						if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
 						{
 							keep_alive = true;
 							close_connection = false;
@@ -92,12 +92,12 @@ namespace cinatra
 					else if (parser.check_version(1, 1))
 					{
 						// HTTP/1.1
-						if (req.header.val_ncase_equal("Connetion", "close"))
+						if (req.header().val_ncase_equal("Connetion", "close"))
 						{
 							keep_alive = false;
 							close_connection = true;
 						}
-						else if (req.header.val_ncase_equal("Connetion", "Keep-Alive"))
+						else if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
 						{
 							keep_alive = true;
 							close_connection = false;
@@ -108,7 +108,7 @@ namespace cinatra
 							close_connection = false;
 						}
 
-						if (req.header.get_count("host") == 0)
+						if (req.header().get_count("host") == 0)
 						{
 							error_handler_(400,"", req, res);
 						}
@@ -202,9 +202,9 @@ namespace cinatra
 			}
 		}
 
-		bool response_file(const Request& req, bool keep_alive, const boost::asio::yield_context& yield)
+		bool response_file(Request& req, bool keep_alive, const boost::asio::yield_context& yield)
 		{
-			std::string path = public_dir_ + req.path;
+			std::string path = public_dir_ + req.path();
 			std::fstream in(path, std::ios::binary | std::ios::in);
 			if (!in)
 			{
