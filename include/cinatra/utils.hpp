@@ -660,4 +660,13 @@ namespace cinatra
 		return result;
 	}
 
+	inline CaseMap kv_parse(const std::string& data)
+	{
+		return kv_parse(data.begin(), data.end());
+	}
+	inline CaseMap kv_parse(const std::vector<char>& data)
+	{
+		return kv_parse(data.begin(), data.end());
+	}
+
 }
