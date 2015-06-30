@@ -619,7 +619,7 @@ namespace cinatra
 		return str_dest;
 	}
 
-	// 解析a=1&b=2&c=3这样的字符串,如果格式不正确返回空map
+	// 瑙ｆ瀽a=1&b=2&c=3杩欐牱鐨勫瓧绗︿覆,濡傛灉鏍煎紡涓嶆纭繑鍥炵┖map
 	template<typename Iterator>
 	inline CaseMap kv_parse(Iterator begin, Iterator end)
 	{

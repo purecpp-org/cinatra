@@ -105,7 +105,7 @@ namespace cinatra
 				return 0;
 			}
 
-			// 这里可以不用担心cast抛异常，要抛异常在解析http header的时候就抛了
+			// 杩欓噷鍙互涓嶇敤鎷呭績cast鎶涘紓甯革紝瑕佹姏寮傚父鍦ㄨВ鏋恏ttp header鐨勬椂鍊欏氨鎶涗簡
 			return boost::lexical_cast<int>(header_.get_val("Content-Length"));
 		}
 
