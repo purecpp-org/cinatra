@@ -12,8 +12,7 @@ namespace cinatra
 	{
 	public:
 		Request()
-			:method_(method_t::UNKNOWN),
-			is_body_parsed_(false)
+			:method_(method_t::UNKNOWN)
 		{
 
 		}
@@ -30,8 +29,7 @@ namespace cinatra
 			body_(body),
 			path_(path),
 			query_(query_map),
-			header_(header),
-			is_body_parsed_(false)
+			header_(header)
 		{
 			if (boost::iequals(method, "GET"))
 			{
@@ -122,6 +120,5 @@ namespace cinatra
 		std::string path_;
 		CaseMap query_;
 		NcaseMultiMap header_;
-		bool is_body_parsed_;
 	};
 }
