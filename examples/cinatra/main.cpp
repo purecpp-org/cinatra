@@ -29,7 +29,7 @@ int main()
 
 		res.write(html);
 	});	
-	app.route("/test_post").method(cinatra::Request::method_t::GET)
+	app.route("/test_post").method(cinatra::Request::method_t::POST)
 		([](cinatra::Request& req, cinatra::Response& res)
 	{
 		res.write("Hello " + req.body().get_val("uid") + "! Your password is " + req.body().get_val("pwd") + "...hahahahaha...");
