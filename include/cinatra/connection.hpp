@@ -88,6 +88,8 @@ namespace cinatra
 							keep_alive = false;
 							close_connection = true;
 						}
+
+						res.set_version(1, 0);
 					}
 					else if (parser.check_version(1, 1))
 					{
@@ -112,6 +114,8 @@ namespace cinatra
 						{
 							error_handler_(400,"", req, res);
 						}
+
+						res.set_version(1, 1);
 					}
 					else
 					{

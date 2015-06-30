@@ -6,6 +6,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
 
 #include <functional>
 #include <cassert>
@@ -21,6 +22,8 @@ namespace cinatra
 	public:
 		Response()
 			:status_code_(200),
+			version_major_(1),
+			version_minor_(0),
 			is_complete_(false),
 			is_chunked_encoding_(false),
 			has_chunked_encoding_header_(false)
@@ -119,16 +122,24 @@ namespace cinatra
 			status_code_ = code;
 		}
 
+		void set_version(int major, int minor)
+		{
+			version_major_ = major;
+			version_minor_ = minor;
+		}
+
 		std::string get_header_str()
 		{
 			auto s = status_header(status_code_);
-			std::string header_str = "HTTP/1.1 " + boost::lexical_cast<std::string>(s.first) + " " + s.second;
-
-			header_str += "Server: cinatra/0.1\r\n";
-
-			header_str += "Date: ";
-			header_str += date_str();
-			header_str += "\r\n";
+			std::string header_str = boost::str(
+				boost::format(
+				"HTTP/%d.%d %d %s\r\n"	//http version and status.
+				"Server: cinatra/0.1\r\n"
+				"Date: %s\r\n"
+				)
+				% version_major_ %version_minor_ % s.first % s.second
+				% date_str()
+				);
 
 			if (!is_chunked_encoding_)
 			{
@@ -152,6 +163,8 @@ namespace cinatra
 	private:
 		friend Connection;
 		int status_code_;
+		int version_major_;
+		int version_minor_;
 		std::function < bool(const char*, std::size_t) >
 			direct_write_func_;
 		bool is_complete_;

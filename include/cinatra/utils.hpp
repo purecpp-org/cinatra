@@ -532,35 +532,35 @@ namespace cinatra
 
 	static std::map<int, std::string> _status_code_description =
 	{
-		{ 100, "Continue\r\n" },
-		{ 101, "Switching Protocols\r\n" },
-		{ 102, "Processing\r\n" },
+		{ 100, "Continue" },
+		{ 101, "Switching Protocols" },
+		{ 102, "Processing" },
 
-		{ 200, "OK\r\n" },
-		{ 201, "Created\r\n" },
-		{ 202, "Accepted\r\n" },
-		{ 203, "Non-Authoritative Information\r\n" },
-		{ 204, "No Content\r\n" },
-		{ 205, "Reset Content\r\n" },
-		{ 206, "Partial Content\r\n" },
-		{ 207, "Muti Status\r\n" },
+		{ 200, "OK" },
+		{ 201, "Created" },
+		{ 202, "Accepted" },
+		{ 203, "Non-Authoritative Information" },
+		{ 204, "No Content" },
+		{ 205, "Reset Content" },
+		{ 206, "Partial Content" },
+		{ 207, "Muti Status" },
 
-		{ 300, "Multiple Choices\r\n" },
-		{ 301, "Moved Permanently\r\n" },
-		{ 302, "Moved Temporarily\r\n" },
-		{ 303, "See Other\r\n" },
-		{ 304, "Not Modified\r\n" },
+		{ 300, "Multiple Choices" },
+		{ 301, "Moved Permanently" },
+		{ 302, "Moved Temporarily" },
+		{ 303, "See Other" },
+		{ 304, "Not Modified" },
 
-		{ 400, "Bad Request\r\n" },
-		{ 401, "Unauthorized\r\n" },
-		{ 402, "Payment Required\r\n" },
-		{ 403, "Forbidden\r\n" },
-		{ 404, "Not Found\r\n" },
+		{ 400, "Bad Request" },
+		{ 401, "Unauthorized" },
+		{ 402, "Payment Required" },
+		{ 403, "Forbidden" },
+		{ 404, "Not Found" },
 
-		{ 500, "Internal Server Error\r\n" },
-		{ 501, "Not Implemented\r\n" },
-		{ 502, "Bad Gateway\r\n" },
-		{ 503, "Service Unavailable\r\n" },
+		{ 500, "Internal Server Error" },
+		{ 501, "Not Implemented" },
+		{ 502, "Bad Gateway" },
+		{ 503, "Service Unavailable" },
 	};
 
 	inline std::pair<int,std::string> status_header(int status_code)
@@ -571,7 +571,7 @@ namespace cinatra
 			return *it;
 		}
 
-		return std::make_pair(500, "Internal Server Error\r\n");
+		return std::make_pair(500, "Internal Server Error");
 	}
 
 	inline int htoi(int c1, int c2)
