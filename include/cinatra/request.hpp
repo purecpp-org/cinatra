@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/lexical_cast.hpp>
 #include "utils.hpp"
 
 namespace cinatra

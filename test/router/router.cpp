@@ -1,5 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <cinatra/router.hpp>
+#include <vector>
 
 using namespace cinatra;
 
@@ -13,18 +14,12 @@ public:
 			flag = true;
 		});
 		BOOST_CHECK(!flag);
-		Request req;
-		req.method = "GET";
-		req.path = "/test";
+		Request req("/test", std::vector<char>(), "GET", "/test", NcaseMultiMap());
 		Response res;
 		BOOST_CHECK(r.handle(req, res));
 		BOOST_CHECK(flag);
 		/**
- 		 * \TODO：
-		 *	flag = false;
-		 *	req.path = "/test/tt";
-		 *	BOOST_CHECK(r.handle(req, res));
-		 *	BOOST_CHECK(flag);
+ 		 * \TODO：path test
 		 */	
 	}
 };
