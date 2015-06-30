@@ -13,13 +13,13 @@ namespace cinatra
 	class Router
 	{
 	public:
-		Router& method(const std::string& method)
+		Router& method(Request::method_t method)
 		{
 			method_ = method;
 			return *this;
 		}
 
-		typedef std::function<void(const Request&, Response&)> handler_t;
+		typedef std::function<void(Request&, Response&)> handler_t;
 		Router& set_handler(handler_t handler)
 		{
 			handler_ = handler;
@@ -36,14 +36,14 @@ namespace cinatra
 			:rule_(rule)
 		{}
 
-		bool handle(const Request& req, Response& res)
+		bool handle(Request& req, Response& res)
 		{
-			if (req.path != rule_)
+			if (req.path() != rule_)
 			{
 				return false;
 			}
 
-			if (!method_.empty() && method_ != req.method)
+			if (method_ != Request::method_t::UNKNOWN && method_ != req.method())
 			{
 				return false;
 			}
@@ -53,7 +53,7 @@ namespace cinatra
 		}
 	private:
 		std::string rule_;
-		std::string method_;
+		Request::method_t method_;
 		handler_t handler_;
 	};
 }

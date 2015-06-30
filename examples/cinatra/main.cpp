@@ -6,13 +6,13 @@ int main()
 {
 	cinatra::Cinatra app;
 	app.route("/")
-		([](const cinatra::Request&, cinatra::Response& res)
+		([](cinatra::Request&, cinatra::Response& res)
 	{
 		res.write("Hello Cinatra!");
 	});
 
-	app.route("/test_post").method("GET")
-		([](const cinatra::Request&, cinatra::Response& res)
+	app.route("/test_post").method(cinatra::Request::method_t::GET)
+		([](cinatra::Request&, cinatra::Response& res)
 	{
 		std::ifstream in("./view/login.html", std::ios::binary | std::ios::in);
 		if (!in)
@@ -29,14 +29,14 @@ int main()
 
 		res.write(html);
 	});	
-	app.route("/test_post").method("POST")
-		([](const cinatra::Request& req, cinatra::Response& res)
+	app.route("/test_post").method(cinatra::Request::method_t::POST)
+		([](cinatra::Request& req, cinatra::Response& res)
 	{
-		res.write("Hello " + req.body.get_val("uid") + "! Your password is " + req.body.get_val("pwd") + "...hahahahaha...");
+		res.write("Hello " + req.body().get_val("uid") + "! Your password is " + req.body().get_val("pwd") + "...hahahahaha...");
 	});
 
 	app.error_handler(
-		[](int code, const std::string&, const cinatra::Request&, cinatra::Response& res)
+		[](int code, const std::string&, cinatra::Request&, cinatra::Response& res)
 	{
 		if (code != 404)
 		{

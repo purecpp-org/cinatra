@@ -55,7 +55,7 @@ namespace cinatra
 		void run()
 		{
 			HTTPServer s(num_threads_);
-			s.set_request_handler([this](const Request& req, Response& res)
+			s.set_request_handler([this](Request& req, Response& res)
 			{
 				for (auto router : routers_)
 				{
@@ -67,7 +67,7 @@ namespace cinatra
 
 				return false;
 			})
-				.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
+				.set_error_handler([this](int code, const std::string& msg, Request& req, Response& res)
 			{
 				if (error_handler_
 					&& error_handler_(code,msg,req,res))

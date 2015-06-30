@@ -42,7 +42,7 @@ namespace cinatra
 		}
 
 		std::vector<std::pair<std::string, std::string>>
-			get_all()
+			get_all() const
 		{
 			std::vector<std::pair<std::string, std::string>> result;
 			for (auto pair : map_)
@@ -53,7 +53,7 @@ namespace cinatra
 			return result;
 		}
 		
-		size_t size()
+		size_t size() const
 		{
 			return map_.size();
 		}
@@ -78,7 +78,7 @@ namespace cinatra
 			return _empty_str;
 		}
 
-		std::size_t get_count(const std::string& key)
+		std::size_t get_count(const std::string& key) const
 		{
 			return map_.count(key);
 		}
@@ -97,11 +97,11 @@ namespace cinatra
 			return values;
 		}
 
-		bool val_equal(const std::string& key, const std::string& str)
+		bool val_equal(const std::string& key, const std::string& str) const
 		{
 			return get_val(key) == str;
 		}
-		bool val_ncase_equal(const std::string& key, const std::string& str)
+		bool val_ncase_equal(const std::string& key, const std::string& str) const
 		{
 			return boost::iequals(get_val(key), str);
 		}
@@ -112,7 +112,7 @@ namespace cinatra
 		}
 
 		std::vector < std::pair<std::string, std::string> >
-			get_all()
+			get_all() const
 		{
 			std::vector<std::pair<std::string, std::string>> result;
 			for (auto pair : map_)
@@ -123,7 +123,7 @@ namespace cinatra
 			return result;
 		}
 
-		size_t size()
+		size_t size() const
 		{
 			return map_.size();
 		}
@@ -573,4 +573,91 @@ namespace cinatra
 
 		return std::make_pair(500, "Internal Server Error\r\n");
 	}
+
+	inline int htoi(int c1, int c2)
+	{
+		int value;
+		int c;
+
+		c = c1;
+		if (isupper(c))
+			c = tolower(c);
+		value = (c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10) * 16;
+
+		c = c2;
+		if (isupper(c))
+			c = tolower(c);
+		value += c >= '0' && c <= '9' ? c - '0' : c - 'a' + 10;
+
+		return (value);
+	}
+
+	inline std::string urldecode(const std::string &str_source)
+	{
+		std::string str_dest;
+		for (auto iter = str_source.begin();
+			iter != str_source.end(); ++iter)
+		{
+			if (*iter == '+')
+			{
+				str_dest.push_back(' ');
+			}
+			else if (*iter == '%'
+				&& (str_source.end() - iter) >= 3
+				&& isxdigit(*(iter + 1))
+				&& isxdigit(*(iter + 2)))
+			{
+				str_dest.push_back(htoi(*(iter + 1), *(iter + 2)));
+				iter += 2;
+			}
+			else
+			{
+				str_dest.push_back(*iter);
+			}
+		}
+
+		return str_dest;
+	}
+
+	// 解析a=1&b=2&c=3这样的字符串,如果格式不正确返回空map
+	template<typename Iterator>
+	inline CaseMap kv_parse(Iterator begin, Iterator end)
+	{
+		CaseMap result;
+		std::string key, val;
+		bool is_k = true;
+		for (Iterator it = begin; it != end; ++it)
+		{
+			char c = *it;
+			if (c == '&')
+			{
+				is_k = true;
+				result.add(key, val);
+				key.clear();
+			}
+			else if (c == '=')
+			{
+				is_k = false;
+				val.clear();
+			}
+			else
+			{
+				if (is_k)
+				{
+					key.push_back(c);
+				}
+				else
+				{
+					val.push_back(c);
+				}
+			}
+		}
+
+		if (!is_k)
+		{
+			result.add(key, val);
+		}
+		return result;
+	}
+
 }
