@@ -32,7 +32,8 @@ int main()
 	app.route("/test_post").method(cinatra::Request::method_t::POST)
 		([](cinatra::Request& req, cinatra::Response& res)
 	{
-		res.write("Hello " + req.body().get_val("uid") + "! Your password is " + req.body().get_val("pwd") + "...hahahahaha...");
+		auto body = cinatra::kv_parse(req.body());
+		res.write("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
 	});
 
 	app.error_handler(
