@@ -113,6 +113,11 @@ namespace cinatra
 			// 这里可以不用担心cast抛异常，要抛异常在解析http header的时候就抛了
 			return boost::lexical_cast<int>(header_.get_val("Content-Length"));
 		}
+
+		const std::string& raw_cookie()
+		{
+			return header_.get_val("Cookie");
+		}
 	private:
 		std::string raw_url_;
 		std::vector<char> raw_body_;
