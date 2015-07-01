@@ -1,6 +1,10 @@
 
 #pragma once
 
+#ifdef _MSC_VER
+#pragma warning(disable:4819)
+#endif // _MSC_VER
+
 #include "connection.hpp"
 #include "io_service_pool.hpp"
 

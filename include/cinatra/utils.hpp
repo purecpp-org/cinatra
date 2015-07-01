@@ -11,7 +11,7 @@
 
 namespace cinatra
 {
-	static const std::string _empty_str;
+	static const std::string _EMPTY_STRING;
 
 	class CaseMap
 	{
@@ -25,7 +25,7 @@ namespace cinatra
 			auto iter = map_.find(key);
 			if (iter == map_.end())
 			{
-				return _empty_str;
+				return _EMPTY_STRING;
 			}
 
 			return iter->second;
@@ -75,7 +75,7 @@ namespace cinatra
 			{
 				return map_.find(key)->second;
 			}
-			return _empty_str;
+			return _EMPTY_STRING;
 		}
 
 		std::size_t get_count(const std::string& key) const
@@ -173,7 +173,7 @@ namespace cinatra
 		return str;
 	}
 
-	static std::map<std::string, std::string> _ext_mime_map =
+	static std::map<std::string, std::string> _EXT_MIME_MAP =
 	{
 		{ "001", "application/x-001" },
 		{ "301", "application/x-301" },
@@ -521,8 +521,8 @@ namespace cinatra
 			ext = path.substr(pos + 1, path.size());
 		}
 
-		auto iter = _ext_mime_map.find(ext);
-		if (iter != _ext_mime_map.end())
+		auto iter = _EXT_MIME_MAP.find(ext);
+		if (iter != _EXT_MIME_MAP.end())
 		{
 			return iter->second;
 		}
@@ -530,7 +530,7 @@ namespace cinatra
 		return "application/octet-stream";
 	}
 
-	static std::map<int, std::string> _status_code_description =
+	static std::map<int, std::string> _STATUS_CODE_DESCRIPTION =
 	{
 		{ 100, "Continue" },
 		{ 101, "Switching Protocols" },
@@ -565,8 +565,8 @@ namespace cinatra
 
 	inline std::pair<int,std::string> status_header(int status_code)
 	{
-		std::map<int, std::string>::const_iterator it = _status_code_description.find(status_code);
-		if (it != _status_code_description.end())
+		std::map<int, std::string>::const_iterator it = _STATUS_CODE_DESCRIPTION.find(status_code);
+		if (it != _STATUS_CODE_DESCRIPTION.end())
 		{
 			return *it;
 		}

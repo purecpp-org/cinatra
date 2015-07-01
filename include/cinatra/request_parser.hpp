@@ -17,7 +17,7 @@ namespace cinatra
 	public:
 		/// Construct ready to parse the request method.
 		RequestParser()
-			: state_(method_start)
+			: state_(METHOD_START)
 		{
 		}
 
@@ -69,21 +69,21 @@ namespace cinatra
 		{
 			switch (state_)
 			{
-			case method_start:
+			case METHOD_START:
 				if (!is_char(input) || is_ctl(input) || is_tspecial(input))
 				{
 					return bad;
 				}
 				else
 				{
-					state_ = method;
+					state_ = METHOD;
 					method_.push_back(input);
 					return indeterminate;
 				}
-			case method:
+			case METHOD:
 				if (input == ' ')
 				{
-					state_ = uri;
+					state_ = URI;
 					return indeterminate;
 				}
 				else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
@@ -95,10 +95,10 @@ namespace cinatra
 					method_.push_back(input);
 					return indeterminate;
 				}
-			case uri:
+			case URI:
 				if (input == ' ')
 				{
-					state_ = http_version_h;
+					state_ = HTTP_VERSION_H;
 					return indeterminate;
 				}
 				else if (is_ctl(input))
@@ -110,73 +110,73 @@ namespace cinatra
 					url_.push_back(input);
 					return indeterminate;
 				}
-			case http_version_h:
+			case HTTP_VERSION_H:
 				if (input == 'H')
 				{
-					state_ = http_version_t_1;
+					state_ = HTTP_VERSUIN_T_1;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case http_version_t_1:
+			case HTTP_VERSUIN_T_1:
 				if (input == 'T')
 				{
-					state_ = http_version_t_2;
+					state_ = HTTP_VERSION_T_2;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case http_version_t_2:
+			case HTTP_VERSION_T_2:
 				if (input == 'T')
 				{
-					state_ = http_version_p;
+					state_ = HTTP_VERSION_P;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case http_version_p:
+			case HTTP_VERSION_P:
 				if (input == 'P')
 				{
-					state_ = http_version_slash;
+					state_ = HTTP_VERSION_SLASH;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case http_version_slash:
+			case HTTP_VERSION_SLASH:
 				if (input == '/')
 				{
 					version_major_ = 0;
 					version_minor_ = 0;
-					state_ = http_version_major_start;
+					state_ = HTTP_VERSION_MAJOR_START;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case http_version_major_start:
+			case HTTP_VERSION_MAJOR_START:
 				if (is_digit(input))
 				{
 					version_major_ = version_major_ * 10 + input - '0';
-					state_ = http_version_major;
+					state_ = HTTP_VERSION_MAJOR;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case http_version_major:
+			case HTTP_VERSION_MAJOR:
 				if (input == '.')
 				{
-					state_ = http_version_minor_start;
+					state_ = HTTP_VERSION_MINOR_START;
 					return indeterminate;
 				}
 				else if (is_digit(input))
@@ -188,21 +188,21 @@ namespace cinatra
 				{
 					return bad;
 				}
-			case http_version_minor_start:
+			case HTTP_VERSION_MINOR_START:
 				if (is_digit(input))
 				{
 					version_minor_ = version_minor_ * 10 + input - '0';
-					state_ = http_version_minor;
+					state_ = HTTP_VERSION_MINOR;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case http_version_minor:
+			case HTTP_VERSION_MINOR:
 				if (input == '\r')
 				{
-					state_ = expecting_newline_1;
+					state_ = EXPECTING_NEWLINE_1;
 					return indeterminate;
 				}
 				else if (is_digit(input))
@@ -214,25 +214,25 @@ namespace cinatra
 				{
 					return bad;
 				}
-			case expecting_newline_1:
+			case EXPECTING_NEWLINE_1:
 				if (input == '\n')
 				{
-					state_ = header_line_start;
+					state_ = HEADER_LINE_START;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case header_line_start:
+			case HEADER_LINE_START:
 				if (input == '\r')
 				{
-					state_ = expecting_newline_3;
+					state_ = EXPECTING_NEWLINE_3;
 					return indeterminate;
 				}
 				else if (header_.size() != 0 && (input == ' ' || input == '\t'))
 				{
-					state_ = header_lws;
+					state_ = HEADER_LWS;
 					return indeterminate;
 				}
 				else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
@@ -244,13 +244,13 @@ namespace cinatra
 					current_header_key_.clear();
 					current_header_val_.clear();
 					current_header_key_.push_back(input);
-					state_ = header_name;
+					state_ = HEADER_NAME;
 					return indeterminate;
 				}
-			case header_lws:
+			case HEADER_LWS:
 				if (input == '\r')
 				{
-					state_ = expecting_newline_2;
+					state_ = EXPECTING_NEWLINE_2;
 					return indeterminate;
 				}
 				else if (input == ' ' || input == '\t')
@@ -263,14 +263,14 @@ namespace cinatra
 				}
 				else
 				{
-					state_ = header_value;
+					state_ = HEADER_VALUE;
 					current_header_val_.push_back(input);
 					return indeterminate;
 				}
-			case header_name:
+			case HEADER_NAME:
 				if (input == ':')
 				{
-					state_ = space_before_header_value;
+					state_ = SPACE_BEFORE_HEADER_VALUE;
 					return indeterminate;
 				}
 				else if (!is_char(input) || is_ctl(input) || is_tspecial(input))
@@ -282,7 +282,7 @@ namespace cinatra
 					current_header_key_.push_back(input);
 					return indeterminate;
 				}
-			case space_before_header_value:
+			case SPACE_BEFORE_HEADER_VALUE:
 				if (input != ' ')
 				{
 					if (is_ctl(input))
@@ -294,13 +294,13 @@ namespace cinatra
 						current_header_val_.push_back(input);
 					}
 				}
-				state_ = header_value;
+				state_ = HEADER_VALUE;
 				return indeterminate;
-			case header_value:
+			case HEADER_VALUE:
 				if (input == '\r')
 				{
 					header_.add(current_header_key_, current_header_val_);
-					state_ = expecting_newline_2;
+					state_ = EXPECTING_NEWLINE_2;
 					return indeterminate;
 				}
 				else if (is_ctl(input))
@@ -312,17 +312,17 @@ namespace cinatra
 					current_header_val_.push_back(input);
 					return indeterminate;
 				}
-			case expecting_newline_2:
+			case EXPECTING_NEWLINE_2:
 				if (input == '\n')
 				{
-					state_ = header_line_start;
+					state_ = HEADER_LINE_START;
 					return indeterminate;
 				}
 				else
 				{
 					return bad;
 				}
-			case expecting_newline_3:
+			case EXPECTING_NEWLINE_3:
 			{
 				if (input != '\n')
 				{
@@ -332,14 +332,14 @@ namespace cinatra
 				if (header_.get_count("content-length") !=0 )
 				{
 					content_length_ = boost::lexical_cast<unsigned int>(header_.get_val("content-length"));
-					state_ = request_body;
+					state_ = REQUEST_BODY;
 					return indeterminate;
 				}
 
 				content_length_ = 0;
 				return good;
 			}
-			case request_body:
+			case REQUEST_BODY:
 			{
 				body_.push_back(input);
 				if (body_.size() < content_length_)
@@ -392,27 +392,27 @@ namespace cinatra
 		/// The current state of the parser.
 		enum state
 		{
-			method_start,
-			method,
-			uri,
-			http_version_h,
-			http_version_t_1,
-			http_version_t_2,
-			http_version_p,
-			http_version_slash,
-			http_version_major_start,
-			http_version_major,
-			http_version_minor_start,
-			http_version_minor,
-			expecting_newline_1,
-			header_line_start,
-			header_lws,
-			header_name,
-			space_before_header_value,
-			header_value,
-			expecting_newline_2,
-			expecting_newline_3,
-			request_body
+			METHOD_START,
+			METHOD,
+			URI,
+			HTTP_VERSION_H,
+			HTTP_VERSUIN_T_1,
+			HTTP_VERSION_T_2,
+			HTTP_VERSION_P,
+			HTTP_VERSION_SLASH,
+			HTTP_VERSION_MAJOR_START,
+			HTTP_VERSION_MAJOR,
+			HTTP_VERSION_MINOR_START,
+			HTTP_VERSION_MINOR,
+			EXPECTING_NEWLINE_1,
+			HEADER_LINE_START,
+			HEADER_LWS,
+			HEADER_NAME,
+			SPACE_BEFORE_HEADER_VALUE,
+			HEADER_VALUE,
+			EXPECTING_NEWLINE_2,
+			EXPECTING_NEWLINE_3,
+			REQUEST_BODY
 		} state_;
 
 		unsigned int content_length_;

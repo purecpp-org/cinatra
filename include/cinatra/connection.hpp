@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 
+
 namespace cinatra
 {
 	typedef std::function<bool(Request&, Response&)> request_handler_t;
@@ -23,15 +24,10 @@ namespace cinatra
 		: public std::enable_shared_from_this<Connection>
 	{
 	public:
-		Connection(boost::asio::io_service& service,
-			const request_handler_t& request_handler,
-			const error_handler_t& error_handler,
-			const std::string& public_dir)
-			:service_(service),
-			socket_(service),
-			request_handler_(request_handler),
-			error_handler_(error_handler),
-			public_dir_(public_dir)
+		Connection(boost::asio::io_service& service, const request_handler_t& request_handler,
+			const error_handler_t& error_handler, const std::string& public_dir)
+			:service_(service), socket_(service), request_handler_(request_handler),
+			error_handler_(error_handler), public_dir_(public_dir)
 		{}
 		~Connection()
 		{}
