@@ -79,3 +79,20 @@ BOOST_AUTO_TEST_CASE(http_parser_map_test)
 
 	BOOST_CHECK(std::string(req.body().begin(), req.body().end()) == "I am body");
 }
+
+BOOST_AUTO_TEST_CASE(http_parser_header_blank_test)
+{
+	RequestParser p;
+	std::string content = "GET /test HTTP/1.1\r\nkey1:val1\r\nkey2: val2\r\nkey3:  val3\r\n"
+		"key4: val4 \r\nkey5: val5  \r\nContent-Length: 9\r\n\r\nI am body";
+
+	BOOST_CHECK(p.parse(content.begin(), content.end()) == RequestParser::good);
+
+	auto req = p.get_request();
+	BOOST_CHECK(req.header().get_val("key1") == "val1");
+	BOOST_CHECK(req.header().get_val("key2") == "val2");
+	BOOST_CHECK(req.header().get_val("key3") == " val3");
+	BOOST_CHECK(req.header().get_val("key4") == "val4 ");
+	BOOST_CHECK(req.header().get_val("key5") == "val5  ");
+	BOOST_CHECK(std::string(req.body().begin(), req.body().end()) == "I am body");
+}
