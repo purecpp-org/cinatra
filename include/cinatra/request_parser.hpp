@@ -287,10 +287,8 @@ namespace cinatra
 			case SPACE_BEFORE_HEADER_VALUE:
 				if (input == ' ')
 					return indeterminate;
-				if (input != ' ' && is_ctl(input))
-				{
+				else if(is_ctl(input))
 					return bad;
-				}
 				current_header_val_.push_back(input);
 				state_ = HEADER_VALUE;
 				return indeterminate;
