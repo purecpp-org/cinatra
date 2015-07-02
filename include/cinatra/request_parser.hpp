@@ -4,7 +4,9 @@
 #include "request.hpp"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
+#include <algorithm>
 #include <tuple>
 #include <string>
 #include <vector>
@@ -283,23 +285,20 @@ namespace cinatra
 					return indeterminate;
 				}
 			case SPACE_BEFORE_HEADER_VALUE:
-				if (input != ' ')
+				if (input == ' ')
+					return indeterminate;
+				if (input != ' ' && is_ctl(input))
 				{
-					if (is_ctl(input))
-					{
-						return bad;
-					}
-					else
-					{
-						current_header_val_.push_back(input);
-					}
+					return bad;
 				}
+				current_header_val_.push_back(input);
 				state_ = HEADER_VALUE;
 				return indeterminate;
 			case HEADER_VALUE:
 				if (input == '\r')
 				{
-					header_.add(current_header_key_, current_header_val_);
+					auto tmp = boost::trim_right_copy_if(current_header_val_, [](const char c)->bool{return c == ' ';});
+					header_.add(current_header_key_, std::move(tmp));
 					state_ = EXPECTING_NEWLINE_2;
 					return indeterminate;
 				}
