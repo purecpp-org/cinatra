@@ -8,7 +8,7 @@ int main()
 	cinatra::HTTPServer s(std::thread::hardware_concurrency());
 
 	s.set_request_handler(
-		[](cinatra::Request& req, cinatra::Response& res)
+		[](const cinatra::Request& req, cinatra::Response& res)
 	{
 		if (req.path() == "/")
 		{

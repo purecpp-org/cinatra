@@ -17,19 +17,11 @@ namespace cinatra
 
 		}
 
-		Request(
-			const std::string& url,
-			const std::vector<char>& body,
-			const std::string& method,
-			const std::string& path,
-			const CaseMap& query_map,
-			const NcaseMultiMap& header
-			)
-			:url_(url),
-			body_(body),
-			path_(path),
-			query_(query_map),
-			header_(header)
+		Request(const std::string& url, const std::vector<char>& body,
+			const std::string& method, const std::string& path,
+			const CaseMap& query_map, const NcaseMultiMap& header)
+			:url_(url), body_(body), path_(path),
+			query_(query_map), header_(header)
 		{
 			if (boost::iequals(method, "GET"))
 			{
@@ -89,7 +81,7 @@ namespace cinatra
 		{
 			return header_.get_val("host");
 		}
-		const std::vector<char>& body()
+		const std::vector<char>& body() const
 		{
 			return body_;
 		}
@@ -109,7 +101,7 @@ namespace cinatra
 			return boost::lexical_cast<int>(header_.get_val("Content-Length"));
 		}
 
-		const std::string& raw_cookie()
+		const std::string& raw_cookie() const
 		{
 			return header_.get_val("Cookie");
 		}
