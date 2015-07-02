@@ -1,3 +1,8 @@
 ADD_EXECUTABLE(cinatra main.cpp)
 INCLUDE_DIRECTORIES(../../include)
 TARGET_LINK_LIBRARIES(cinatra boost_system pthread boost_coroutine boost_thread)
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	TARGET_LINK_LIBRARIES(cinatra boost_system-mt pthread boost_coroutine-mt boost_thread-mt)
+ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	TARGET_LINK_LIBRARIES(cinatra boost_system pthread boost_coroutine boost_thread)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
