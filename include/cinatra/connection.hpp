@@ -66,6 +66,18 @@ namespace cinatra
 						}
 					}
 
+					/*
+					如果是http1.0，规则是这样的：
+					如果request里面的connection是keep-alive，那就说明浏览器想要长连接，服务器如果也同意长连接，
+					那么返回的response的connection也应该有keep-alive通知浏览器，如果不想长链接，response里面就不应该有keep-alive;
+					如果是1.1的，规则是这样的：
+					如果request里面的connection是close，那就说明浏览器不希望长连接，如果没有close，就是默认保持长链接，
+					本来是跟keep-alive没关系，但是如果浏览器发了keep-alive，那你返回的时候也应该返回keep-alive;
+					惯例是根据有没有close判断是否长链接，但是如果没有close但是有keep-alive，你response也得加keep-alive;
+					如果没有close也没有keep-alive
+					那就是长链接但是不用返回keep-alive
+					*/
+
 					Request req = parser.get_request();
 					Response res;
 
