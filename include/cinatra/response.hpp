@@ -39,7 +39,7 @@ namespace cinatra
 			{
 				return false;
 			}
-			return buffer_.sputn(data, len) == len;
+			return size_t(buffer_.sputn(data, len)) == len;
 		}
 
 		bool write(const std::string& text)

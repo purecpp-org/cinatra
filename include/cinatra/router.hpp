@@ -22,7 +22,7 @@ namespace cinatra
 			return *this;
 		}
 
-		typedef std::function<void(Request&, Response&)> handler_t;
+		typedef std::function<void(const Request&, Response&)> handler_t;
 		Router& set_handler(handler_t handler)
 		{
 			handler_ = handler;
@@ -39,7 +39,7 @@ namespace cinatra
 			:rule_(rule), method_(Request::method_t::UNKNOWN)
 		{}
 
-		bool handle(Request& req, Response& res)
+		bool handle(const Request& req, Response& res)
 		{
 			if (req.path() != rule_)
 			{
