@@ -30,6 +30,7 @@ int main()
 	})
 		.set_error_handler([](int code, const std::string& msg, const cinatra::Request& req, cinatra::Response& res)
 	{
+		res.set_status_code(code);
 		res.write("Error: " + boost::lexical_cast<std::string>(code));
 		return true;
 	})

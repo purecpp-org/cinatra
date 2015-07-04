@@ -81,6 +81,25 @@ namespace cinatra
 					Request req = parser.get_request();
 					Response res;
 
+					auto self = shared_from_this();
+					res.direct_write_func_ = 
+						[&yield, self, this]
+					(const char* data, std::size_t len)->bool
+					{
+						boost::system::error_code ec;
+						boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
+						if (ec)
+						{
+							// TODO: log ec.message().
+							std::cout << "direct_write_func error" << ec.message() << std::endl;
+							return false;
+						}
+						return true;
+					};
+
+					// 是否已经处理了这个request.
+					bool found = false;
+
 					bool keep_alive{};
 					bool close_connection{};
 					if (parser.check_version(1, 0))
@@ -120,39 +139,17 @@ namespace cinatra
 
 						if (req.header().get_count("host") == 0)
 						{
-							error_handler_(400,"", req, res);
+							found = error_handler_(400,"", req, res);
 						}
 
 						res.set_version(1, 1);
 					}
 					else
 					{
-						error_handler_(400, "Unsupported HTTP version.", req, res);
+						found = error_handler_(400, "Unsupported HTTP version.", req, res);
 					}
 
-					auto self = shared_from_this();
-					res.direct_write_func_ = 
-						[&yield, self, this]
-					(const char* data, std::size_t len)->bool
-					{
-						boost::system::error_code ec;
-						boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
-						if (ec)
-						{
-							// TODO: log ec.message().
-							std::cout << "direct_write_func error" << ec.message() << std::endl;
-							return false;
-						}
-						return true;
-					};
-
-					if (keep_alive)
-					{
-						res.header.add("Connetion", "Keep-Alive");
-					}
-
-					bool found = false;
-					if (request_handler_)
+					if (!found && request_handler_)
 					{
 						found = request_handler_(req, res);
 					}
@@ -160,10 +157,16 @@ namespace cinatra
 					{
 						continue;
 					}
+
 					//如果都没有找到，404
 					if (!found)
 					{
 						error_handler_(404, "", req, res);
+					}
+
+					if (keep_alive)
+					{
+						res.header.add("Connetion", "Keep-Alive");
 					}
 
 					//用户没有指定Content-Type，默认设置成text/html
