@@ -664,14 +664,4 @@ namespace cinatra
 		}
 		return result;
 	}
-
-	inline CaseMap query_parser(const std::string& data)
-	{
-		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end());
-	}
-
-	inline CaseMap body_parser(const std::vector<char>& data)
-	{
-		return kv_parser<std::vector<char>::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end());
-	}
 }
