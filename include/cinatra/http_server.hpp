@@ -7,6 +7,7 @@
 
 #include "connection.hpp"
 #include "io_service_pool.hpp"
+#include "logging.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
@@ -47,6 +48,7 @@ namespace cinatra
 
 		HTTPServer& listen(const std::string& address, const std::string& port)
 		{
+			LOG_DBG << "Listen on " << address << ":" << port;
 			boost::asio::ip::tcp::resolver resolver(acceptor_.get_io_service());
 			boost::asio::ip::tcp::resolver::query query(address, port);
 			boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
@@ -74,6 +76,7 @@ namespace cinatra
 
 		void run()
 		{
+			LOG_DBG << "Starting HTTP Server";
 			io_service_pool_.run();
 		}
 

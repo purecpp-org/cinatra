@@ -53,7 +53,7 @@ int main()
 		([](const cinatra::Request& req, cinatra::Response& res)
 	{
 		auto cookies = cinatra::cookie_parser(req.cookie());
-		res.header.add("Set-Cookie", "foo=bar; domain=baidu.com");
+		res.header.add("Set-Cookie", "foo=bar;");
 		res.write("<html><body>");
 		res.write("total " + boost::lexical_cast<std::string>(cookies.size()) + " cookies in request</br>");
 		for (auto it : cookies.get_all())

@@ -47,5 +47,8 @@
     <ClInclude Include="..\..\include\cinatra\request_parser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\logging.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

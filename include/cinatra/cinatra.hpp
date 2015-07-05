@@ -3,6 +3,7 @@
 
 #include "http_server.hpp"
 #include "router.hpp"
+#include "logging.hpp"
 
 #include <string>
 #include <vector>
@@ -61,21 +62,24 @@ namespace cinatra
 				{
 					if (router.handle(req, res))
 					{
+						LOG_DBG << "Route " << req.path();
 						return true;
 					}
 				}
 
+				LOG_DBG << "Request handler not found in dynamic router";
 				return false;
 			})
 				.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
 			{
+				LOG_DBG << "Handle error:" << code << " " << msg << "with path " << req.path();
 				if (error_handler_
 					&& error_handler_(code,msg,req,res))
 				{
 					return true;
 				}
 
-
+				LOG_DBG << "In defaule error handler";
 				std::string html;
 				auto s = status_header(code);
 				html = "<html><head><title>" + s.second + "</title></head>";

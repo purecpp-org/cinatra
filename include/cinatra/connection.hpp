@@ -3,6 +3,7 @@
 
 #include "response.hpp"
 #include "request_parser.hpp"
+#include "logging.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
@@ -28,12 +29,14 @@ namespace cinatra
 			const error_handler_t& error_handler, const std::string& public_dir)
 			:service_(service), socket_(service), request_handler_(request_handler),
 			error_handler_(error_handler), public_dir_(public_dir)
-		{}
+		{
+			LOG_DBG << "New connection";
+		}
 		~Connection()
 		{
 			boost::system::error_code ec;
 			socket_.close(ec);
-			std::cout << "Connection closed." << std::endl;
+			LOG_DBG << "Connection closed.";
 		}
 
 		boost::asio::ip::tcp::socket& socket(){ return socket_; }
@@ -84,6 +87,7 @@ namespace cinatra
 
 					Request req = parser.get_request();
 					Response res;
+					LOG_DBG << "New request,path:" << req.path();
 
 					auto self = shared_from_this();
 					res.direct_write_func_ = 
@@ -109,8 +113,10 @@ namespace cinatra
 					if (parser.check_version(1, 0))
 					{
 						// HTTP/1.0
+						LOG_DBG << "http/1.0";
 						if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
 						{
+							LOG_DBG << "Keep-Alive";
 							keep_alive = true;
 							close_connection = false;
 						}
@@ -125,6 +131,7 @@ namespace cinatra
 					else if (parser.check_version(1, 1))
 					{
 						// HTTP/1.1
+						LOG_DBG << "http/1.1";
 						if (req.header().val_ncase_equal("Connetion", "close"))
 						{
 							keep_alive = false;
@@ -150,6 +157,7 @@ namespace cinatra
 					}
 					else
 					{
+						LOG_DBG << "Unsupported http version";
 						found = error_handler_(400, "Unsupported HTTP version.", req, res);
 					}
 
@@ -165,6 +173,7 @@ namespace cinatra
 					//如果都没有找到，404
 					if (!found)
 					{
+						LOG_DBG << "404 Not found";
 						error_handler_(404, "", req, res);
 					}
 
@@ -201,9 +210,13 @@ namespace cinatra
 				catch (boost::system::system_error& e)
 				{
 					//网络通信异常，关socket.
-					if (e.code() != boost::asio::error::eof)
+					if (e.code() == boost::asio::error::eof)
 					{
-						std::cout << "socket error:" << e.code().message() << std::endl;
+						LOG_DBG << "Socket shutdown";
+					}
+					else
+					{
+						LOG_DBG << "Network exception: " << e.code().message();
 					}
 					boost::system::error_code ignored_ec;
 					socket_.close(ignored_ec);
@@ -211,7 +224,7 @@ namespace cinatra
 				}
 				catch (std::exception& e)
 				{
-					// TODO: log err.
+					LOG_ERR << "Error occurs,response 500: " << e.what();
 					response_5xx(e.what(), yield);
 				}
 				catch (...)
@@ -230,6 +243,7 @@ namespace cinatra
 				return false;
 			}
 
+			LOG_DBG << "Response a file";
 			in.seekg(0, std::ios::end);
 
 			std::string header =
@@ -266,6 +280,7 @@ namespace cinatra
 
 		void shutdown()
 		{
+			LOG_DBG << "Shutdown connection";
 			boost::system::error_code ignored_ec;
 			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
 		}
