@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Ajax test</title>
+	<script type="text/javascript" src="/javascripts/jquery.min.js"></script>
+	<script type="text/javascript">
+		function ajaxTest(){
+			htmlobj=$.ajax({url:"/test_ajax",async:false});
+			$("#myDiv").html(htmlobj.responseText);
+		}
+	</script>
+</head>
+<body>
+<div id="myDiv"><h2>通过 AJAX 改变文本</h2></div>
+<button type="button" onclick="ajaxTest()">改变内容</button>
+</body>
+</html>

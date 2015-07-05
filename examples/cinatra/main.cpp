@@ -49,6 +49,12 @@ int main()
 		res.end("</body></html>");
 	});
 
+	app.route("/test_ajax")
+		([](const cinatra::Request& req, cinatra::Response& res)
+	{
+		res.end("Hello ajax!");
+	});
+
 	app.route("/test_cookie")
 		([](const cinatra::Request& req, cinatra::Response& res)
 	{
