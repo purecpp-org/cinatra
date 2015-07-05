@@ -59,9 +59,15 @@ namespace cinatra
 					std::array<char, 8192> buffer;
 					RequestParser parser;
 
+					std::size_t total_size = 0;
 					for (;;)
 					{
 						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
+						total_size += n;
+						if (total_size > 2 * 1024 * 1024)
+						{
+							throw std::runtime_error("Request toooooooo large");
+						}
 						auto ret = parser.parse(buffer.data(), buffer.data() + n);
 						if (ret == RequestParser::good)
 						{
