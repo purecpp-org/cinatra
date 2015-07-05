@@ -329,8 +329,13 @@ namespace cinatra
 				if (header_.get_count("content-length") !=0 )
 				{
 					content_length_ = boost::lexical_cast<unsigned int>(header_.get_val("content-length"));
-					state_ = REQUEST_BODY;
-					return indeterminate;
+					if (content_length_ > 0)
+					{
+						state_ = REQUEST_BODY;
+						return indeterminate;
+					}
+
+					return good;
 				}
 
 				content_length_ = 0;
