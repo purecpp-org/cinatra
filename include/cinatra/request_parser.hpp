@@ -48,7 +48,7 @@ namespace cinatra
 					{
 						path_ = url.substr(0, qmak_pos);
 						std::string quert_str = url.substr(qmak_pos + 1, url.size());
-						query_ = kv_parse(quert_str.begin(), quert_str.end());
+						query_ = query_parser(quert_str);
 					}
 					return result;
 				}

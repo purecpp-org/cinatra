@@ -30,7 +30,11 @@ namespace cinatra
 			error_handler_(error_handler), public_dir_(public_dir)
 		{}
 		~Connection()
-		{}
+		{
+			boost::system::error_code ec;
+			socket_.close(ec);
+			std::cout << "Connection closed." << std::endl;
+		}
 
 		boost::asio::ip::tcp::socket& socket(){ return socket_; }
 

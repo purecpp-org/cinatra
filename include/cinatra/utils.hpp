@@ -620,8 +620,13 @@ namespace cinatra
 	}
 
 	// 解析a=1&b=2&c=3这样的字符串,如果格式不正确返回空map
-	template<typename Iterator>
-	inline CaseMap kv_parse(Iterator begin, Iterator end)
+	template<
+		typename Iterator,
+		typename MapType,
+		int KVSep,
+		int FieldSep
+	>
+	inline MapType kv_parser(Iterator begin, Iterator end)
 	{
 		CaseMap result;
 		std::string key, val;
@@ -629,13 +634,13 @@ namespace cinatra
 		for (Iterator it = begin; it != end; ++it)
 		{
 			char c = *it;
-			if (c == '&')
+			if (c == FieldSep)
 			{
 				is_k = true;
 				result.add(key, val);
 				key.clear();
 			}
-			else if (c == '=')
+			else if (c == KVSep)
 			{
 				is_k = false;
 				val.clear();
@@ -660,13 +665,13 @@ namespace cinatra
 		return result;
 	}
 
-	inline CaseMap kv_parse(const std::string& data)
+	inline CaseMap query_parser(const std::string& data)
 	{
-		return kv_parse(data.begin(), data.end());
-	}
-	inline CaseMap kv_parse(const std::vector<char>& data)
-	{
-		return kv_parse(data.begin(), data.end());
+		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end());
 	}
 
+	inline CaseMap body_parser(const std::vector<char>& data)
+	{
+		return kv_parser<std::vector<char>::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end());
+	}
 }

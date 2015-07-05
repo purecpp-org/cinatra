@@ -29,11 +29,32 @@ int main()
 
 		res.write(html);
 	});	
+
 	app.route("/test_post").method(cinatra::Request::method_t::POST)
 		([](const cinatra::Request& req, cinatra::Response& res)
 	{
-		auto body = cinatra::kv_parse(req.body());
+		auto body = cinatra::body_parser(req.body());
 		res.write("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
+	});
+
+	app.route("/test_query").method(cinatra::Request::method_t::GET)
+		([](const cinatra::Request& req, cinatra::Response& res)
+	{
+		res.write("<html><body>");
+		res.write("total " + boost::lexical_cast<std::string>(req.query().size()) + " queries</br>");
+		for (auto it : req.query().get_all())
+		{
+			res.write(it.first + ":" + it.second + "</br>");
+		}
+		res.end("</body></html>");
+	});
+
+	app.route("/test_cookie")
+		([](const cinatra::Request& req, cinatra::Response& res)
+	{
+		std::cout << "cookie: " << req.cookie() << std::endl;
+		res.header.add("Set-Cookie", "foo=bar; domain=baidu.com");
+		res.write("cookie test");
 	});
 
 	app.error_handler(

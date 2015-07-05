@@ -101,7 +101,7 @@ namespace cinatra
 			return boost::lexical_cast<int>(header_.get_val("Content-Length"));
 		}
 
-		const std::string& raw_cookie() const
+		const std::string& cookie() const
 		{
 			return header_.get_val("Cookie");
 		}
