@@ -52,9 +52,16 @@ int main()
 	app.route("/test_cookie")
 		([](const cinatra::Request& req, cinatra::Response& res)
 	{
-		std::cout << "cookie: " << req.cookie() << std::endl;
+		auto cookies = cinatra::cookie_parser(req.cookie());
 		res.header.add("Set-Cookie", "foo=bar; domain=baidu.com");
-		res.write("cookie test");
+		res.write("<html><body>");
+		res.write("total " + boost::lexical_cast<std::string>(cookies.size()) + " cookies in request</br>");
+		for (auto it : cookies.get_all())
+		{
+			res.write(it.first + ":" + it.second + "</br>");
+		}
+		res.end("</body></html>");
+
 	});
 
 	app.error_handler(
