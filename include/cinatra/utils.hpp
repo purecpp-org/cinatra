@@ -1,5 +1,11 @@
 #pragma once
 
+#include "function_traits.hpp"
+#include "lexical_cast.hpp"
+#include "string_utils.hpp"
+#include "timer.hpp"
+#include "tuple_utils.hpp"
+
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/unordered_map.hpp>
@@ -178,7 +184,7 @@ namespace cinatra
 		boost::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu> map_;
 	};
 
-	inline std::string date_str()
+	inline std::string date_str(time_t t)
 	{
 		std::string str;
 		time_t last_time_t = time(0);
@@ -653,19 +659,11 @@ namespace cinatra
 		int KVSep,
 		int FieldSep
 	>
-	inline MapType kv_parser(Iterator begin, Iterator end,bool trim)
+	inline MapType kv_parser(Iterator begin, Iterator end, bool unescape)
 	{
 		CaseMap result;
 		std::string key, val;
-		auto add_kv = [&result, &key, &val, trim]
-		{
-			if (trim)
-			{
-				boost::trim(key);
-				boost::trim(val);
-			}
-			result.add(key, val);
-		};
+;
 		bool is_k = true;
 		for (Iterator it = begin; it != end; ++it)
 		{
@@ -673,7 +671,7 @@ namespace cinatra
 			if (c == FieldSep)
 			{
 				is_k = true;
-				add_kv();
+				result.add(key, val);
 				key.clear();
 			}
 			else if (c == KVSep)
@@ -681,8 +679,18 @@ namespace cinatra
 				is_k = false;
 				val.clear();
 			}
+
 			else
 			{
+				if (unescape && c == '%')
+				{
+					++it;
+					char c1 = *it;
+					++it;
+					char c2 = *it;
+					c = htoi(c1, c2);
+				}
+
 				if (is_k)
 				{
 					key.push_back(c);
@@ -696,7 +704,7 @@ namespace cinatra
 
 		if (!is_k)
 		{
-			add_kv();
+			result.add(key, val);
 		}
 		return result;
 	}

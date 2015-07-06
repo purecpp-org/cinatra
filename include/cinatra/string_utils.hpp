@@ -24,4 +24,20 @@ struct StringUtil
 
 		return v;
 	}
+
+	inline static bool is_tspecial(int c)
+	{
+		switch (c)
+		{
+		case ' ': case '`': case '{': case '}': case '^': case '|':
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	inline static bool is_char(int c)
+	{
+		return c >= 0 && c <= 127;
+	}
 };

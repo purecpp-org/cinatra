@@ -44,9 +44,6 @@
     <ClInclude Include="..\..\include\cinatra\router.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\utils.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\request_parser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -62,9 +59,6 @@
     <ClInclude Include="..\..\include\cinatra\lexical_cast.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\Timer.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\string_utils.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
@@ -73,6 +67,12 @@
     </ClInclude>
     <ClInclude Include="..\..\include\cinatra\token_parser.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\utils.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\timer.hpp">
+      <Filter>头文件\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

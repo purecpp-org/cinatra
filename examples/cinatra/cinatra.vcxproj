@@ -96,7 +96,7 @@
     <ClInclude Include="..\..\include\cinatra\response.hpp" />
     <ClInclude Include="..\..\include\cinatra\router.hpp" />
     <ClInclude Include="..\..\include\cinatra\string_utils.hpp" />
-    <ClInclude Include="..\..\include\cinatra\Timer.hpp" />
+    <ClInclude Include="..\..\include\cinatra\timer.hpp" />
     <ClInclude Include="..\..\include\cinatra\token_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\tuple_utils.hpp" />
     <ClInclude Include="..\..\include\cinatra\utils.hpp" />

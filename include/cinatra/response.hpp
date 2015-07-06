@@ -138,7 +138,7 @@ namespace cinatra
 				"Date: %s\r\n"
 				)
 				% version_major_ %version_minor_ % s.first % s.second
-				% date_str()
+				% date_str(time(NULL))
 				);
 
 			if (!is_chunked_encoding_)

@@ -260,7 +260,7 @@ namespace cinatra
 				"Content-Type: %2%\r\n"
 				"Content-Length: %3%\r\n"
 				)
-				% date_str()
+				% date_str(time(NULL))
 				% content_type(path)
 				% in.tellg());
 
