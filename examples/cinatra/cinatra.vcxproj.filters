@@ -71,5 +71,8 @@
     <ClInclude Include="..\..\include\cinatra\tuple_utils.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\token_parser.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
