@@ -59,7 +59,8 @@ int main()
 		([](const cinatra::Request& req, cinatra::Response& res)
 	{
 		auto cookies = cinatra::cookie_parser(req.cookie());
-		res.header.add("Set-Cookie", "foo=bar;");
+		res.header.add("Set-Cookie", "SESSIONID=foo;");
+		res.header.add("Set-Cookie", "LONGTIME=bar; expires=Wed, 08-Jul-2015 01:41:56 GMT");
 		res.write("<html><body>");
 		res.write("total " + boost::lexical_cast<std::string>(cookies.size()) + " cookies in request</br>");
 		for (auto it : cookies.get_all())

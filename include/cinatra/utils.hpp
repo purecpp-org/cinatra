@@ -619,17 +619,29 @@ namespace cinatra
 		return str_dest;
 	}
 
-	// 解析a=1&b=2&c=3这样的字符串,如果格式不正确返回空map
+	///解析KV键值对,如果格式不正确返回空map.
+	// KVSep: 键值对的分隔符，一般为'='.
+	// FieldSep: 两个键值对之间的分隔符，query的话就是'&'.
+	// trim: 是否需要去空格
 	template<
 		typename Iterator,
 		typename MapType,
 		int KVSep,
 		int FieldSep
 	>
-	inline MapType kv_parser(Iterator begin, Iterator end)
+	inline MapType kv_parser(Iterator begin, Iterator end,bool trim)
 	{
 		CaseMap result;
 		std::string key, val;
+		auto add_kv = [&result, &key, &val, trim]
+		{
+			if (trim)
+			{
+				boost::trim(key);
+				boost::trim(val);
+			}
+			result.add(key, val);
+		};
 		bool is_k = true;
 		for (Iterator it = begin; it != end; ++it)
 		{
@@ -637,7 +649,7 @@ namespace cinatra
 			if (c == FieldSep)
 			{
 				is_k = true;
-				result.add(key, val);
+				add_kv();
 				key.clear();
 			}
 			else if (c == KVSep)
@@ -660,7 +672,7 @@ namespace cinatra
 
 		if (!is_k)
 		{
-			result.add(key, val);
+			add_kv();
 		}
 		return result;
 	}
