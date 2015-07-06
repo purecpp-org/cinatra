@@ -24,7 +24,7 @@ class HttpRouter
 		typename std::decay<RequestedType>::type get()
 		{
 			if (m_v.empty())
-				throw std::runtime_error("unexpected end of input");
+				throw std::invalid_argument("unexpected end of input");
 
 			try
 			{
@@ -52,15 +52,15 @@ public:
 	std::function<void(const std::string&)> log;
 
 	template<typename Function>
-	void assign(std::string const & name, Function f) {
+	void assign(const std::string& name, const Function& f) {
 		return register_nonmenber_impl<Function>(name, f);
 	}
 
-	void remove_function(std::string const& name) {
+	void remove_function(const std::string& name) {
 		this->map_invokers.erase(name);
 	}
 
-	void run(std::string  & text) const
+	void run(std::string& text) const
 	{
 		token_parser parser(text, '/');
 
@@ -72,7 +72,7 @@ public:
 			// look up function
 			auto it = map_invokers.find(func_name);
 			if (it == map_invokers.end())
-				throw std::runtime_error("unknown function: " + func_name);
+				throw std::invalid_argument("unknown function: " + func_name);
 
 			// call the invoker which controls argument parsing
 			it->second(parser);
@@ -82,15 +82,10 @@ public:
 
 public:
 	template<class Signature, typename Function>
-	void register_nonmenber_impl(std::string const & name, Function f)
+	void register_nonmenber_impl(const std::string& name, const Function& f)
 	{
 		// instantiate and store the invoker by name
-		this->map_invokers[name] = std::bind(
-			&invoker<Function, Signature>::template apply<std::tuple<>>,
-			f,
-			std::placeholders::_1,
-			std::tuple<>()
-			);
+		this->map_invokers[name] = std::bind(&invoker<Function, Signature>::template call<std::tuple<>>, f, std::placeholders::_1, std::tuple<>());
 	}
 
 private:
@@ -102,11 +97,10 @@ private:
 	{
 		// add an argument to a Fusion cons-list for each parameter type
 		template<typename Args>
-		static inline void apply(Function func, token_parser & parser, Args const & args)
+		static inline void call(const Function& func, token_parser & parser, const Args& args)
 		{
 			typedef typename function_traits<Signature>::template args<N>::type arg_type;
-			HttpRouter::invoker<Function, Signature, N + 1, M>::apply
-				(func, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
+			HttpRouter::invoker<Function, Signature, N + 1, M>::call(func, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
 		}
 	};
 
@@ -115,9 +109,9 @@ private:
 	{
 		// the argument list is complete, now call the function
 		template<typename Args>
-		static inline void apply(Function func, token_parser &, Args const & args)
+		static inline void call(const Function& func, token_parser &, const Args& args)
 		{
-			call(func, args);
+			apply(func, args);
 		}
 	};
 
@@ -134,15 +128,14 @@ private:
 	};
 
 	template<typename F, int ... Indexes, typename ... Args>
-	static void call_helper(F f, IndexTuple<Indexes...>, std::tuple<Args...> tup)
+	static void apply_helper(const F& f, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)
 	{
 		f(std::get<Indexes>(tup)...);
 	}
 
 	template<typename F, typename ... Args>
-	static void call(F f, std::tuple<Args...> tp)
+	static void apply(const F& f, const std::tuple<Args...>& tp)
 	{
-		call_helper(f, typename MakeIndexes<sizeof... (Args)>::type(), tp);
+		apply_helper(f, typename MakeIndexes<sizeof... (Args)>::type(), tp);
 	}
-
 };
