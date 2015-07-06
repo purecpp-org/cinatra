@@ -4,7 +4,12 @@ class token_parser
 {
 	std::vector<std::string> v_; //解析之后，v_的第一个元素为函数名，后面的元素均为参数
 public:
-
+	/*
+	get("/hello/:name", (request, response) -> {
+		return "Hello: " + request.params(":name");
+	});
+	hello/a/b->hello/a/b();hello/a(b);hello(a, b);
+	*/
 	token_parser(std::string& s, char seperator)
 	{
 		v_ = StringUtil::split(s, seperator);
