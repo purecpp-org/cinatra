@@ -124,6 +124,7 @@ namespace cinatra
 		return kv_parser<std::vector<char>::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
 	}
 
+	//FIXME: 这里还是应该重写，要不cookie的转义字符不好搞啊.
 	inline CaseMap cookie_parser(const std::string& data)
 	{
 		return kv_parser<std::string::const_iterator, CaseMap, '=', ';'>(data.begin(), data.end(), true);
