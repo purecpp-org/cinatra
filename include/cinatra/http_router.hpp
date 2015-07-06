@@ -5,37 +5,18 @@
 #include <functional>
 #include "function_traits.hpp"
 #include "lexical_cast.hpp"
+#include "string_utils.hpp"
 
 class HttpRouter
 {
 	class token_parser
 	{
 		std::vector<std::string> m_v;
-		static std::vector<std::string> split(std::string& s, char seperator)
-		{
-			std::vector<std::string> v;
-			int pos = 0;
-			while (true)
-			{
-				pos = s.find(seperator, 0);
-				if (pos == std::string::npos)
-				{
-					if (!s.empty())
-						v.push_back(s);
-					break;
-				}
-				if (pos != 0)
-					v.push_back(s.substr(0, pos));
-				s = s.substr(pos + 1, s.length());
-			}
-
-			return v;
-		}
 	public:
 
 		token_parser(std::string& s, char seperator)
 		{
-			m_v = split(s, seperator);
+			m_v = StringUtil::split(s, seperator);
 		}
 
 	public:
