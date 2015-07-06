@@ -2,23 +2,26 @@
 #include <vector>
 #include <string>
 
-inline std::vector<std::string> split(std::string& s, char seperator)
+struct StringUtil
 {
-	std::vector<std::string> v;
-	int pos = 0;
-	while (true)
+	inline static std::vector<std::string> split(std::string& s, char seperator)
 	{
-		pos = s.find(seperator, 0);
-		if (pos == std::string::npos)
+		std::vector<std::string> v;
+		int pos = 0;
+		while (true)
 		{
-			if (!s.empty())
-				v.push_back(s);
-			break;
+			pos = s.find(seperator, 0);
+			if (pos == std::string::npos)
+			{
+				if (!s.empty())
+					v.push_back(s);
+				break;
+			}
+			if (pos != 0)
+				v.push_back(s.substr(0, pos));
+			s = s.substr(pos + 1, s.length());
 		}
-		if (pos != 0)
-			v.push_back(s.substr(0, pos));
-		s = s.substr(pos + 1, s.length());
-	}
 
-	return v;
-}
+		return v;
+	}
+};
