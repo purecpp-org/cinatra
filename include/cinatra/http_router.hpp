@@ -61,7 +61,7 @@ public:
 		this->map_invokers.erase(name);
 	}
 
-	void run(std::string& text) const
+	void dispatch(std::string& text) const
 	{
 		token_parser parser(text, '/');
 
