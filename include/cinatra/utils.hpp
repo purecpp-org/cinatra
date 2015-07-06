@@ -16,6 +16,8 @@ namespace cinatra
 	class CaseMap
 	{
 	public:
+		typedef std::map<std::string, std::string>::iterator iterator;
+		typedef std::map<std::string, std::string>::const_iterator const_iterator;
 		void add(const std::string& key, const std::string& val)
 		{
 			map_.emplace(key, val);
@@ -36,9 +38,31 @@ namespace cinatra
 			return map_.find(key) != map_.end();
 		}
 
+		void remove_key(const std::string& key)
+		{
+			auto iter = map_.find(key);
+			if (iter != map_.end())
+				map_.erase(iter);
+		}
+
 		void clear()
 		{
 			map_.clear();
+		}
+
+		const_iterator cbegin() const
+		{
+			return map_.cbegin();
+		}
+
+		const_iterator cend() const
+		{
+			return map_.cend();
+		}
+
+		void insert(const_iterator begin, const_iterator end)
+		{
+			map_.insert(begin, end);
 		}
 
 		std::vector<std::pair<std::string, std::string>>
