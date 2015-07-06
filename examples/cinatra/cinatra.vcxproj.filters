@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\utils">
+      <UniqueIdentifier>{cb69976a-985b-4ac0-8381-29eeffa64d9a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -50,14 +53,20 @@
     <ClInclude Include="..\..\include\cinatra\logging.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\function_traits.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\http_router.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\function_traits.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\lexical_cast.hpp">
-      <Filter>头文件</Filter>
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\Timer.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\string_utils.hpp">
+      <Filter>头文件\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
