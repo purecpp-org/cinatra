@@ -42,7 +42,7 @@ int main()
 	{
 		res.write("<html><body>");
 		res.write("total " + boost::lexical_cast<std::string>(req.query().size()) + " queries</br>");
-		for (auto it : req.query().get_all())
+		for (auto it : req.query())
 		{
 			res.write(it.first + ":" + it.second + "</br>");
 		}
@@ -59,11 +59,19 @@ int main()
 		([](const cinatra::Request& req, cinatra::Response& res)
 	{
 		auto cookies = cinatra::cookie_parser(req.cookie());
-		res.header.add("Set-Cookie", "SESSIONID=foo;");
-		res.header.add("Set-Cookie", "LONGTIME=b%3Ba%3Dr; expires=Wed, 08-Jul-2015 01:41:56 GMT");
+		res.cookies()
+			.add("session1", "1")
+			.add("session2", "foo")	// 这个cookie应该在会话结束之后就没了.
+			.new_cookie()	// 添加一个新cookie，这个cookie应该会保存一天的时间.
+			.add("longtime", "bar")
+			.expires(time(NULL) + 24 * 60 * 60)
+			.new_cookie()
+			.add("a=b", "c%=;d")
+			.max_age(1000);
+
 		res.write("<html><body>");
 		res.write("total " + boost::lexical_cast<std::string>(cookies.size()) + " cookies in request</br>");
-		for (auto it : cookies.get_all())
+		for (auto it : cookies)
 		{
 			res.write(it.first + ":" + it.second + "</br>");
 		}

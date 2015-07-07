@@ -74,5 +74,8 @@
     <ClInclude Include="..\..\include\cinatra\timer.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\cookie_builder.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

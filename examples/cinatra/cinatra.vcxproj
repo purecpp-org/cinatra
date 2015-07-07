@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp" />
     <ClInclude Include="..\..\include\cinatra\connection.hpp" />
+    <ClInclude Include="..\..\include\cinatra\cookie_builder.hpp" />
     <ClInclude Include="..\..\include\cinatra\function_traits.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_router.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_server.hpp" />

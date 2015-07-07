@@ -2,6 +2,7 @@
 #pragma once
 
 #include "utils.hpp"
+#include "cookie_builder.hpp"
 
 #include <boost/noncopyable.hpp>
 #include <boost/asio/streambuf.hpp>
@@ -11,7 +12,6 @@
 #include <functional>
 #include <cassert>
 #include <map>
-#include <sstream>
 #include <time.h>
 
 namespace cinatra
@@ -138,7 +138,7 @@ namespace cinatra
 				"Date: %s\r\n"
 				)
 				% version_major_ %version_minor_ % s.first % s.second
-				% date_str(time(NULL))
+				% header_date_str()
 				);
 
 			if (!is_chunked_encoding_)
@@ -156,9 +156,16 @@ namespace cinatra
 				header_str += "\r\n";
 			}
 
+			header_str += cookie_builder_.to_string();
+
 			header_str += "\r\n";
 
 			return header_str;
+		}
+
+		cookie_builder& cookies()
+		{
+			return cookie_builder_;
 		}
 	private:
 		friend Connection;
@@ -174,6 +181,6 @@ namespace cinatra
 		bool is_chunked_encoding_;
 		// 是否已经在header中添加了Transfer-Encoding: chunked.
 		bool has_chunked_encoding_header_;
-
+		cookie_builder cookie_builder_;
 	};
 }

@@ -56,19 +56,19 @@ namespace cinatra
 			map_.clear();
 		}
 
-		const_iterator cbegin() const
+		const_iterator begin() const
 		{
-			return map_.cbegin();
+			return map_.begin();
 		}
 
-		const_iterator cend() const
+		const_iterator end() const
 		{
-			return map_.cend();
+			return map_.end();
 		}
 
-		void insert(const_iterator begin, const_iterator end)
+		void insert(const_iterator b, const_iterator e)
 		{
-			map_.insert(begin, end);
+			map_.insert(b, e);
 		}
 
 		std::vector<std::pair<std::string, std::string>>
@@ -184,7 +184,7 @@ namespace cinatra
 		boost::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu> map_;
 	};
 
-	inline std::string date_str(time_t t)
+	inline std::string header_date_str()
 	{
 		std::string str;
 		time_t last_time_t = time(0);
@@ -198,6 +198,25 @@ namespace cinatra
 		str.resize(100);
 
 		size_t date_str_sz = strftime(&str[0], 99, "%a, %d %b %Y %H:%M:%S GMT", &my_tm);
+		str.resize(date_str_sz);
+
+		return str;
+	}
+
+	inline std::string cookie_date_str(time_t t)
+	{
+		std::string str;
+		tm my_tm;
+#ifdef _MSC_VER
+		gmtime_s(&my_tm, &t);
+#else
+		gmtime_r(&last_time_t, &my_tm);
+#endif
+
+		str.resize(100);
+
+		//Tue, 07-Jul-15 13:55:54 GMT
+		size_t date_str_sz = strftime(&str[0], 99, "%a, %d-%b-%y %H:%M:%S GMT", &my_tm);
 		str.resize(date_str_sz);
 
 		return str;
