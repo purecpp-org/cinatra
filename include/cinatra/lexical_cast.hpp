@@ -10,8 +10,8 @@ using namespace std;
 
 namespace detail
 {
-	const char* strue = "true";
-	const char* sfalse = "false";
+	static const char* strue = "true";
+	static const char* sfalse = "false";
 
 	template <typename To, typename From>
 	struct Converter
@@ -99,7 +99,7 @@ namespace detail
 		}
 	};
 
-	bool checkbool(const char* from, const size_t len, const char* s)
+	inline bool checkbool(const char* from, const size_t len, const char* s)
 	{
 		for (size_t i = 0; i < len; i++)
 		{
@@ -112,7 +112,7 @@ namespace detail
 		return true;
 	}
 
-	static bool convert(const char* from)
+	inline bool convert(const char* from)
 	{
 		const unsigned int len = strlen(from);
 		if (len != 4 && len != 5)

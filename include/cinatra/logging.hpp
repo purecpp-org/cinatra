@@ -215,6 +215,7 @@ namespace cinatra
 
 	inline void output_console(std::string& level, const std::string& prefix, const std::string& message)
 	{
+		std::cout << level;
 		std::cout << prefix;
 		std::cout << message;
 		std::cout.flush();
@@ -271,7 +272,7 @@ namespace cinatra
 	{
 	public:
 		template <class T>
-		empty_logger& operator << (T const& v)
+		empty_logger& operator << (T const&)
 		{
 			return *this;
 		}

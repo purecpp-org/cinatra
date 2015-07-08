@@ -2,8 +2,6 @@
 #include <cinatra/router.hpp>
 #include <vector>
 
-using namespace cinatra;
-
 namespace cinatra {
 class Cinatra {
 public:
@@ -27,5 +25,5 @@ public:
 
 BOOST_AUTO_TEST_CASE(router_basic_test)
 {
-	Cinatra::router_basic_test();
+	cinatra::Cinatra::router_basic_test();
 }
