@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <cctype>
 #include <cstring>
-using namespace std;
 
 namespace detail
 {
@@ -22,7 +21,7 @@ namespace detail
 	template <typename From>
 	struct Converter<int, From>
 	{
-		static int convert(const string& from)
+		static int convert(const std::string& from)
 		{
 			return std::atoi(from.c_str());
 		}
@@ -36,7 +35,7 @@ namespace detail
 	template <typename From>
 	struct Converter<long, From>
 	{
-		static long convert(const string& from)
+		static long convert(const std::string& from)
 		{
 			return std::atol(from.c_str());
 		}
@@ -50,7 +49,7 @@ namespace detail
 	template <typename From>
 	struct Converter<long long, From>
 	{
-		static long long convert(const string& from)
+		static long long convert(const std::string& from)
 		{
 			return std::atoll(from.c_str());
 		}
@@ -64,7 +63,7 @@ namespace detail
 	template <typename From>
 	struct Converter<double, From>
 	{
-		static double convert(const string& from)
+		static double convert(const std::string& from)
 		{
 			return std::atof(from.c_str());
 		}
@@ -78,7 +77,7 @@ namespace detail
 	template <typename From>
 	struct Converter<float, From>
 	{
-		static float convert(const string& from)
+		static float convert(const std::string& from)
 		{
 			return (float)std::atof(from.c_str());
 		}
@@ -138,9 +137,9 @@ namespace detail
 	}
 
 	template <>
-	struct Converter<bool, string>
+	struct Converter<bool, std::string>
 	{
-		static bool convert(const string& from)
+		static bool convert(const std::string& from)
 		{
 			return detail::convert(from.c_str());
 		}
@@ -182,13 +181,13 @@ namespace detail
 		}
 	};
 
-	//to string
+	//to std::string
 	template <typename From>
-	struct Converter<string, From>
+	struct Converter<std::string, From>
 	{
-		static string convert(const From& from)
+		static std::string convert(const From& from)
 		{
-			return std::to_string(from);
+			return std::to_std::string(from);
 		}
 	};
 }
