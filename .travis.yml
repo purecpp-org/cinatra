@@ -1,0 +1,15 @@
+language: cpp
+
+compiler:
+  - clang
+script: date
+
+branches:
+  only:
+    - master
+env:
+  - LANG="en_US.UTF-8"
+
+os:
+  - linux
+  - osx
