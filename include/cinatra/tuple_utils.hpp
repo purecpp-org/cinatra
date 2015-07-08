@@ -12,13 +12,13 @@ struct MakeIndexes<0, indexes...>
 };
 
 template<typename F, int ... Indexes, typename ... Args>
-static inline void apply_helper(const F& f, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)
+static inline auto apply_helper(const F& f, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)->decltype(f(std::get<Indexes>(tup)...))
 {
-	f(std::get<Indexes>(tup)...);
+	return f(std::get<Indexes>(tup)...);
 }
 
 template<typename F, typename ... Args>
-static inline void apply(const F& f, const std::tuple<Args...>& tp)
+static inline auto apply(const F& f, const std::tuple<Args...>& tp)->decltype(apply_helper(f, typename MakeIndexes<sizeof... (Args)>::type(), tp))
 {
-	apply_helper(f, typename MakeIndexes<sizeof... (Args)>::type(), tp);
+	return apply_helper(f, typename MakeIndexes<sizeof... (Args)>::type(), tp);
 }
