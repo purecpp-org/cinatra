@@ -1,2 +1,2 @@
 #cinatra
-[![Build Status](https://travis-ci.org/topcpporg/cinatra.svg)]
+![Build Status](https://travis-ci.org/topcpporg/cinatra.svg)
