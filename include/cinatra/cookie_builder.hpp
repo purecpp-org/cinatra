@@ -13,10 +13,6 @@ namespace cinatra
 	class cookie_builder
 	{
 	public:
-		cookie_builder()
-		{
-			new_cookie();
-		}
 		cookie_builder& new_cookie()
 		{
 			jar_.push_back(cookie_t());

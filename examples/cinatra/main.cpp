@@ -60,6 +60,7 @@ int main()
 	{
 		auto cookies = cinatra::cookie_parser(req.cookie());
 		res.cookies()
+			.new_cookie()
 			.add("session1", "1")
 			.add("session2", "foo")	// 这个cookie应该在会话结束之后就没了.
 			.new_cookie()	// 添加一个新cookie，这个cookie应该会保存一天的时间.
