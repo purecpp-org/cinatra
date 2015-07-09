@@ -9,8 +9,8 @@
 
 namespace detail
 {
-	static const char* strue = "true";
-	static const char* sfalse = "false";
+	static const char* STR_TRUE = "true";
+	static const char* STR_FALSE = "false";
 
 	template <typename To, typename From>
 	struct Converter
@@ -120,14 +120,14 @@ namespace detail
 		bool r = true;
 		if (len == 4)
 		{
-			r = checkbool(from, len, strue);
+			r = checkbool(from, len, STR_TRUE);
 
 			if (r)
 				return true;
 		}
 		else
 		{
-			r = checkbool(from, len, sfalse);
+			r = checkbool(from, len, STR_FALSE);
 
 			if (r)
 				return false;
