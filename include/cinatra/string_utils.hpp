@@ -11,7 +11,7 @@ struct StringUtil
 		while (true)
 		{
 			pos = s.find(seperator, 0);
-			if (pos == std::string::npos)
+			if (size_t(pos) == std::string::npos)
 			{
 				if (!s.empty())
 					v.push_back(s);

@@ -50,7 +50,7 @@ int main()
 	});
 
 	app.route("/test_ajax")
-		([](const cinatra::Request& req, cinatra::Response& res)
+		([](const cinatra::Request&, cinatra::Response& res)
 	{
 		res.end("Hello ajax!");
 	});

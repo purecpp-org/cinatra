@@ -55,13 +55,13 @@ struct function_traits : function_traits<decltype(&Callable::operator())>{};
 template <typename Function>
 typename function_traits<Function>::stl_function_type to_function(const Function& lambda)
 {
-	return static_cast<function_traits<Function>::stl_function_type>(lambda);
+	return static_cast<typename function_traits<Function>::stl_function_type>(lambda);
 }
 
 template <typename Function>
 typename function_traits<Function>::stl_function_type to_function(Function&& lambda)
 {
-	return static_cast<function_traits<Function>::stl_function_type>(std::forward<Function>(lambda));
+	return static_cast<typename function_traits<Function>::stl_function_type>(std::forward<Function>(lambda));
 }
 
 template <typename Function>
