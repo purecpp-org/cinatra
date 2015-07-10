@@ -11,12 +11,12 @@
 
 class HttpRouter
 {
-	typedef std::function<string(token_parser &)> invoker_function;
+	typedef std::function<std::string(token_parser &)> invoker_function;
 
 	std::map<std::string, invoker_function> map_invokers;
 
 public:
-	std::function<string(const std::string&)> log;
+	std::function<std::string(const std::string&)> log;
 
 	template<typename Function>
 	void assign(const std::string& name, const Function& f) {
