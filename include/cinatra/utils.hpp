@@ -210,7 +210,7 @@ namespace cinatra
 #ifdef _MSC_VER
 		gmtime_s(&my_tm, &t);
 #else
-		gmtime_r(&last_time_t, &my_tm);
+		gmtime_r(&t, &my_tm);
 #endif
 
 		str.resize(100);
