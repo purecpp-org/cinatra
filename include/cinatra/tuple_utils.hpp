@@ -22,3 +22,15 @@ static inline auto apply(const F& f, const std::tuple<Args...>& tp)->decltype(ap
 {
 	return apply_helper(f, typename MakeIndexes<sizeof... (Args)>::type(), tp);
 }
+
+template<typename F, typename Self, int ... Indexes, typename ... Args>
+static inline void apply_member_helper(const F& f, Self* self, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)//->decltype(self->f(std::get<Indexes>(tup)...))
+{
+	 (*self.*f)(std::get<Indexes>(tup)...);
+}
+
+template<typename F, typename Self, typename ... Args>
+static inline void apply_member(const F& f, Self* self, const std::tuple<Args...>& tp)//->decltype(apply_member_helper(f, self, typename MakeIndexes<sizeof... (Args)>::type(), tp))
+{
+	 apply_member_helper(f, self, typename MakeIndexes<sizeof... (Args)>::type(), tp);
+}

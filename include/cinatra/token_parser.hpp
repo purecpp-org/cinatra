@@ -1,5 +1,6 @@
 #pragma once
 #include "string_utils.hpp"
+#include "request.hpp"
 class token_parser
 {
 	std::vector<std::string> v_; //解析之后，v_的第一个元素为函数名，后面的元素均为参数
@@ -13,6 +14,13 @@ public:
 	token_parser(std::string& s, char seperator)
 	{
 		v_ = StringUtil::split(s, seperator);
+	}
+
+	token_parser() = default;
+
+	void parse(const cinatra::Request& req)
+	{
+
 	}
 
 public:
