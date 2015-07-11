@@ -11,16 +11,16 @@
 
 class HttpRouter
 {
-	typedef std::function<void(token_parser &)> invoker_function;
+	typedef std::function<std::string(token_parser &)> invoker_function;
 
 	std::map<std::string, invoker_function> map_invokers;
 
 public:
-	std::function<void(const std::string&)> log;
+	std::function<std::string(const std::string&)> log;
 
 	template<typename Function>
 	void assign(const std::string& name, const Function& f) {
-		return register_nonmenber_impl<Function>(name, f);
+		register_nonmenber_impl<Function>(name, f);
 	}
 
 	void remove_function(const std::string& name) {
@@ -64,10 +64,10 @@ private:
 	{
 		// add an argument to a Fusion cons-list for each parameter type
 		template<typename Args>
-		static inline void call(const Function& func, token_parser & parser, const Args& args)
+		static inline string call(const Function& func, token_parser & parser, const Args& args)
 		{
 			typedef typename function_traits<Signature>::template args<N>::type arg_type;
-			HttpRouter::invoker<Function, Signature, N + 1, M>::call(func, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
+			return HttpRouter::invoker<Function, Signature, N + 1, M>::call(func, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
 		}
 	};
 
@@ -76,9 +76,9 @@ private:
 	{
 		// the argument list is complete, now call the function
 		template<typename Args>
-		static inline void call(const Function& func, token_parser &, const Args& args)
+		static inline string call(const Function& func, token_parser &, const Args& args)
 		{
-			apply(func, args);
+			return apply(func, args);
 		}
 	};
 };

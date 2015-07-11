@@ -1,5 +1,6 @@
 
 #include <cinatra/cinatra.hpp>
+#include <cinatra/http_router.hpp>
 #include <fstream>
 
 int main()
@@ -23,7 +24,7 @@ int main()
 
 		std::string html;
 		in.seekg(0, std::ios::end);
-		html.resize(in.tellg());
+		html.resize(size_t(in.tellg()));
 		in.seekg(0, std::ios::beg);
 		in.read(&html[0], html.size());
 
