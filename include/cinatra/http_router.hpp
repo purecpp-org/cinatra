@@ -33,11 +33,11 @@ namespace cinatra
 		HttpRouter(const Request& req, const Response& resp) : req_(req), resp_(resp)
 		{
 			//支持函数指针和成员函数
-			assign("hello", [this](int a, int b){
-				std::cout << req_.url() << std::endl;
+			assign("/add/:name/:age", [this](const std::string& a, int b){
+				std::cout <<a<<" " <<req_.url() << std::endl;
 			});
 
-			assign("add", &HttpRouter::add);
+			//assign("/add", &HttpRouter::add);
 		}
 
 		HttpRouter() = default;
@@ -45,23 +45,40 @@ namespace cinatra
 		template<typename Function>
 		typename std::enable_if<!std::is_member_function_pointer<Function>::value>::type assign(const std::string& name, const Function& f)
 		{
-			//判断是否含有:，有则解析参数key然后给token_parser
-			//先判断是否有匹配的，这里要注意非标准的情况
-			//if (name.find_first_of(':') == std::string::npos)
-			//{
-			//	register_nonmenber_impl<Function>(name, f);
-			//}
-			//else
-			//{
+			std::string funcName = getFuncName(name);
+			
+			register_nonmenber_impl<Function>(funcName, f); //对函数指针有效
+		}
 
-			//}
-			register_nonmenber_impl<Function>(name, f); //对函数指针有效
+		std::string getFuncName(std::string name)
+		{
+			size_t pos = name.find_first_of(':');
+			std::string funcName = "";
+			if (pos != std::string::npos)
+			{
+				funcName = name.substr(0, pos - 1);
+				while (pos != string::npos)
+				{
+					//获取参数key，/hello/:name/:age
+					size_t nextpos = name.find_first_of('/', pos);
+					string paramKey = name.substr(pos + 1, nextpos - pos - 1);
+					parser_.add(funcName, paramKey);
+					pos = name.find_first_of(':', nextpos);
+				}
+			}
+			else
+			{
+				funcName = name;
+			}
+
+			return funcName;
 		}
 
 		template<typename Function>
 		typename std::enable_if<std::is_member_function_pointer<Function>::value>::type assign(const std::string& name, const Function& f)
 		{
-			register_member_impl<Function, Function, HttpRouter>(name, f, this);
+			std::string funcName = getFuncName(name);
+			register_member_impl<Function, Function, HttpRouter>(funcName, f, this);
 		}
 
 		void remove_function(const std::string& name) {
@@ -70,13 +87,13 @@ namespace cinatra
 
 		void dispatch(std::string& text)
 		{
-			//parser_.parse(req_);
-			token_parser parser(text, '/');
+			parser_.parse(req_);
+			//token_parser parser(text, '/');
 
-			while (!parser.empty())
+			while (!parser_.empty())
 			{
 				// read function name
-				std::string func_name = parser.get<std::string>();
+				std::string func_name = parser_.get<std::string>();
 
 				// look up function
 				auto it = map_invokers.find(func_name);
@@ -84,7 +101,7 @@ namespace cinatra
 					throw std::invalid_argument("unknown function: " + func_name);
 
 				// call the invoker which controls argument parsing
-				it->second(parser);
+				it->second(parser_);
 			}
 		}
 
