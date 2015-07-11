@@ -13,10 +13,6 @@
 
 namespace cinatra
 {
-	const Request* g_req;
-	const Response* g_resp;
-	
-
 	class HttpRouter
 	{
 		typedef std::function<void(token_parser &)> invoker_function;
@@ -26,6 +22,7 @@ namespace cinatra
 		const Request& req_;
 		const Response& resp_;
 		token_parser parser_;
+
 		void add(int a, int b)
 		{
 			std::cout << a + b << std::endl;
@@ -35,13 +32,7 @@ namespace cinatra
 	public:
 		HttpRouter(const Request& req, const Response& resp) : req_(req), resp_(resp)
 		{
-			g_req = &req_;
-			g_resp = &resp_;
-			
-			auto f = std::bind(&HttpRouter::add, this, std::placeholders::_1, std::placeholders::_1);
-
-			std::cout << std::is_bind_expression<decltype(f)>::value;
-			//assign("add", std::bind(&HttpRouter::add, this, std::placeholders::_1, std::placeholders::_1));
+			//支持函数指针和成员函数
 			assign("hello", [this](int a, int b){
 				std::cout << req_.url() << std::endl;
 			});
@@ -97,7 +88,6 @@ namespace cinatra
 			}
 		}
 
-
 	public:
 		template<class Signature, typename Function>
 		void register_nonmenber_impl(const std::string& name, const Function& f)
@@ -149,7 +139,6 @@ namespace cinatra
 			template<typename Args, typename Self>
 			static inline void call_member(const Function& func, Self* self, token_parser &, const Args& args)
 			{
-				std::cout << ""<<std::endl;
 				apply_member(func, self, args);
 			}
 		};
