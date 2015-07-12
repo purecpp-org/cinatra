@@ -30,12 +30,6 @@ namespace cinatra
 		}
 
 	public:
-		void init(const Request& req, const Response& resp)
-		{
-			req_ = &req;
-			resp_ = &resp;
-		}
-
 		HttpRouter()
 		{
 			//支持函数指针和成员函数
