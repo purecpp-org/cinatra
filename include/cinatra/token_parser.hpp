@@ -4,7 +4,7 @@
 #include "request.hpp"
 class token_parser
 {
-	std::vector<std::string> v_; //½âÎöÖ®ºó£¬v_µÄµÚÒ»¸öÔªËØÎªº¯ÊıÃû£¬ºóÃæµÄÔªËØ¾ùÎª²ÎÊı
+	std::vector<std::string> v_; //è§£æä¹‹åï¼Œv_çš„ç¬¬ä¸€ä¸ªå…ƒç´ ä¸ºå‡½æ•°åï¼Œåé¢çš„å…ƒç´ å‡ä¸ºå‚æ•°
 	std::multimap<std::string, std::string> map_;
 public:
 	/*

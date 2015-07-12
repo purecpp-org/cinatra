@@ -1,17 +1,17 @@
 #pragma once
 #include <functional>
 #include <tuple>
-//ÆÕÍ¨º¯Êı
-//º¯ÊıÖ¸Õë
+//æ™®é€šå‡½æ•°
+//å‡½æ•°æŒ‡é’ˆ
 //function/lambda
-//³ÉÔ±º¯Êı
-//º¯Êı¶ÔÏó
+//æˆå‘˜å‡½æ•°
+//å‡½æ•°å¯¹è±¡
 
-//×ª»»Îªstd::functionºÍº¯ÊıÖ¸Õë 
+//è½¬æ¢ä¸ºstd::functionå’Œå‡½æ•°æŒ‡é’ˆ 
 template<typename T>
 struct function_traits;
 
-//ÆÕÍ¨º¯Êı
+//æ™®é€šå‡½æ•°
 template<typename Ret, typename... Args>
 struct function_traits<Ret(Args...)>
 {
@@ -30,7 +30,7 @@ public:
 	};
 };
 
-//º¯ÊıÖ¸Õë
+//å‡½æ•°æŒ‡é’ˆ
 template<typename Ret, typename... Args>
 struct function_traits<Ret(*)(Args...)> : function_traits<Ret(Args...)>{};
 
@@ -48,7 +48,7 @@ FUNCTION_TRAITS(const)
 FUNCTION_TRAITS(volatile)
 FUNCTION_TRAITS(const volatile)
 
-//º¯Êı¶ÔÏó
+//å‡½æ•°å¯¹è±¡
 template<typename Callable>
 struct function_traits : function_traits<decltype(&Callable::operator())>{};
 

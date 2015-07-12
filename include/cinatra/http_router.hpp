@@ -32,7 +32,7 @@ namespace cinatra
 	public:
 		HttpRouter()
 		{
-			//Ö§³Öº¯ÊıÖ¸ÕëºÍ³ÉÔ±º¯Êı
+			//æ”¯æŒå‡½æ•°æŒ‡é’ˆå’Œæˆå‘˜å‡½æ•°
 			assign("/add/:name/:age", [this](const std::string& a, int b){
 				std::cout << a << " " << req_->url() << std::endl;
 			});
@@ -46,7 +46,7 @@ namespace cinatra
 		{
 			std::string funcName = getFuncName(name);
 
-			register_nonmenber_impl<Function>(funcName, f); //¶Ôº¯ÊıÖ¸ÕëÓĞĞ§
+			register_nonmenber_impl<Function>(funcName, f); //å¯¹å‡½æ•°æŒ‡é’ˆæœ‰æ•ˆ
 		}
 
 		std::string getFuncName(std::string name)
@@ -58,7 +58,7 @@ namespace cinatra
 			std::string funcName = name.substr(0, pos - 1);
 			while (pos != string::npos)
 			{
-				//»ñÈ¡²ÎÊıkey£¬/hello/:name/:age
+				//è·å–å‚æ•°keyï¼Œ/hello/:name/:age
 				size_t nextpos = name.find_first_of('/', pos);
 				string paramKey = name.substr(pos + 1, nextpos - pos - 1);
 				parser_.add(funcName, paramKey);
@@ -96,8 +96,8 @@ namespace cinatra
 			return true;
 		}
 
-		//Èç¹ûÓĞ²ÎÊıkey¾Í°´ÕÕkey´ÓqueryÀïÈ¡³öÏàÓ¦µÄ²ÎÊıÖµ
-		//Èç¹ûÃ»ÓĞÔòÖ±½Ó²éÕÒ£¬ĞèÒªÖğ²½Æ¥Åä£¬ÏÈÆ¥Åä×î³¤µÄ£¬½Ó×ÅÆ¥Åä´Î³¤µÄ£¬Ö±µ½²éÕÒÍêËùÓĞ¿ÉÄÜµÄpath
+		//å¦‚æœæœ‰å‚æ•°keyå°±æŒ‰ç…§keyä»queryé‡Œå–å‡ºç›¸åº”çš„å‚æ•°å€¼
+		//å¦‚æœæ²¡æœ‰åˆ™ç›´æ¥æŸ¥æ‰¾ï¼Œéœ€è¦é€æ­¥åŒ¹é…ï¼Œå…ˆåŒ¹é…æœ€é•¿çš„ï¼Œæ¥ç€åŒ¹é…æ¬¡é•¿çš„ï¼Œç›´åˆ°æŸ¥æ‰¾å®Œæ‰€æœ‰å¯èƒ½çš„path
 		invoker_function getFunction()
 		{
 			std::string func_name = parser_.get<std::string>();
@@ -105,7 +105,7 @@ namespace cinatra
 			if (it != map_invokers.end())
 				return it->second;
 
-			//´¦Àí·Ç±ê×¼µÄÇé¿ö
+			//å¤„ç†éæ ‡å‡†çš„æƒ…å†µ
 			size_t pos = func_name.rfind('/');
 			while (pos != string::npos)
 			{
