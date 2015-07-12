@@ -17,15 +17,15 @@ namespace cinatra
 	{
 		typedef std::function<void(token_parser &)> invoker_function;
 
-		std::map<std::string, invoker_function> map_invokers;
-
-		const Request* req_;
-		const Response* resp_;
-		token_parser parser_;
-
 		void hello(const std::string& a, int b)
 		{
 			std::cout << a << b << std::endl;
+			std::cout << req_->path() << std::endl;
+		}
+
+		void test(int b)
+		{
+			std::cout << b << std::endl;
 			std::cout << req_->path() << std::endl;
 		}
 
@@ -34,7 +34,6 @@ namespace cinatra
 		{
 			req_ = &req;
 			resp_ = &resp;
-			//assign("/add", &HttpRouter::add);
 		}
 
 		HttpRouter()
@@ -45,13 +44,14 @@ namespace cinatra
 			});
 
 			assign("/hello", &HttpRouter::hello);
+			assign("/hello/test", &HttpRouter::test);
 		}
 
 		template<typename Function>
 		typename std::enable_if<!std::is_member_function_pointer<Function>::value>::type assign(const std::string& name, const Function& f)
 		{
 			std::string funcName = getFuncName(name);
-			
+
 			register_nonmenber_impl<Function>(funcName, f); //对函数指针有效
 		}
 
@@ -85,25 +85,53 @@ namespace cinatra
 			this->map_invokers.erase(name);
 		}
 
-		void dispatch(const Request& req, const Response& resp)
+		bool dispatch(const Request& req, const Response& resp)
 		{
 			req_ = &req;
 			resp_ = &resp;
 			parser_.parse(*req_);
-			
-			while (!parser_.empty())
+
+			if (parser_.empty())
+				return false;
+
+			auto func = getFunction();
+			if (func == nullptr)
+				return false;
+
+			func(parser_);
+			return true;
+		}
+
+		//如果有参数key就按照key从query里取出相应的参数值
+		//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path
+		invoker_function getFunction()
+		{
+			std::string func_name = parser_.get<std::string>();
+			auto it = map_invokers.find(func_name);
+			if (it != map_invokers.end())
+				return it->second;
+
+			//处理非标准的情况
+			size_t pos = func_name.rfind('/');
+			while (pos != string::npos)
 			{
-				// read function name
-				std::string func_name = parser_.get<std::string>();
-
-				// look up function
-				auto it = map_invokers.find(func_name);
+				string name = func_name.substr(0, pos);
+				auto it = map_invokers.find(name);
 				if (it == map_invokers.end())
-					throw std::invalid_argument("unknown function: " + func_name);
-
-				// call the invoker which controls argument parsing
-				it->second(parser_);
+				{
+					pos = func_name.rfind('/', pos - 1);
+					if (pos == 0)
+						return nullptr;
+				}
+				else
+				{
+					string params = func_name.substr(pos);
+					parser_.parse(params);
+					return it->second;
+				}
 			}
+
+			return nullptr;
 		}
 
 	public:
@@ -137,7 +165,7 @@ namespace cinatra
 			}
 
 			template<typename Args, typename Self>
-			static inline void call_member( Function func, Self* self, token_parser & parser, const Args& args)
+			static inline void call_member(Function func, Self* self, token_parser & parser, const Args& args)
 			{
 				typedef typename function_traits<Signature>::template args<N>::type arg_type;
 				HttpRouter::invoker<Function, Signature, N + 1, M>::call_member(func, self, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
@@ -160,6 +188,15 @@ namespace cinatra
 				apply_member(func, self, args);
 			}
 		};
+
+	private:
+
+
+		std::map<std::string, invoker_function> map_invokers;
+
+		const Request* req_;
+		const Response* resp_;
+		token_parser parser_;
 	};
 }
 

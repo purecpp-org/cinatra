@@ -13,10 +13,10 @@ public:
 	});
 	hello/a/b->hello/a/b();hello/a(b);hello(a, b);
 	*/
-	token_parser(std::string& s, char seperator)
-	{
-		v_ = StringUtil::split(s, seperator);
-	}
+	//token_parser(std::string& s, char seperator)
+	//{
+	//	v_ = StringUtil::split(s, seperator);
+	//}
 
 	token_parser() = default;
 
@@ -27,8 +27,6 @@ public:
 
 	void parse(const cinatra::Request& req)
 	{
-		//如果有参数key就按照key从query里取出相应的参数值
-		//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path
 		string path = req.path();
 		
 		if (!map_.empty())
@@ -47,6 +45,11 @@ public:
 		{
 			v_ = StringUtil::split(path, '/');
 		}
+	}
+
+	void parse(std::string& params)
+	{
+		v_ = StringUtil::split(params, '/');
 	}
 
 public:
