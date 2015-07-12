@@ -19,29 +19,33 @@ namespace cinatra
 
 		std::map<std::string, invoker_function> map_invokers;
 
-		const Request& req_;
-		const Response& resp_;
+		const Request* req_;
+		const Response* resp_;
 		token_parser parser_;
 
 		void hello(const std::string& a, int b)
 		{
 			std::cout << a << b << std::endl;
-			std::cout << req_.path() << std::endl;
+			std::cout << req_->path() << std::endl;
 		}
 
 	public:
-		HttpRouter(const Request& req, const Response& resp) : req_(req), resp_(resp)
+		void init(const Request& req, const Response& resp)
 		{
-			//支持函数指针和成员函数
-			assign("/add/:name/:age", [this](const std::string& a, int b){
-				std::cout <<a<<" " <<req_.url() << std::endl;
-			});
-
-			assign("/hello", &HttpRouter::hello);
+			req_ = &req;
+			resp_ = &resp;
 			//assign("/add", &HttpRouter::add);
 		}
 
-		HttpRouter() = default;
+		HttpRouter()
+		{
+			//支持函数指针和成员函数
+			assign("/add/:name/:age", [this](const std::string& a, int b){
+				std::cout << a << " " << req_->url() << std::endl;
+			});
+
+			assign("/hello", &HttpRouter::hello);
+		}
 
 		template<typename Function>
 		typename std::enable_if<!std::is_member_function_pointer<Function>::value>::type assign(const std::string& name, const Function& f)
@@ -54,22 +58,17 @@ namespace cinatra
 		std::string getFuncName(std::string name)
 		{
 			size_t pos = name.find_first_of(':');
-			std::string funcName = "";
-			if (pos != std::string::npos)
+			if (pos == std::string::npos)
+				return name;
+
+			std::string funcName = name.substr(0, pos - 1);
+			while (pos != string::npos)
 			{
-				funcName = name.substr(0, pos - 1);
-				while (pos != string::npos)
-				{
-					//获取参数key，/hello/:name/:age
-					size_t nextpos = name.find_first_of('/', pos);
-					string paramKey = name.substr(pos + 1, nextpos - pos - 1);
-					parser_.add(funcName, paramKey);
-					pos = name.find_first_of(':', nextpos);
-				}
-			}
-			else
-			{
-				funcName = name;
+				//获取参数key，/hello/:name/:age
+				size_t nextpos = name.find_first_of('/', pos);
+				string paramKey = name.substr(pos + 1, nextpos - pos - 1);
+				parser_.add(funcName, paramKey);
+				pos = name.find_first_of(':', nextpos);
 			}
 
 			return funcName;
@@ -86,11 +85,12 @@ namespace cinatra
 			this->map_invokers.erase(name);
 		}
 
-		void dispatch(std::string& text)
+		void dispatch(const Request& req, const Response& resp)
 		{
-			parser_.parse(req_);
-			//token_parser parser(text, '/');
-
+			req_ = &req;
+			resp_ = &resp;
+			parser_.parse(*req_);
+			
 			while (!parser_.empty())
 			{
 				// read function name
