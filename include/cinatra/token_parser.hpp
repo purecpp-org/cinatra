@@ -36,7 +36,11 @@ public:
 			v_.push_back(req.path());
 			for (auto& it : map_)
 			{
-				v_.push_back(req.query().get_val(it.second));
+				auto& val = req.query().get_val(it.second);
+				if (val.empty())
+					break;
+
+				v_.push_back(val);
 			}
 		}
 		else
@@ -50,7 +54,7 @@ public:
 	typename std::decay<RequestedType>::type get()
 	{
 		if (v_.empty())
-			throw std::invalid_argument("unexpected end of input");
+			throw std::invalid_argument("params is invalid ");
 
 		try
 		{
@@ -63,7 +67,7 @@ public:
 		}
 		catch (std::exception& e)
 		{
-			throw std::invalid_argument(std::string("invalid argument: ") + e.what());
+			throw std::invalid_argument(std::string("invalid path: ") + e.what());
 		}
 	}
 

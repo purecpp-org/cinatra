@@ -23,9 +23,9 @@ namespace cinatra
 		const Response& resp_;
 		token_parser parser_;
 
-		void add(int a, int b)
+		void hello(const std::string& a, int b)
 		{
-			std::cout << a + b << std::endl;
+			std::cout << a << b << std::endl;
 			std::cout << req_.path() << std::endl;
 		}
 
@@ -37,6 +37,7 @@ namespace cinatra
 				std::cout <<a<<" " <<req_.url() << std::endl;
 			});
 
+			assign("/hello", &HttpRouter::hello);
 			//assign("/add", &HttpRouter::add);
 		}
 
