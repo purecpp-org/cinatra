@@ -72,7 +72,7 @@ namespace cinatra
 			})
 				.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
 			{
-				LOG_DBG << "Handle error:" << code << " " << msg << "with path " << req.path();
+				LOG_DBG << "Handle error:" << code << " " << msg << " with path " << req.path();
 				if (error_handler_
 					&& error_handler_(code,msg,req,res))
 				{
