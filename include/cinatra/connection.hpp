@@ -14,7 +14,7 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
-
+#include "http_router.hpp"
 
 namespace cinatra
 {
@@ -92,7 +92,7 @@ namespace cinatra
 					//handle request, 如果没有错误调用request_handler_处理
 					if (!hasError && request_handler_ != nullptr)
 					{
-						hasError = request_handler_(req, res);
+						hasError = router_.dispatch(req, res);
 						if (!hasError)
 						{
 							response_file(req, res.header.hasKeepalive(), yield);
@@ -330,5 +330,6 @@ namespace cinatra
 		const request_handler_t& request_handler_;
 		const error_handler_t& error_handler_;
 		const std::string& public_dir_;
+		HttpRouter router_;
 	};
 }
