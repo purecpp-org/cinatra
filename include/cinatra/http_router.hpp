@@ -20,6 +20,7 @@ namespace cinatra
 		void hello(const std::string& a, int b)
 		{
 			std::cout << a << b << std::endl;
+			resp_->write("t");
 			std::cout << req_->path() << std::endl;
 		}
 
@@ -79,7 +80,7 @@ namespace cinatra
 			this->map_invokers.erase(name);
 		}
 
-		bool dispatch(const Request& req, const Response& resp)
+		bool dispatch(const Request& req,  Response& resp)
 		{
 			req_ = &req;
 			resp_ = &resp;
@@ -189,7 +190,7 @@ namespace cinatra
 		std::map<std::string, invoker_function> map_invokers;
 
 		const Request* req_;
-		const Response* resp_;
+		Response* resp_;
 		token_parser parser_;
 	};
 }
