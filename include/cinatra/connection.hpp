@@ -79,139 +79,30 @@ namespace cinatra
 						}
 					}
 
-					/*
-					如果是http1.0，规则是这样的：
-					如果request里面的connection是keep-alive，那就说明浏览器想要长连接，服务器如果也同意长连接，
-					那么返回的response的connection也应该有keep-alive通知浏览器，如果不想长链接，response里面就不应该有keep-alive;
-					如果是1.1的，规则是这样的：
-					如果request里面的connection是close，那就说明浏览器不希望长连接，如果没有close，就是默认保持长链接，
-					本来是跟keep-alive没关系，但是如果浏览器发了keep-alive，那你返回的时候也应该返回keep-alive;
-					惯例是根据有没有close判断是否长链接，但是如果没有close但是有keep-alive，你response也得加keep-alive;
-					如果没有close也没有keep-alive
-					那就是长链接但是不用返回keep-alive
-					*/
-
 					Request req = parser.get_request();
-					Response res;
 					LOG_DBG << "New request,path:" << req.path();
 
-					auto self = shared_from_this();
-					res.direct_write_func_ = 
-						[&yield, self, this]
-					(const char* data, std::size_t len)->bool
+					Response res;
+					init_response(res, yield);
+					bool hasError = check_request(parser, req, res);		
+					add_version(parser, req, res);
+					add_keepalive(parser, req, res);
+					add_conten_type(res);		
+
+					//handle request, 如果没有错误调用request_handler_处理
+					if (!hasError && request_handler_ != nullptr)
 					{
-						boost::system::error_code ec;
-						boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
-						if (ec)
+						hasError = request_handler_(req, res);
+						if (!hasError)
 						{
-							// TODO: log ec.message().
-							std::cout << "direct_write_func error" << ec.message() << std::endl;
-							return false;
+							response_file(req, res.header.hasKeepalive(), yield);
+							continue;
 						}
-						return true;
-					};
-
-					// 是否已经处理了这个request.
-					bool found = false;
-
-					bool keep_alive{};
-					bool close_connection{};
-					if (parser.check_version(1, 0))
-					{
-						// HTTP/1.0
-						LOG_DBG << "http/1.0";
-						if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
-						{
-							LOG_DBG << "Keep-Alive";
-							keep_alive = true;
-							close_connection = false;
-						}
-						else
-						{
-							keep_alive = false;
-							close_connection = true;
-						}
-
-						res.set_version(1, 0);
-					}
-					else if (parser.check_version(1, 1))
-					{
-						// HTTP/1.1
-						LOG_DBG << "http/1.1";
-						if (req.header().val_ncase_equal("Connetion", "close"))
-						{
-							keep_alive = false;
-							close_connection = true;
-						}
-						else if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
-						{
-							keep_alive = true;
-							close_connection = false;
-						}
-						else
-						{
-							keep_alive = false;
-							close_connection = false;
-						}
-
-						if (req.header().get_count("host") == 0)
-						{
-							found = error_handler_(400,"", req, res);
-						}
-
-						res.set_version(1, 1);
-					}
-					else
-					{
-						LOG_DBG << "Unsupported http version";
-						found = error_handler_(400, "Unsupported HTTP version.", req, res);
 					}
 
-					if (!found && request_handler_)
-					{
-						found = request_handler_(req, res);
-					}
-					if (!found && response_file(req, keep_alive, yield))
-					{
-						continue;
-					}
+					response(res, yield);
 
-					//如果都没有找到，404
-					if (!found)
-					{
-						LOG_DBG << "404 Not found";
-						error_handler_(404, "", req, res);
-					}
-
-					if (keep_alive)
-					{
-						res.header.add("Connetion", "Keep-Alive");
-					}
-
-					//用户没有指定Content-Type，默认设置成text/html
-					if (res.header.get_count("Content-Type") == 0)
-					{
-						res.header.add("Content-Type", "text/html");
-					}
-
-					if (!res.is_complete_)
-					{
-						res.end();
-					}
-
-					if (!res.is_chunked_encoding_)
-					{
-						// 如果是chunked编码数据应该都发完了.
-						std::string header_str = res.get_header_str();
-						boost::asio::async_write(socket_, boost::asio::buffer(header_str), yield);
-						boost::asio::async_write(socket_, res.buffer_, 
-							boost::asio::transfer_exactly(res.buffer_.size()), yield);
-					}
-
-					if (close_connection)
-					{
-						shutdown();
-					}
+					close_connection(parser, req);
 				}
 				catch (boost::system::system_error& e)
 				{
@@ -236,6 +127,132 @@ namespace cinatra
 				catch (...)
 				{
 					response_5xx("", yield);
+				}
+			}
+		}
+
+		void init_response(Response& res, const boost::asio::yield_context& yield)
+		{
+			auto self = shared_from_this();
+			res.direct_write_func_ =
+				[&yield, self, this]
+			(const char* data, std::size_t len)->bool
+			{
+				boost::system::error_code ec;
+				boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
+				if (ec)
+				{
+					// TODO: log ec.message().
+					LOG_WARN << "direct_write_func error" << ec.message();
+					return false;
+				}
+				return true;
+			};
+		}
+
+		bool check_request(const RequestParser& parser, const Request& req, Response& res)
+		{
+			bool hasError = false;
+			//check request
+			if (parser.is_version10())
+			{
+
+			}
+			else if (parser.is_version11())
+			{
+				if (req.header().get_count("host") == 0)
+				{
+					hasError = error_handler_(400, "", req, res);
+				}
+			}
+			else
+			{
+				hasError = error_handler_(400, "Unsupported HTTP version.", req, res);
+			}
+
+			return hasError;
+		}
+
+		void add_version(const RequestParser& parser, const Request& req, Response& res)
+		{
+			if (parser.is_version10())
+			{
+				res.set_version(1, 0);
+			}
+			else if (parser.is_version11())
+			{
+				res.set_version(1, 1);
+			}
+		}
+
+		/*
+		如果是http1.0，规则是这样的：
+		如果request里面的connection是keep-alive，那就说明浏览器想要长连接，服务器如果也同意长连接，
+		那么返回的response的connection也应该有keep-alive通知浏览器，如果不想长链接，response里面就不应该有keep-alive;
+		如果是1.1的，规则是这样的：
+		如果request里面的connection是close，那就说明浏览器不希望长连接，如果没有close，就是默认保持长链接，
+		本来是跟keep-alive没关系，但是如果浏览器发了keep-alive，那你返回的时候也应该返回keep-alive;
+		惯例是根据有没有close判断是否长链接，但是如果没有close但是有keep-alive，你response也得加keep-alive;
+		如果没有close也没有keep-alive
+		那就是长链接但是不用返回keep-alive
+		*/
+		void add_keepalive(const RequestParser& parser, const Request& req, Response& res)
+		{
+			if (parser.is_version10())
+			{
+				if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
+				{
+					res.header.add("Connetion", "Keep-Alive");
+				}
+			}
+			else if (parser.is_version11())
+			{
+				if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
+				{
+					res.header.add("Connetion", "Keep-Alive");
+				}
+			}
+		}
+
+		void add_conten_type(Response& res)
+		{
+			if (res.header.get_count("Content-Type") == 0)
+			{
+				res.header.add("Content-Type", "text/html");
+			}
+		}
+
+		void response(Response& res, const boost::asio::yield_context& yield)
+		{
+			if (!res.is_complete_)
+			{
+				res.end();
+			}
+
+			if (!res.is_chunked_encoding_)
+			{
+				// 如果是chunked编码数据应该都发完了.
+				std::string header_str = res.get_header_str();
+				boost::asio::async_write(socket_, boost::asio::buffer(header_str), yield);
+				boost::asio::async_write(socket_, res.buffer_,
+					boost::asio::transfer_exactly(res.buffer_.size()), yield);
+			}
+		}
+
+		void close_connection(const RequestParser& parser, const Request& req)
+		{
+			if (parser.is_version10())
+			{
+				if (!req.header().val_ncase_equal("Connetion", "Keep-Alive"))
+				{
+					shutdown();
+				}
+			}
+			else if (parser.is_version11())
+			{
+				if (!req.header().val_ncase_equal("Connetion", "close"))
+				{
+					shutdown();
 				}
 			}
 		}
