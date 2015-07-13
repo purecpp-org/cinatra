@@ -61,6 +61,16 @@ namespace cinatra
 			return version_major_ == major && version_minor_ == minor;
 		}
 
+		bool is_version10() const
+		{
+			return version_major_ == 1 && version_minor_ == 0;
+		}
+
+		bool is_version11() const
+		{
+			return version_major_ == 1 && version_minor_ == 1;
+		}
+
 		Request get_request()
 		{
 			return Request(url_, body_, method_, path_, query_, header_);

@@ -157,6 +157,11 @@ namespace cinatra
 		{
 			return map_.size();
 		}
+
+		bool hasKeepalive() const
+		{
+			return map_.find("Connection") != map_.end();
+		}
 	private:
 		struct NcaseHash
 		{
