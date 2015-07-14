@@ -96,7 +96,7 @@ namespace cinatra
 				acceptor_.async_accept(conn->socket(), yield[ec]);
 				if (ec)
 				{
-					//TODO: log error
+					LOG_DBG << "Accept new connection failed: " << ec.message();
 					continue;
 				}
 
