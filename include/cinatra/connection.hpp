@@ -45,25 +45,6 @@ namespace cinatra
 
 		void start()
 		{
-			timer_.async_wait([this](const boost::system::error_code& ec)
-			{
-				if (ec == boost::asio::error::operation_aborted)
-				{
-					return;
-				}
-				if (ec)
-				{
-					LOG_DBG << "Connection timer error: " << ec.message();
-				}
-
-				LOG_DBG << "Connection timeout.";
-				if (!socket_.is_open())
-				{
-					return;
-				}
-				shutdown();
-			});
-
 			boost::asio::spawn(service_,
 				std::bind(&Connection::do_work,
 				shared_from_this(), std::placeholders::_1));
@@ -76,8 +57,7 @@ namespace cinatra
 			{
 				try
 				{
-					//2分钟超时.
-					timer_.expires_from_now(boost::posix_time::minutes(2));
+					reset_timer();
 
 					std::array<char, 8192> buffer;
 					RequestParser parser;
@@ -86,7 +66,7 @@ namespace cinatra
 					for (;;)
 					{
 						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
-						timer_.cancel();	//读取到了数据之后就取消关闭连接的timer
+						cancel_timer();	//读取到了数据之后就取消关闭连接的timer
 						total_size += n;
 						if (total_size > 2 * 1024 * 1024)
 						{
@@ -148,10 +128,12 @@ namespace cinatra
 				{
 					LOG_ERR << "Error occurs,response 500: " << e.what();
 					response_5xx(e.what(), yield);
+					shutdown();
 				}
 				catch (...)
 				{
 					response_5xx("", yield);
+					shutdown();
 				}
 			}
 		}
@@ -331,11 +313,21 @@ namespace cinatra
 			return true;
 		}
 
-		void shutdown()
+		void shutdown(bool both = false)
 		{
 			LOG_DBG << "Shutdown connection";
+
+			boost::asio::ip::tcp::socket::shutdown_type shutdown_type;
+			if (both)
+			{
+				shutdown_type = boost::asio::ip::tcp::socket::shutdown_both;
+			}
+			else
+			{
+				shutdown_type = boost::asio::ip::tcp::socket::shutdown_send;
+			}
 			boost::system::error_code ignored_ec;
-			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+			socket_.shutdown(shutdown_type, ignored_ec);
 		}
 
 		void response_5xx(const std::string& msg, const boost::asio::yield_context& yield)
@@ -353,6 +345,34 @@ namespace cinatra
 				yield[ignored_ec]);
 
 			shutdown();
+		}
+
+		void reset_timer()
+		{
+			//2分钟超时.
+			timer_.expires_from_now(boost::posix_time::seconds(2));
+			timer_.async_wait([this](const boost::system::error_code& ec)
+			{
+				if (ec == boost::asio::error::operation_aborted)
+				{
+					return;
+				}
+				if (ec)
+				{
+					LOG_DBG << "Connection timer error: " << ec.message();
+				}
+
+				LOG_DBG << "Connection timeout.";
+				if (!socket_.is_open())
+				{
+					return;
+				}
+				shutdown(true);
+			});
+		}
+		void cancel_timer()
+		{
+			timer_.cancel();
 		}
 	private:
 		boost::asio::io_service& service_;
