@@ -30,7 +30,7 @@ namespace cinatra
 		Connection(boost::asio::io_service& service, const request_handler_t& request_handler,
 			const error_handler_t& error_handler, const std::string& public_dir)
 			:service_(service), socket_(service), request_handler_(request_handler),
-			error_handler_(error_handler), public_dir_(public_dir)
+			timer_(service), error_handler_(error_handler), public_dir_(public_dir)
 		{
 			LOG_DBG << "New connection";
 		}
@@ -45,6 +45,25 @@ namespace cinatra
 
 		void start()
 		{
+			timer_.async_wait([this](const boost::system::error_code& ec)
+			{
+				if (ec == boost::asio::error::operation_aborted)
+				{
+					return;
+				}
+				if (ec)
+				{
+					LOG_DBG << "Connection timer error: " << ec.message();
+				}
+
+				LOG_DBG << "Connection timeout.";
+				if (!socket_.is_open())
+				{
+					return;
+				}
+				shutdown();
+			});
+
 			boost::asio::spawn(service_,
 				std::bind(&Connection::do_work,
 				shared_from_this(), std::placeholders::_1));
@@ -53,11 +72,13 @@ namespace cinatra
 	private:
 		void do_work(const boost::asio::yield_context& yield)
 		{
-			//FIXME: 拆分成多个子函数..
 			for (;;)
 			{
 				try
 				{
+					//2分钟超时.
+					timer_.expires_from_now(boost::posix_time::minutes(2));
+
 					std::array<char, 8192> buffer;
 					RequestParser parser;
 
@@ -65,11 +86,13 @@ namespace cinatra
 					for (;;)
 					{
 						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
+						timer_.cancel();	//读取到了数据之后就取消关闭连接的timer
 						total_size += n;
 						if (total_size > 2 * 1024 * 1024)
 						{
 							throw std::runtime_error("Request toooooooo large");
 						}
+
 						auto ret = parser.parse(buffer.data(), buffer.data() + n);
 						if (ret == RequestParser::good)
 						{
@@ -334,6 +357,7 @@ namespace cinatra
 	private:
 		boost::asio::io_service& service_;
 		boost::asio::ip::tcp::socket socket_;
+		boost::asio::deadline_timer timer_;	// 长连接超时使用的timer.
 		const request_handler_t& request_handler_;
 		const error_handler_t& error_handler_;
 		const std::string& public_dir_;
