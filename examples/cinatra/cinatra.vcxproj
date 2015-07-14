@@ -86,6 +86,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\cinatra\aop.hpp" />
+    <ClInclude Include="..\..\include\cinatra\check_login_aspect.hpp" />
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp" />
     <ClInclude Include="..\..\include\cinatra\connection.hpp" />
     <ClInclude Include="..\..\include\cinatra\cookie_builder.hpp" />
@@ -95,6 +97,7 @@
     <ClInclude Include="..\..\include\cinatra\io_service_pool.hpp" />
     <ClInclude Include="..\..\include\cinatra\lexical_cast.hpp" />
     <ClInclude Include="..\..\include\cinatra\logging.hpp" />
+    <ClInclude Include="..\..\include\cinatra\noncopyable.hpp" />
     <ClInclude Include="..\..\include\cinatra\request.hpp" />
     <ClInclude Include="..\..\include\cinatra\request_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\response.hpp" />
