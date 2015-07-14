@@ -257,7 +257,7 @@ namespace cinatra
 			}
 			else if (parser.is_version11())
 			{
-				if (!req.header().val_ncase_equal("Connetion", "close"))
+				if (req.header().val_ncase_equal("Connetion", "close"))
 				{
 					shutdown();
 				}
