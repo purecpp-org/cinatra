@@ -4,7 +4,7 @@
 #include "request.hpp"
 class token_parser
 {
-	std::vector<std::string> v_; //解析之后，v_的第一个元素为函数名，后面的元素均为参数
+	std::vector<std::string> v_; //解析之后，v_的第一个元素为函数名，后面的元素均为参数.
 	std::multimap<std::string, std::string> map_;
 public:
 	/*

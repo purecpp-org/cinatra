@@ -67,7 +67,7 @@ namespace cinatra
 				buf.sputn(str.data(), str.size());
 			}
 
-			//要发送数据的长度
+			//要发送数据的长度.
 			std::stringstream ss;
 			ss << std::hex << len;
 			std::string str;

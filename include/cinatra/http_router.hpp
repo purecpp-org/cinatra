@@ -27,7 +27,7 @@ namespace cinatra
 	public:
 		HttpRouter()
 		{
-			//支持函数指针和成员函数
+			//支持函数指针和成员函数.
 			route("/", [this]{ resp_->write("Hello Cinatra!"); });
 
 			route("/test_post", [this]
@@ -79,7 +79,7 @@ namespace cinatra
 		{
 			std::string funcName = getFuncName(name);
 
-			register_nonmenber_impl<Function>(funcName, f); //对函数指针有效
+			register_nonmenber_impl<Function>(funcName, f); //对函数指针有效.
 		}
 
 		std::string getFuncName(std::string name)
@@ -129,8 +129,8 @@ namespace cinatra
 			return true;
 		}
 
-		//如果有参数key就按照key从query里取出相应的参数值
-		//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path
+		//如果有参数key就按照key从query里取出相应的参数值.
+		//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path.
 		invoker_function getFunction()
 		{
 			std::string func_name = parser_.get<std::string>();
@@ -138,7 +138,7 @@ namespace cinatra
 			if (it != map_invokers.end())
 				return it->second;
 
-			//处理非标准的情况
+			//处理非标准的情况.
 			size_t pos = func_name.rfind('/');
 			while (pos != string::npos)
 			{
