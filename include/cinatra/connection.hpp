@@ -15,6 +15,8 @@
 #include <iostream>
 #include <fstream>
 #include "http_router.hpp"
+#include "aop.hpp"
+#include "check_login_aspect.hpp"
 
 namespace cinatra
 {
@@ -92,7 +94,7 @@ namespace cinatra
 					//handle request, 如果没有错误调用request_handler_处理
 					if (!hasError && request_handler_ != nullptr)
 					{
-						hasError = router_.dispatch(req, res);
+						invoke<CheckLoginAspect>(hasError, &Connection::dispatch, this, req, res);
 						if (!hasError)
 						{
 							response_file(req, res.header.hasKeepalive(), yield);
@@ -129,6 +131,11 @@ namespace cinatra
 					response_5xx("", yield);
 				}
 			}
+		}
+
+		bool dispatch(const Request& req, Response& res)
+		{
+			return router_.dispatch(req, res);
 		}
 
 		void init_response(Response& res, const boost::asio::yield_context& yield)
