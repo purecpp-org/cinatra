@@ -306,7 +306,6 @@ namespace cinatra
 			while (!in.eof())
 			{
 				in.read(&data[0], data.size());
-				//FIXME: warning C4244: “参数”: 从“std::streamoff”转换到“unsigned int”，可能丢失数据.
 				boost::asio::async_write(socket_, boost::asio::buffer(data, size_t(in.gcount())), yield);
 			}
 
@@ -350,7 +349,7 @@ namespace cinatra
 		void reset_timer()
 		{
 			//2分钟超时.
-			timer_.expires_from_now(boost::posix_time::seconds(2));
+			timer_.expires_from_now(boost::posix_time::seconds(2 * 60));
 			timer_.async_wait([this](const boost::system::error_code& ec)
 			{
 				if (ec == boost::asio::error::operation_aborted)

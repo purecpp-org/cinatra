@@ -9,7 +9,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/filesystem.hpp>
 
 #include <map>
 #include <string>
