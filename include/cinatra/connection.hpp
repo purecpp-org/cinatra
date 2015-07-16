@@ -65,7 +65,22 @@ namespace cinatra
 					std::size_t total_size = 0;
 					for (;;)
 					{
-						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield);
+						boost::system::error_code ec;
+						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield[ec]);
+						if (ec)
+						{
+							if (ec == boost::asio::error::eof)
+							{
+								LOG_DBG << "Socket shutdown";
+							}
+							else
+							{
+								LOG_DBG << "Network exception: " << ec.message();
+							}
+							close();
+							return;
+						}
+
 						cancel_timer();	//读取到了数据之后就取消关闭连接的timer
 						total_size += n;
 						if (total_size > 2 * 1024 * 1024)
@@ -112,16 +127,8 @@ namespace cinatra
 				catch (boost::system::system_error& e)
 				{
 					//网络通信异常，关socket.
-					if (e.code() == boost::asio::error::eof)
-					{
-						LOG_DBG << "Socket shutdown";
-					}
-					else
-					{
-						LOG_DBG << "Network exception: " << e.code().message();
-					}
-					boost::system::error_code ignored_ec;
-					socket_.close(ignored_ec);
+					LOG_DBG << "Network exception: " << e.code().message();
+					close();
 					return;
 				}
 				catch (std::exception& e)
@@ -154,7 +161,6 @@ namespace cinatra
 				boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
 				if (ec)
 				{
-					// TODO: log ec.message().
 					LOG_WARN << "direct_write_func error" << ec.message();
 					return false;
 				}
@@ -349,7 +355,7 @@ namespace cinatra
 		void reset_timer()
 		{
 			//2分钟超时.
-			timer_.expires_from_now(boost::posix_time::seconds(2 * 60));
+			timer_.expires_from_now(boost::posix_time::seconds(2));
 			timer_.async_wait([this](const boost::system::error_code& ec)
 			{
 				if (ec == boost::asio::error::operation_aborted)
@@ -369,9 +375,16 @@ namespace cinatra
 				shutdown(true);
 			});
 		}
+
 		void cancel_timer()
 		{
 			timer_.cancel();
+		}
+
+		void close()
+		{
+			boost::system::error_code ignored_ec;
+			socket_.close(ignored_ec);
 		}
 	private:
 		boost::asio::io_service& service_;
