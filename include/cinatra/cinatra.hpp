@@ -56,21 +56,7 @@ namespace cinatra
 		void run()
 		{
 			HTTPServer s(num_threads_);
-			s.set_request_handler([this](const Request& req, Response& res)
-			{
-				for (auto router : routers_)
-				{
-					if (router.handle(req, res))
-					{
-						LOG_DBG << "Route " << req.path();
-						return true;
-					}
-				}
-
-				LOG_DBG << "Request handler not found in dynamic router";
-				return false;
-			})
-				.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
+			s.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
 			{
 				LOG_DBG << "Handle error:" << code << " " << msg << " with path " << req.path();
 				if (error_handler_
