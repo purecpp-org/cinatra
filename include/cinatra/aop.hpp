@@ -1,5 +1,7 @@
 #pragma once
 #include "noncopyable.hpp"
+#include "response.hpp"
+using namespace cinatra;
 
 #define HAS_MEMBER(member)\
 	template<typename T, typename... Args>struct has_member_##member\
@@ -23,40 +25,42 @@ struct AOP : NonCopyable
 	}
 
 	template<typename T>
-	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke(bool& result, Args&&... args, T&& aspect)
+	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke(Response& res, Args&&... args, T&& aspect)
 	{
-		result = aspect.before(std::forward<Args>(args)...);//核心逻辑之前的切面逻辑.
-		if (result)
+		aspect.before(std::forward<Args>(args)...);
+		if (!res.is_complete())
 		{
-			result = m_func(std::forward<Args>(args)...);//核心逻辑.
-			aspect.after(std::forward<Args>(args)...);//核心逻辑之后的切面逻辑.
+			m_func(std::forward<Args>(args)...);
 		}
+
+		aspect.after(std::forward<Args>(args)...);
 	}
 
 	template<typename T>
-	typename std::enable_if<has_member_before<T, Args...>::value&&!has_member_after<T, Args...>::value>::type invoke(bool& result, Args&&... args, T&& aspect)
+	typename std::enable_if<has_member_before<T, Args...>::value&&!has_member_after<T, Args...>::value>::type invoke(Response& res, Args&&... args, T&& aspect)
 	{
-		result = aspect.before(std::forward<Args>(args)...);//核心逻辑之前的切面逻辑.
-		if (result)
-			result = m_func(std::forward<Args>(args)...);//核心逻辑.
+		aspect.before(std::forward<Args>(args)...);//核心逻辑之前的切面逻辑.
+		if (!res.is_complete())
+			m_func(std::forward<Args>(args)...);//核心逻辑.
 	}
 
 	template<typename T>
-	typename std::enable_if<!has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke(bool& result, Args&&... args, T&& aspect)
+	typename std::enable_if<!has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke(Response& res, Args&&... args, T&& aspect)
 	{
-		result = m_func(std::forward<Args>(args)...);//核心逻辑.
+		m_func(std::forward<Args>(args)...);//核心逻辑.
 		aspect.after(std::forward<Args>(args)...);//核心逻辑之后的切面逻辑.
 	}
 
 	template<typename T, typename Self>
-	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke_member(bool& result, Self* self, Args&&... args, T&& aspect)
+	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke_member(Response& res, Self* self, Args&&... args, T&& aspect)
 	{
-		result = aspect.before(std::forward<Args>(args)...);//核心逻辑之前的切面逻辑.
-		if (result)
+		aspect.before(std::forward<Args>(args)...);//核心逻辑之前的切面逻辑.
+		if (!res.is_complete())
 		{
-			result = (*self.*m_func)(std::forward<Args>(args)...);//核心逻辑.
-			aspect.after(std::forward<Args>(args)...);//核心逻辑之后的切面逻辑.
+			(*self.*m_func)(std::forward<Args>(args)...);//核心逻辑.
 		}
+
+		aspect.after(std::forward<Args>(args)...);//核心逻辑之后的切面逻辑.
 	}
 
 	//template<typename Head, typename... Tail>
@@ -74,15 +78,15 @@ template<typename T> using identity_t = T;
 
 //AOP的辅助函数，简化调用.
 template<typename... AP, typename... Args, typename Func>
-typename std::enable_if<!std::is_member_function_pointer<Func>::value>::type invoke(bool& result, Func&&f, Args&&... args)
+typename std::enable_if<!std::is_member_function_pointer<Func>::value>::type invoke(Response& res, Func&&f, Args&&... args)
 {
 	AOP<Func, Args...> asp(std::forward<Func>(f));
-	asp.invoke(result, std::forward<Args>(args)..., identity_t<AP>()...);
+	asp.invoke(res, std::forward<Args>(args)..., identity_t<AP>()...);
 }
 
 template<typename... AP, typename... Args, typename Func, typename Self>
-typename std::enable_if<std::is_member_function_pointer<Func>::value>::type invoke(bool& result, Func&&f, Self* self, Args&&... args)
+typename std::enable_if<std::is_member_function_pointer<Func>::value>::type invoke(Response& res, Func&&f, Self* self, Args&&... args)
 {
 	AOP<Func, Args...> asp(std::forward<Func>(f));
-	asp.invoke_member(result, self, std::forward<Args>(args)..., identity_t<AP>()...);
+	asp.invoke_member(res, self, std::forward<Args>(args)..., identity_t<AP>()...);
 }

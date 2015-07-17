@@ -112,7 +112,7 @@ namespace cinatra
 					//handle request, 如果没有错误调用request_handler_处理
 					if (!hasError)
 					{
-						invoke<CheckLoginAspect>(hasError, &Connection::dispatch, this, req, res);
+						invoke<CheckLoginAspect>(res, &Connection::dispatch, this, req, res);
 						if (!hasError)
 						{
 							if (response_file(req, res.header.hasKeepalive(), yield))

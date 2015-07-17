@@ -167,6 +167,11 @@ namespace cinatra
 		{
 			return cookie_builder_;
 		}
+
+		bool is_complete() const
+		{
+			return is_complete_;
+		}
 	private:
 		friend Connection;
 		int status_code_;

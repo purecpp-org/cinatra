@@ -5,9 +5,9 @@ namespace cinatra
 {
 	struct CheckLoginAspect
 	{
-		bool before(const Request& req, Response& res)
+		void before(const Request& req, Response& res)
 		{
-			return true;
+			
 		}
 
 		void after(const Request& req, Response& res)
