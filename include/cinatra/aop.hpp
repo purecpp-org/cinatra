@@ -25,42 +25,50 @@ struct AOP : NonCopyable
 	}
 
 	template<typename T>
-	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke(Response& res, Args&&... args, T&& aspect)
+	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value, bool>::type invoke(Response& res, Args&&... args, T&& aspect)
 	{
+		bool r = false;
 		aspect.before(std::forward<Args>(args)...);
 		if (!res.is_complete())
 		{
-			m_func(std::forward<Args>(args)...);
+			r = m_func(std::forward<Args>(args)...);
 		}
 
 		aspect.after(std::forward<Args>(args)...);
+		return r;
 	}
 
 	template<typename T>
-	typename std::enable_if<has_member_before<T, Args...>::value&&!has_member_after<T, Args...>::value>::type invoke(Response& res, Args&&... args, T&& aspect)
+	typename std::enable_if<has_member_before<T, Args...>::value&&!has_member_after<T, Args...>::value, bool>::type invoke(Response& res, Args&&... args, T&& aspect)
 	{
+		bool r = false;
 		aspect.before(std::forward<Args>(args)...);//核心逻辑之前的切面逻辑.
 		if (!res.is_complete())
-			m_func(std::forward<Args>(args)...);//核心逻辑.
+			r = m_func(std::forward<Args>(args)...);//核心逻辑.
+
+		return r;
 	}
 
 	template<typename T>
-	typename std::enable_if<!has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke(Response& res, Args&&... args, T&& aspect)
+	typename std::enable_if<!has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value, bool>::type invoke(Response& res, Args&&... args, T&& aspect)
 	{
-		m_func(std::forward<Args>(args)...);//核心逻辑.
+		bool r = m_func(std::forward<Args>(args)...);//核心逻辑.
 		aspect.after(std::forward<Args>(args)...);//核心逻辑之后的切面逻辑.
+		return r;
 	}
 
 	template<typename T, typename Self>
-	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value>::type invoke_member(Response& res, Self* self, Args&&... args, T&& aspect)
+	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value, bool>::type invoke_member(Response& res, Self* self, Args&&... args, T&& aspect)
 	{
+		bool r = false;
 		aspect.before(std::forward<Args>(args)...);//核心逻辑之前的切面逻辑.
 		if (!res.is_complete())
 		{
-			(*self.*m_func)(std::forward<Args>(args)...);//核心逻辑.
+			r = (*self.*m_func)(std::forward<Args>(args)...);//核心逻辑.
 		}
 
 		aspect.after(std::forward<Args>(args)...);//核心逻辑之后的切面逻辑.
+		return r;
 	}
 
 	//template<typename Head, typename... Tail>
@@ -78,15 +86,15 @@ template<typename T> using identity_t = T;
 
 //AOP的辅助函数，简化调用.
 template<typename... AP, typename... Args, typename Func>
-typename std::enable_if<!std::is_member_function_pointer<Func>::value>::type invoke(Response& res, Func&&f, Args&&... args)
+typename std::enable_if<!std::is_member_function_pointer<Func>::value, bool>::type invoke(Response& res, Func&&f, Args&&... args)
 {
 	AOP<Func, Args...> asp(std::forward<Func>(f));
-	asp.invoke(res, std::forward<Args>(args)..., identity_t<AP>()...);
+	return asp.invoke(res, std::forward<Args>(args)..., identity_t<AP>()...);
 }
 
 template<typename... AP, typename... Args, typename Func, typename Self>
-typename std::enable_if<std::is_member_function_pointer<Func>::value>::type invoke(Response& res, Func&&f, Self* self, Args&&... args)
+typename std::enable_if<std::is_member_function_pointer<Func>::value, bool>::type invoke(Response& res, Func&&f, Self* self, Args&&... args)
 {
 	AOP<Func, Args...> asp(std::forward<Func>(f));
-	asp.invoke_member(res, self, std::forward<Args>(args)..., identity_t<AP>()...);
+	return asp.invoke_member(res, self, std::forward<Args>(args)..., identity_t<AP>()...);
 }

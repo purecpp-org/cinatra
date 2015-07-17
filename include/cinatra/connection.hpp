@@ -109,11 +109,10 @@ namespace cinatra
 					add_keepalive(parser, req, res);
 					add_conten_type(res);		
 
-					//handle request, 如果没有错误调用request_handler_处理
 					if (!hasError)
 					{
-						invoke<CheckLoginAspect>(res, &Connection::dispatch, this, req, res);
-						if (!hasError)
+						bool r = invoke<CheckLoginAspect>(res, &Connection::dispatch, this, req, res);
+						if (!res.is_complete()&&!r)
 						{
 							if (response_file(req, res.header.hasKeepalive(), yield))
 							{
