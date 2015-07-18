@@ -29,9 +29,9 @@ namespace cinatra
 		Connection(boost::asio::io_service& service,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
-			const init_handler_t& init_handler,
+			const init_handler_t& init_handler, HTTPRouter& router,
 			const std::string& public_dir)
-			:service_(service), socket_(service),timer_(service),
+			:service_(service), socket_(service), timer_(service), router_(router),
 			error_handler_(error_handler), request_handler_(request_handler), init_handler_(init_handler),
 			public_dir_(public_dir)
 		{
@@ -114,7 +114,7 @@ namespace cinatra
 
 					if (!hasError)
 					{
-						bool r = request_handler_ ? request_handler_(req, res) : false;
+						bool r = dispatch(req, res);// invoke<CheckLoginAspect>(res, &Connection::dispatch, this, req, res);
 						if (!res.is_complete() && !r)
 						{
 							if (response_file(req, res.header.hasKeepalive(), yield))
@@ -277,8 +277,7 @@ namespace cinatra
 
 		bool dispatch(const Request& req, Response& res)
 		{
-			return false;
-			//return router_.dispatch(req, res);
+			return router_.dispatch(req, res);
 		}
 
 		bool response_file(Request& req, bool keep_alive, const boost::asio::yield_context& yield)
@@ -400,5 +399,6 @@ namespace cinatra
 		const std::string& public_dir_;
 		const request_handler_t& request_handler_;
 		const init_handler_t& init_handler_;
+		HTTPRouter& router_;
 	};
 }
