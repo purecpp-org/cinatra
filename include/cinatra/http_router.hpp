@@ -13,11 +13,11 @@
 
 namespace cinatra
 {
-	class HttpRouter
+	class HTTPRouter
 	{
 		typedef std::function<void(token_parser &)> invoker_function;
 	public:
-		HttpRouter()
+		HTTPRouter()
 		{}
 
 		template<typename Function>
@@ -51,7 +51,7 @@ namespace cinatra
 		typename std::enable_if<std::is_member_function_pointer<Function>::value>::type route(const std::string& name, const Function& f)
 		{
 			std::string funcName = getFuncName(name);
-			register_member_impl<Function, Function, HttpRouter>(funcName, f, this);
+			register_member_impl<Function, Function, HTTPRouter>(funcName, f, this);
 		}
 
 		void remove_function(const std::string& name) {
@@ -134,14 +134,14 @@ namespace cinatra
 			static inline void call(const Function& func, token_parser & parser, const Args& args)
 			{
 				typedef typename function_traits<Signature>::template args<N>::type arg_type;
-				HttpRouter::invoker<Function, Signature, N + 1, M>::call(func, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
+				HTTPRouter::invoker<Function, Signature, N + 1, M>::call(func, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
 			}
 
 			template<typename Args, typename Self>
 			static inline void call_member(Function func, Self* self, token_parser & parser, const Args& args)
 			{
 				typedef typename function_traits<Signature>::template args<N>::type arg_type;
-				HttpRouter::invoker<Function, Signature, N + 1, M>::call_member(func, self, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
+				HTTPRouter::invoker<Function, Signature, N + 1, M>::call_member(func, self, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
 			}
 		};
 

@@ -106,6 +106,6 @@ namespace cinatra
 
 		error_handler_t error_handler_;
 
-		HttpRouter router_;
+		HTTPRouter router_;
 	};
 }
