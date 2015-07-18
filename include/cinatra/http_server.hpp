@@ -46,6 +46,11 @@ namespace cinatra
 			return *this;
 		}
 
+		void set_init_handler(const init_handler_t& init_handler)
+		{
+			init_handler_ = init_handler;
+		}
+
 		HTTPServer& listen(const std::string& address, const std::string& port)
 		{
 			LOG_DBG << "Listen on " << address << ":" << port;
@@ -107,6 +112,7 @@ namespace cinatra
 
 		request_handler_t request_handler_;
 		error_handler_t error_handler_;
+		init_handler_t init_handler_;
 
 		std::string public_dir_;
 	};
