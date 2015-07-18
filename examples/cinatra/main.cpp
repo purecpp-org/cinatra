@@ -120,7 +120,7 @@ int main()
 		return true;
 	});
 
-	app.public_dir("./public").threads(2).listen("0.0.0.0", "http").run();
+	app.public_dir("./public").threads(std::thread::hardware_concurrency()).listen("0.0.0.0", "http").run();
 
 	return 0;
 }
