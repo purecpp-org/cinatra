@@ -4,6 +4,7 @@
 #include "response.hpp"
 #include "request_parser.hpp"
 #include "logging.hpp"
+#include "http_router.hpp"
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
@@ -28,9 +29,10 @@ namespace cinatra
 		Connection(boost::asio::io_service& service,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
+			const init_handler_t& init_handler,
 			const std::string& public_dir)
 			:service_(service), socket_(service),timer_(service),
-			error_handler_(error_handler), request_handler_(request_handler),
+			error_handler_(error_handler), request_handler_(request_handler), init_handler_(init_handler),
 			public_dir_(public_dir)
 		{
 			LOG_DBG << "New connection";
@@ -273,6 +275,12 @@ namespace cinatra
 			}
 		}
 
+		bool dispatch(const Request& req, Response& res)
+		{
+			return false;
+			//return router_.dispatch(req, res);
+		}
+
 		bool response_file(Request& req, bool keep_alive, const boost::asio::yield_context& yield)
 		{
 			std::string path = public_dir_ + req.path();
@@ -391,5 +399,6 @@ namespace cinatra
 		const error_handler_t& error_handler_;
 		const std::string& public_dir_;
 		const request_handler_t& request_handler_;
+		const init_handler_t& init_handler_;
 	};
 }

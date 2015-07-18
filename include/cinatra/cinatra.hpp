@@ -65,7 +65,7 @@ namespace cinatra
 
 		void run()
 		{
-			HTTPServer s(num_threads_);
+			HTTPServer s(num_threads_, router_);
 			s.set_init_handler(std::bind(&Cinatra::init, this, std::placeholders::_1, std::placeholders::_2));
 			s.set_request_handler([this](const Request& req, Response& res)
 			{

@@ -24,8 +24,8 @@ namespace cinatra
 	class HTTPServer : boost::noncopyable
 	{
 	public:
-		HTTPServer(std::size_t io_service_pool_size)
-			:io_service_pool_(io_service_pool_size),
+		HTTPServer(std::size_t io_service_pool_size, HTTPRouter& router)
+			:io_service_pool_(io_service_pool_size), router_(router),
 			acceptor_(io_service_pool_.get_io_service())
 		{
 
@@ -93,7 +93,7 @@ namespace cinatra
 				std::shared_ptr<Connection> conn(
 					std::make_shared<Connection>(
 					io_service_pool_.get_io_service(),
-					request_handler_, error_handler_, public_dir_));
+					request_handler_, error_handler_, init_handler_, public_dir_));
 
 				boost::system::error_code ec;
 				acceptor_.async_accept(conn->socket(), yield[ec]);
@@ -113,6 +113,7 @@ namespace cinatra
 		request_handler_t request_handler_;
 		error_handler_t error_handler_;
 		init_handler_t init_handler_;
+		const HTTPRouter& router_;
 
 		std::string public_dir_;
 	};
