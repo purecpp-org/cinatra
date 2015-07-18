@@ -168,6 +168,13 @@ namespace cinatra
 			return cookie_builder_;
 		}
 
+		void redirect(const std::string& url)
+		{
+			set_status_code(302);
+			header.add("Location", url);
+			end("<p>Moved Temporarily. Redirecting to <a href=\"" + url + "\">/</a></p>");
+		}
+
 		bool is_complete() const
 		{
 			return is_complete_;

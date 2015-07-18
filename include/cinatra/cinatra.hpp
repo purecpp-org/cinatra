@@ -99,7 +99,7 @@ namespace cinatra
 			return router_.dispatch(req, res);
 		}
 	private:
-		int num_threads_;
+		int num_threads_{1};
 		std::string listen_addr_;
 		std::string listen_port_;
 		std::string public_dir_;
