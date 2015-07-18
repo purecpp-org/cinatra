@@ -15,6 +15,15 @@ namespace detail
 	template <typename To, typename From>
 	struct Converter
 	{
+		static int convert(const std::string& from)
+		{
+			return std::atoi(from.c_str());
+		}
+
+		static int convert(const char* from)
+		{
+			return std::atoi(from);
+		}
 	};
 
 	//to numeric

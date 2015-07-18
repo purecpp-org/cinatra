@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <boost/lexical_cast.hpp>
+#include "lexical_cast.hpp"
 #include "utils.hpp"
 
 namespace cinatra
@@ -98,7 +98,7 @@ namespace cinatra
 			}
 
 			// 这里可以不用担心cast抛异常，要抛异常在解析http header的时候就抛了.
-			return boost::lexical_cast<int>(header_.get_val("Content-Length"));
+			return lexical_cast<int>(header_.get_val("Content-Length"));
 		}
 
 		const std::string& cookie() const

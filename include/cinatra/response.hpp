@@ -6,12 +6,13 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/asio/streambuf.hpp>
-#include <boost/lexical_cast.hpp>
+#include "lexical_cast.hpp"
 #include <boost/format.hpp>
 
 #include <functional>
 #include <cassert>
 #include <map>
+#include <sstream>
 #include <time.h>
 
 namespace cinatra
@@ -144,7 +145,7 @@ namespace cinatra
 			if (!is_chunked_encoding_)
 			{
 				header_str += "Content-Length: ";
-				header_str += boost::lexical_cast<std::string>(buffer_.size());
+				header_str += lexical_cast<std::string>(buffer_.size());
 				header_str += "\r\n";
 			}
 
