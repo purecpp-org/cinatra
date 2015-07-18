@@ -16,63 +16,9 @@ namespace cinatra
 	class HttpRouter
 	{
 		typedef std::function<void(token_parser &)> invoker_function;
-
-		void hello(const std::string& a, int b)
-		{
-			std::cout << a << b << std::endl;
-			resp_->write("t");
-			std::cout << req_->path() << std::endl;
-		}
-
 	public:
 		HttpRouter()
-		{
-			//支持函数指针和成员函数.
-			route("/", [this]{ resp_->write("Hello Cinatra!"); });
-
-			route("/test_post", [this]
-			{
-				std::ifstream in("./view/login.html", std::ios::binary | std::ios::in);
-				if (!in)
-				{
-					resp_->write("can not open login.html");
-					return;
-				}
-
-				std::string html;
-				in.seekg(0, std::ios::end);
-				html.resize(size_t(in.tellg()));
-				in.seekg(0, std::ios::beg);
-				in.read(&html[0], html.size());
-
-				resp_->write(html);
-			});
-
-			route("/test_post", [this]
-			{
-				auto body = cinatra::body_parser(req_->body());
-				resp_->write("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
-			});
-
-			route("/test_query", [this]
-			{
-				resp_->write("<html><body>");
-				resp_->write("total " + boost::lexical_cast<std::string>(req_->query().size()) + " queries</br>");
-				for (auto it : req_->query())
-				{
-					resp_->write(it.first + ":" + it.second + "</br>");
-				}
-				resp_->end("</body></html>");
-			});
-
-			route("/test_ajax", [this]{resp_->end("Hello ajax!");});
-
-			route("/add/:name/:age", [this](const std::string& a, int b){
-				std::cout << a << " " << req_->url() << std::endl;
-			});
-
-			route("/hello", &HttpRouter::hello);
-		}
+		{}
 
 		template<typename Function>
 		typename std::enable_if<!std::is_member_function_pointer<Function>::value>::type route(const std::string& name, const Function& f)

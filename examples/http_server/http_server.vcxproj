@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{774F30E3-87E8-49DA-92A8-A2D5ABAE2110}</ProjectGuid>
+    <ProjectGuid>{9ECEA394-F7B2-442E-AAA1-5DD2B907C882}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>cinatra</RootNamespace>
+    <RootNamespace>http_server</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -69,8 +69,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -83,21 +83,19 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\cinatra\aop.hpp" />
-    <ClInclude Include="..\..\include\cinatra\check_login_aspect.hpp" />
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp" />
     <ClInclude Include="..\..\include\cinatra\connection.hpp" />
-    <ClInclude Include="..\..\include\cinatra\cookie_builder.hpp" />
+    <ClInclude Include="..\..\include\cinatra\cookies.hpp" />
     <ClInclude Include="..\..\include\cinatra\function_traits.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_router.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_server.hpp" />
     <ClInclude Include="..\..\include\cinatra\io_service_pool.hpp" />
     <ClInclude Include="..\..\include\cinatra\lexical_cast.hpp" />
     <ClInclude Include="..\..\include\cinatra\logging.hpp" />
-    <ClInclude Include="..\..\include\cinatra\noncopyable.hpp" />
     <ClInclude Include="..\..\include\cinatra\request.hpp" />
     <ClInclude Include="..\..\include\cinatra\request_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\response.hpp" />
+    <ClInclude Include="..\..\include\cinatra\router.hpp" />
     <ClInclude Include="..\..\include\cinatra\string_utils.hpp" />
     <ClInclude Include="..\..\include\cinatra\timer.hpp" />
     <ClInclude Include="..\..\include\cinatra\token_parser.hpp" />

@@ -14,23 +14,23 @@
 #include <functional>
 #include <iostream>
 #include <fstream>
-#include "http_router.hpp"
-#include "aop.hpp"
-#include "check_login_aspect.hpp"
 
 namespace cinatra
 {
-	typedef std::function<bool(int,const std::string&, const Request&, Response&)> error_handler_t;
+	typedef std::function<bool(const Request&, Response&)> request_handler_t;
+	typedef std::function<bool(int, const std::string&, const Request&, Response&)> error_handler_t;
 
 	class Connection
 		: public std::enable_shared_from_this<Connection>
 	{
 	public:
 		Connection(boost::asio::io_service& service,
+			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
 			const std::string& public_dir)
 			:service_(service), socket_(service),timer_(service),
-			error_handler_(error_handler), public_dir_(public_dir)
+			error_handler_(error_handler), request_handler_(request_handler),
+			public_dir_(public_dir)
 		{
 			LOG_DBG << "New connection";
 		}
@@ -111,8 +111,8 @@ namespace cinatra
 
 					if (!hasError)
 					{
-						bool r = invoke<CheckLoginAspect>(res, &Connection::dispatch, this, req, res);
-						if (!res.is_complete()&&!r)
+						bool r = request_handler_ ? request_handler_(req, res) : false;
+						if (!res.is_complete() && !r)
 						{
 							if (response_file(req, res.header.hasKeepalive(), yield))
 							{
@@ -146,11 +146,6 @@ namespace cinatra
 					shutdown();
 				}
 			}
-		}
-
-		bool dispatch(const Request& req, Response& res)
-		{
-			return router_.dispatch(req, res);
 		}
 
 		void init_response(Response& res, const boost::asio::yield_context& yield)
@@ -394,6 +389,6 @@ namespace cinatra
 		boost::asio::deadline_timer timer_;	// 长连接超时使用的timer.
 		const error_handler_t& error_handler_;
 		const std::string& public_dir_;
-		HttpRouter router_;
+		const request_handler_t& request_handler_;
 	};
 }

@@ -2,8 +2,11 @@
 #pragma once
 
 #include "http_server.hpp"
-#include "router.hpp"
+#include "http_router.hpp"
 #include "logging.hpp"
+#include "aop.hpp"
+
+#include "check_login_aspect.hpp"
 
 #include <string>
 #include <vector>
@@ -14,13 +17,12 @@ namespace cinatra
 	class Cinatra
 	{
 	public:
-		template<typename Rule>
-		Router& route(const Rule& rule)
+		template<typename...Args>
+		Cinatra& route(Args const &... args)
 		{
-			routers_.push_back(Router(rule));
-			return *(routers_.end() - 1);
+ 			router_.route(args...);
+			return *this;
 		}
-
 		Cinatra& threads(int num)
 		{
 			num_threads_ = num < 1 ? 1 : num;
@@ -56,7 +58,11 @@ namespace cinatra
 		void run()
 		{
 			HTTPServer s(num_threads_);
-			s.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
+			s.set_request_handler([this](const Request& req, Response& res)
+			{
+				return invoke<CheckLoginAspect>(res, &Cinatra::dispatch, this, req, res);
+			})
+				.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
 			{
 				LOG_DBG << "Handle error:" << code << " " << msg << " with path " << req.path();
 				if (error_handler_
@@ -88,12 +94,18 @@ namespace cinatra
 				.run();
 		}
 	private:
-		std::vector<Router> routers_;
+		bool dispatch(const Request& req, Response& res)
+		{
+			return router_.dispatch(req, res);
+		}
+	private:
 		int num_threads_;
 		std::string listen_addr_;
 		std::string listen_port_;
 		std::string public_dir_;
 
 		error_handler_t error_handler_;
+
+		HttpRouter router_;
 	};
 }
