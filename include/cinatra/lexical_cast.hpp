@@ -187,7 +187,7 @@ namespace detail
 	{
 		static std::string convert(const From& from)
 		{
-			return std::string(from);
+			return std::to_string(from);
 		}
 	};
 }
