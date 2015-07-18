@@ -3,6 +3,8 @@
 
 #include "http_server.hpp"
 #include "http_router.hpp"
+#include "request.hpp"
+#include "response.hpp"
 #include "logging.hpp"
 #include "aop.hpp"
 
@@ -18,9 +20,9 @@ namespace cinatra
 	{
 	public:
 		template<typename...Args>
-		Cinatra& route(Args const &... args)
+		Cinatra& route(Args&&... args)
 		{
- 			router_.route(args...);
+			router_.route(std::forward<Args>(args)...);
 			return *this;
 		}
 		Cinatra& threads(int num)
@@ -53,6 +55,12 @@ namespace cinatra
 		{
 			public_dir_ = dir;
 			return *this;
+		}
+
+		void init(const Request& req, Response& res)
+		{
+			req_ = &req;
+			res_ = &res;
 		}
 
 		void run()
@@ -99,7 +107,7 @@ namespace cinatra
 			return router_.dispatch(req, res);
 		}
 	private:
-		int num_threads_;
+		int num_threads_ = std::thread::hardware_concurrency();
 		std::string listen_addr_;
 		std::string listen_port_;
 		std::string public_dir_;
@@ -107,5 +115,7 @@ namespace cinatra
 		error_handler_t error_handler_;
 
 		HTTPRouter router_;
+		const Request* req_;
+		Response* res_;
 	};
 }

@@ -163,8 +163,6 @@ namespace cinatra
 		};
 
 	private:
-
-
 		std::map<std::string, invoker_function> map_invokers;
 
 		const Request* req_;

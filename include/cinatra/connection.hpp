@@ -17,8 +17,9 @@
 
 namespace cinatra
 {
-	typedef std::function<bool(const Request&, Response&)> request_handler_t;
-	typedef std::function<bool(int, const std::string&, const Request&, Response&)> error_handler_t;
+	using request_handler_t = std::function<bool(const Request&, Response&)>;
+	using error_handler_t = std::function<bool(int, const std::string&, const Request&, Response&)>;
+	using init_handler_t = std::function<void(const Request&, Response&)>;
 
 	class Connection
 		: public std::enable_shared_from_this<Connection>
