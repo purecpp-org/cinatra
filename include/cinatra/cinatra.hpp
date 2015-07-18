@@ -8,14 +8,13 @@
 #include "logging.hpp"
 #include "aop.hpp"
 
-#include "check_login_aspect.hpp"
-
 #include <string>
 #include <vector>
 
 
 namespace cinatra
 {
+	template<typename... Aspect>
 	class Cinatra
 	{
 	public:
@@ -65,13 +64,9 @@ namespace cinatra
 
 		void run()
 		{
-			HTTPServer s(num_threads_, router_);
+			HTTPServer<Aspect...> s(num_threads_, router_);
 			s.set_init_handler(std::bind(&Cinatra::init, this, std::placeholders::_1, std::placeholders::_2));
-			s.set_request_handler([this](const Request& req, Response& res)
-			{
-				return invoke<CheckLoginAspect>(res, &Cinatra::dispatch, this, req, res);
-			})
-				.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
+			s.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
 			{
 				LOG_DBG << "Handle error:" << code << " " << msg << " with path " << req.path();
 				if (error_handler_
@@ -102,11 +97,23 @@ namespace cinatra
 				.listen(listen_addr_, listen_port_)
 				.run();
 		}
+
+		Response& get_response()
+		{
+			return *res_;
+		}
+
+		const Request& get_request()
+		{
+			return *req_;
+		}
+		
 	private:
 		bool dispatch(const Request& req, Response& res)
 		{
 			return router_.dispatch(req, res);
 		}
+
 	private:
 		int num_threads_ = std::thread::hardware_concurrency();
 		std::string listen_addr_;
@@ -119,4 +126,6 @@ namespace cinatra
 		const Request* req_;
 		Response* res_;
 	};
+
+	using SimpleApp = Cinatra<>;
 }

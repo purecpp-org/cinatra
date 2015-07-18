@@ -21,6 +21,7 @@
 
 namespace cinatra
 {
+	template<typename... Aspect>
 	class HTTPServer : boost::noncopyable
 	{
 	public:
@@ -90,8 +91,8 @@ namespace cinatra
 		{
 			for (;;)
 			{
-				std::shared_ptr<Connection> conn(
-					std::make_shared<Connection>(
+				auto conn(
+					std::make_shared<Connection<Aspect...>>(
 					io_service_pool_.get_io_service(),
 					request_handler_, error_handler_, init_handler_, router_, public_dir_));
 

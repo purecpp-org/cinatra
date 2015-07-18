@@ -18,12 +18,25 @@
 
 namespace cinatra
 {
+	struct NullableAspect
+	{
+		void before(const Request& req, Response& res)
+		{
+
+		}
+
+		void after(const Request& req, Response& res)
+		{
+
+		}
+	};
 	using request_handler_t = std::function<bool(const Request&, Response&)>;
 	using error_handler_t = std::function<bool(int, const std::string&, const Request&, Response&)>;
 	using init_handler_t = std::function<void(const Request&, Response&)>;
 
+	template<typename... Aspect>
 	class Connection
-		: public std::enable_shared_from_this<Connection>
+		: public std::enable_shared_from_this<Connection<Aspect...>>
 	{
 	public:
 		Connection(boost::asio::io_service& service,
@@ -114,7 +127,8 @@ namespace cinatra
 
 					if (!hasError)
 					{
-						bool r = dispatch(req, res);// invoke<CheckLoginAspect>(res, &Connection::dispatch, this, req, res);
+						init_handler_(req, res);
+						bool r = Invoke<sizeof...(Aspect)>(res, &Connection::dispatch, this, req, res);
 						if (!res.is_complete() && !r)
 						{
 							if (response_file(req, res.header.hasKeepalive(), yield))
@@ -151,11 +165,21 @@ namespace cinatra
 			}
 		}
 
+		template<size_t I, typename Func, typename Self, typename... Args>
+		typename std::enable_if<I == 0, bool>::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)
+		{
+			return (*self.*f)(std::forward<Args>(args)...);
+		}
+
+		template<size_t I, typename Func, typename Self, typename... Args>
+		typename std::enable_if<(I > 0), bool>::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)
+		{
+			return invoke<Aspect...>(res, &Connection::dispatch, this, args...);
+		}
+
 		void init_response(Response& res, const boost::asio::yield_context& yield)
 		{
-			res.direct_write_func_ =
-				[&yield, this]
-			(const char* data, std::size_t len)->bool
+			res.direct_write_func_ =[&yield, this](const char* data, std::size_t len)
 			{
 				boost::system::error_code ec;
 				boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);

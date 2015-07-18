@@ -88,7 +88,9 @@ namespace cinatra
 			size_t pos = func_name.rfind('/');
 			while (pos != string::npos)
 			{
-				string name = func_name.substr(0, pos);
+				string name = func_name;
+				if (pos!=0)
+					name = func_name.substr(0, pos);
 				auto it = map_invokers.find(name);
 				if (it == map_invokers.end())
 				{
