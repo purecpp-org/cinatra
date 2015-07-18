@@ -11,7 +11,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
-#include <boost/lexical_cast.hpp>
+#include "lexical_cast.hpp"
 #include <boost/noncopyable.hpp>
 #include <memory>
 #include <string>
@@ -65,7 +65,7 @@ namespace cinatra
 
 		HTTPServer& listen(const std::string& address, unsigned short port)
 		{
-			return listen(address, boost::lexical_cast<std::string>(port));
+			return listen(address, lexical_cast<std::string>(port));
 		}
 
 		HTTPServer& public_dir(const std::string& dir)
