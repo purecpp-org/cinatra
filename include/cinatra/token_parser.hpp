@@ -54,24 +54,27 @@ public:
 
 public:
 	template<typename RequestedType>
-	typename std::decay<RequestedType>::type get()
+	bool get(typename std::decay<RequestedType>::type& param)
 	{
 		if (v_.empty())
-			throw std::invalid_argument("params is invalid ");
+		{
+			LOG_DBG << "Params is invalid ";
+			return false;
+		}
 
 		try
 		{
 			typedef typename std::decay<RequestedType>::type result_type;
-
-			auto const & param = v_.back();
-			result_type result = lexical_cast<typename std::decay<result_type>::type>(param);
+			auto const & v = v_.back();
+			param = lexical_cast<typename std::decay<result_type>::type>(v);
 			v_.pop_back();
-			return result;
+			return true;
 		}
 		catch (std::exception& e)
 		{
-			throw std::invalid_argument(std::string("invalid path: ") + e.what());
+			LOG_DBG << "Error in param converting: " << e.what();
 		}
+		return false;
 	}
 
 	bool empty(){ return v_.empty(); }

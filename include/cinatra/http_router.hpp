@@ -15,7 +15,7 @@ namespace cinatra
 {
 	class HTTPRouter
 	{
-		typedef std::function<void(const Request&, Response&, token_parser &)> invoker_function;
+		typedef std::function<bool(const Request&, Response&, token_parser &)> invoker_function;
 	public:
 		HTTPRouter()
 		{}
@@ -71,7 +71,7 @@ namespace cinatra
 			if (func == nullptr)
 				return false;
 
-			func(req, resp, parser_);
+			return func(req, resp, parser_);
 			return true;
 		}
 
@@ -79,7 +79,11 @@ namespace cinatra
 		//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path.
 		invoker_function getFunction()
 		{
-			std::string func_name = parser_.get<std::string>();
+			std::string func_name;
+			if (!parser_.get<std::string>(func_name))
+			{
+				return nullptr;
+			}
 			auto it = map_invokers.find(func_name);
 			if (it != map_invokers.end())
 				return it->second;
@@ -135,10 +139,15 @@ namespace cinatra
 		{
 			// add an argument to a Fusion cons-list for each parameter type
 			template<typename Args>
-			static inline void call(const Function& func, const Request& req, Response& res, token_parser & parser, const Args& args)
+			static inline bool call(const Function& func, const Request& req, Response& res, token_parser & parser, const Args& args)
 			{
 				typedef typename function_traits<Signature>::template args<N-1>::type arg_type;
-				HTTPRouter::invoker<Function, Signature, N - 1>::call(func, req, res, parser, std::tuple_cat(std::make_tuple(parser.get<arg_type>()), args));
+				typename std::decay<arg_type>::type param;
+				if (!parser.get<arg_type>(param))
+				{
+					return false;
+				}
+				return HTTPRouter::invoker<Function, Signature, N - 1>::call(func, req, res, parser, std::tuple_cat(std::make_tuple(param), args));
 			}
 
 			//template<typename Args, typename Self>
@@ -154,9 +163,10 @@ namespace cinatra
 		{
 			// the argument list is complete, now call the function
 			template<typename Args>
-			static inline void call(const Function& func, const Request& req, Response& res, token_parser &, const Args& args)
+			static inline bool call(const Function& func, const Request& req, Response& res, token_parser &, const Args& args)
 			{
 				apply(func, req, res, args);
+				return true;
 			}
 
 			//template<typename Args, typename Self>
