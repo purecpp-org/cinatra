@@ -1,4 +1,6 @@
 #pragma once
+#include "request.hpp"
+#include "response.hpp"
 template<int...>
 struct IndexTuple{};
 
@@ -12,15 +14,27 @@ struct MakeIndexes<0, indexes...>
 };
 
 template<typename F, int ... Indexes, typename ... Args>
-static inline auto apply_helper(const F& f, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)->decltype(f(std::get<Indexes>(tup)...))
+static inline auto apply_helper(const F& f, const Request& req, Response& res, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)->decltype(f(req, res, std::get<Indexes>(tup)...))
 {
-	return f(std::get<Indexes>(tup)...);
+	return f(req, res, std::get<Indexes>(tup)...);
 }
 
 template<typename F, typename ... Args>
-static inline auto apply(const F& f, const std::tuple<Args...>& tp)->decltype(apply_helper(f, typename MakeIndexes<sizeof... (Args)>::type(), tp))
+static inline auto apply(const F& f, const Request& req, Response& res, const std::tuple<Args...>& tp)->decltype(apply_helper(f, req, res, typename MakeIndexes<sizeof... (Args)>::type(), tp))
 {
-	return apply_helper(f, typename MakeIndexes<sizeof... (Args)>::type(), tp);
+	return apply_helper(f, req, res, typename MakeIndexes<sizeof... (Args)>::type(), tp);
+}
+
+template<typename F, int ... Indexes, typename ... Args>
+static void call_helper1(F f, const Request& req, Response& res, IndexTuple<Indexes...>, std::tuple<Args...> tup)
+{
+	f(req, res, std::get<Indexes>(tup)...);
+}
+
+template<typename F, typename ... Args>
+static void call1(F f, const Request& req, Response& res, std::tuple<Args...> tp)
+{
+	call_helper1(f, req, res, typename MakeIndexes<sizeof... (Args)>::type(), tp);
 }
 
 template<typename F, typename Self, int ... Indexes, typename ... Args>

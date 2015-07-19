@@ -4,7 +4,6 @@
 #include "lexical_cast.hpp"
 #include "string_utils.hpp"
 #include "timer.hpp"
-#include "tuple_utils.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/functional/hash.hpp>
