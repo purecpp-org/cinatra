@@ -63,9 +63,9 @@ public:
 		{
 			typedef typename std::decay<RequestedType>::type result_type;
 
-			auto it = v_.begin();
-			result_type result = lexical_cast<typename std::decay<result_type>::type>(*it);
-			v_.erase(it);
+			auto const & param = v_.back();
+			result_type result = lexical_cast<typename std::decay<result_type>::type>(param);
+			v_.pop_back();
 			return result;
 		}
 		catch (std::exception& e)

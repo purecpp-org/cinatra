@@ -19,9 +19,9 @@ int main()
 {
 	cinatra::Cinatra<CheckLoginAspect> app;
 
-	app.route("/hello/:name/:age", [](const cinatra::Request& req, cinatra::Response& res, const std::string& a, int b)
+	app.route("/hello/:name/:age/:test", [](const cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
 	{
-		std::cout << a << " " << req.url() << std::endl;
+		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b)+"Test: " + lexical_cast<std::string>(c));
 	});
 
 	app.error_handler(
