@@ -23,6 +23,10 @@ int main()
 	{
 		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b)+"Test: " + lexical_cast<std::string>(c));
 	});
+	app.route("/hello/:name/:age", [](const cinatra::Request& req, cinatra::Response& res, const std::string& a, int b)
+	{
+		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b));
+	});
 
 	app.error_handler(
 		[](int code, const std::string&, const cinatra::Request&, cinatra::Response& res)
