@@ -85,6 +85,11 @@ namespace cinatra
 		{
 			return map_.size();
 		}
+
+		bool empty() const
+		{
+			return map_.empty();
+		}
 	private:
 		std::map<std::string, std::string> map_;
 	};

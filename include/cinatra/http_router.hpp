@@ -77,8 +77,8 @@ namespace cinatra
 		//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path.
 		invoker_function getFunction()
 		{
-			std::string func_name;
-			if (!parser_.get<std::string>(func_name))
+			std::string func_name = parser_.get_function_name();
+			if (func_name.empty())
 			{
 				return nullptr;
 			}

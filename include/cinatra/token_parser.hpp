@@ -2,6 +2,7 @@
 #include <map>
 #include "string_utils.hpp"
 #include "request.hpp"
+#include "utils.hpp"
 class token_parser
 {
 	std::vector<std::string> v_; //解析之后，v_的第一个元素为函数名，后面的元素均为参数.
@@ -32,9 +33,13 @@ public:
 		if (!map_.empty())
 		{
 			v_.push_back(req.path());
+			
+			cinatra::CaseMap map;
+			if (req.query().empty())
+				map = cinatra::body_parser(req.body());
 			for (auto& it : map_)
 			{
-				auto& val = req.query().get_val(it.second);
+				auto& val = req.query().empty() ? map.get_val(it.second) : req.query().get_val(it.second);
 				if (val.empty())
 					break;
 
@@ -53,6 +58,17 @@ public:
 	}
 
 public:
+	std::string get_function_name()
+	{
+		if (v_.empty())
+			return "";
+
+		auto it = v_.begin();
+		std::string name = *it;
+		v_.erase(it);
+		return name;
+	}
+
 	template<typename RequestedType>
 	bool get(typename std::decay<RequestedType>::type& param)
 	{
