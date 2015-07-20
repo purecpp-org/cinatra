@@ -58,8 +58,13 @@ namespace cinatra
 
 		void run()
 		{
-			HTTPServer<Aspect...> s(num_threads_, router_);
-			s.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
+			HTTPServer s(num_threads_);
+			s
+				.set_request_handler([this](const Request& req, Response& res)
+			{
+				return Invoke<sizeof...(Aspect)>(res, &Cinatra::dispatch, this, req, res);
+			})
+				.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
 			{
 				LOG_DBG << "Handle error:" << code << " " << msg << " with path " << req.path();
 				if (error_handler_
@@ -100,8 +105,20 @@ namespace cinatra
 		{
 			return *req_;
 		}
-		
+
 	private:
+		template<size_t I, typename Func, typename Self, typename... Args>
+		typename std::enable_if<I == 0, bool>::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)
+		{
+			return (*self.*f)(std::forward<Args>(args)...);
+		}
+
+		template<size_t I, typename Func, typename Self, typename... Args>
+		typename std::enable_if < (I > 0), bool > ::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)
+		{
+			return invoke<Aspect...>(res, &Cinatra::dispatch, this, args...);
+		}
+		
 		bool dispatch(const Request& req, Response& res)
 		{
 			return router_.dispatch(req, res);

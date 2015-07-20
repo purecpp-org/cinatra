@@ -17,10 +17,9 @@
 
 namespace cinatra
 {
-	template<typename... > class Connection;
 	class Response : boost::noncopyable
 	{
-		template<typename... > friend class Connection;
+	friend class Connection;
 	public:
 		Response()
 			:status_code_(200),

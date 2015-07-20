@@ -33,17 +33,15 @@ namespace cinatra
 	using request_handler_t = std::function<bool(const Request&, Response&)>;
 	using error_handler_t = std::function<bool(int, const std::string&, const Request&, Response&)>;
 
-	template<typename... Aspect>
 	class Connection
-		: public std::enable_shared_from_this<Connection<Aspect...>>
+		: public std::enable_shared_from_this<Connection>
 	{
 	public:
 		Connection(boost::asio::io_service& service,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
-			HTTPRouter& router,
 			const std::string& public_dir)
-			:service_(service), socket_(service), timer_(service), router_(router),
+			:service_(service), socket_(service), timer_(service),
 			error_handler_(error_handler), request_handler_(request_handler),
 			public_dir_(public_dir)
 		{
@@ -126,7 +124,7 @@ namespace cinatra
 
 					if (!hasError)
 					{
-						bool r = Invoke<sizeof...(Aspect)>(res, &Connection::dispatch, this, req, res);
+						bool r = request_handler_(req, res);
 						if (!res.is_complete() && !r)
 						{
 							if (response_file(req, res.header.hasKeepalive(), yield))
@@ -163,17 +161,6 @@ namespace cinatra
 			}
 		}
 
-		template<size_t I, typename Func, typename Self, typename... Args>
-		typename std::enable_if<I == 0, bool>::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)
-		{
-			return (*self.*f)(std::forward<Args>(args)...);
-		}
-
-		template<size_t I, typename Func, typename Self, typename... Args>
-		typename std::enable_if<(I > 0), bool>::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)
-		{
-			return invoke<Aspect...>(res, &Connection::dispatch, this, args...);
-		}
 
 		void init_response(Response& res, const boost::asio::yield_context& yield)
 		{
@@ -297,11 +284,6 @@ namespace cinatra
 			}
 		}
 
-		bool dispatch(const Request& req, Response& res)
-		{
-			return router_.dispatch(req, res);
-		}
-
 		bool response_file(Request& req, bool keep_alive, const boost::asio::yield_context& yield)
 		{
 			std::string path = public_dir_ + req.path();
@@ -420,7 +402,5 @@ namespace cinatra
 		const error_handler_t& error_handler_;
 		const std::string& public_dir_;
 		const request_handler_t& request_handler_;
-
-		HTTPRouter& router_;
 	};
 }

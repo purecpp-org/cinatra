@@ -1,4 +1,7 @@
 
+
+#define DISABLE_LOGGER
+
 #include <cinatra/cinatra.hpp>
 #include <fstream>
 
@@ -6,7 +9,7 @@ struct CheckLoginAspect
 {
 	void before(const Request& req, Response& res)
 	{
-		std::cout << req.url() << endl;
+		//std::cout << req.url() << endl;
 	}
 
 	void after(const Request& req, Response& res)
@@ -26,6 +29,11 @@ struct MyStruct
 int main()
 {
 	cinatra::Cinatra<CheckLoginAspect> app;
+	app.route("/", [](const cinatra::Request& req, cinatra::Response& res)
+	{
+		res.end("Hello Cinatra");
+	});
+
 	MyStruct t;
 	app.route("/hello", &MyStruct::hello, &t);
 	app.route("/hello/:name/:age/:test", [](const cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
