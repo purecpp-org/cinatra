@@ -59,8 +59,7 @@ namespace cinatra
 		void run()
 		{
 			HTTPServer s(num_threads_);
-			s
-				.set_request_handler([this](const Request& req, Response& res)
+			s.set_request_handler([this](const Request& req, Response& res)
 			{
 				return Invoke<sizeof...(Aspect)>(res, &Cinatra::dispatch, this, req, res);
 			})

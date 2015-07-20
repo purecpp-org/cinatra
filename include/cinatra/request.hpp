@@ -1,10 +1,17 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "session_container.hpp"
 #include "lexical_cast.hpp"
 #include "utils.hpp"
+
+#include <string>
+#include <vector>
+
+// 也不知道M$定义DELETE这个宏作甚...
+#ifdef DELETE
+#undef DELETE
+#endif
 
 namespace cinatra
 {
@@ -126,7 +133,18 @@ namespace cinatra
 		{
 			return cookie_;
 		}
+
+		Session& session()
+		{
+			return *session_;
+		}
 	private:
+		friend class Connection;
+		void set_session(session_ptr_t session)
+		{
+			session_ = session;
+		}
+
 		std::string url_;
 		std::vector<char> body_;
 		method_t method_;
@@ -134,5 +152,7 @@ namespace cinatra
 		CaseMap query_;
 		NcaseMultiMap header_;
 		CaseMap cookie_;
+
+		session_ptr_t session_;
 	};
 }

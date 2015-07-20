@@ -5,18 +5,20 @@
 #pragma warning(disable:4819)
 #endif // _MSC_VER
 
-#include "connection.hpp"
 #include "io_service_pool.hpp"
+#include "lexical_cast.hpp"
+#include "connection.hpp"
 #include "logging.hpp"
+#include "session_container.hpp"
 
+#include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
-#include "lexical_cast.hpp"
-#include <boost/noncopyable.hpp>
-#include <memory>
-#include <string>
+
 #include <unordered_map>
 #include <functional>
+#include <memory>
+#include <string>
 
 
 namespace cinatra
@@ -87,7 +89,7 @@ namespace cinatra
 			{
 				auto conn(
 					std::make_shared<Connection>(
-					io_service_pool_.get_io_service(),
+					io_service_pool_.get_io_service(),session_container_,
 					request_handler_, error_handler_, public_dir_));
 
 				boost::system::error_code ec;
@@ -109,5 +111,7 @@ namespace cinatra
 		error_handler_t error_handler_;
 
 		std::string public_dir_;
+
+		SessionContainer session_container_;
 	};
 }
