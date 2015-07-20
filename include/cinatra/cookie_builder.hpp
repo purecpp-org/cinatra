@@ -9,7 +9,6 @@
 
 namespace cinatra
 {
-	class Response;
 	class cookie_builder
 	{
 	public:
@@ -82,7 +81,7 @@ namespace cinatra
 			return tmp;
 		}
 
-		friend Response;
+		friend class Response;
 		std::string to_string()
 		{
 			std::string cookie_str;

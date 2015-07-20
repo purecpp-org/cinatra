@@ -8,6 +8,22 @@
 
 namespace cinatra
 {
+	inline CaseMap query_parser(const std::string& data)
+	{
+		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
+	}
+
+	inline CaseMap body_parser(const std::vector<char>& data)
+	{
+		return kv_parser<std::vector<char>::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
+	}
+
+	inline CaseMap cookie_parser(const std::string& data)
+	{
+		return kv_parser<std::string::const_iterator, CaseMap, '=', ';'>(data.begin(), data.end(), true);
+	}
+
+
 	class Request
 	{
 	public:
@@ -21,7 +37,7 @@ namespace cinatra
 			const std::string& method, const std::string& path,
 			const CaseMap& query_map, const NcaseMultiMap& header)
 			:url_(url), body_(body), path_(path),
-			query_(query_map), header_(header)
+			query_(query_map), header_(header), cookie_(cookie_parser(raw_cookie()))
 		{
 			if (boost::iequals(method, "GET"))
 			{
@@ -101,9 +117,14 @@ namespace cinatra
 			return lexical_cast<int>(header_.get_val("Content-Length"));
 		}
 
-		const std::string& cookie() const
+		const std::string& raw_cookie() const
 		{
 			return header_.get_val("Cookie");
+		}
+
+		const CaseMap& cookie() const
+		{
+			return cookie_;
 		}
 	private:
 		std::string url_;
@@ -112,20 +133,6 @@ namespace cinatra
 		std::string path_;
 		CaseMap query_;
 		NcaseMultiMap header_;
+		CaseMap cookie_;
 	};
-
-	inline CaseMap query_parser(const std::string& data)
-	{
-		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
-	}
-
-	inline CaseMap body_parser(const std::vector<char>& data)
-	{
-		return kv_parser<std::vector<char>::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
-	}
-
-	inline CaseMap cookie_parser(const std::string& data)
-	{
-		return kv_parser<std::string::const_iterator, CaseMap, '=', ';'>(data.begin(), data.end(), true);
-	}
 }
