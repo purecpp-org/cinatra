@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+ <html>
+ <head lang="en">
+     <meta charset="UTF-8">
+     <title>Cookie test</title>
+     <script type="text/javascript">
+         function submitCookie(){
+             var xhr=new XMLHttpRequest();
+             xhr.open("post","/test_ajax",true);
+             xhr.onload= function (e) {
+                 if(this.status==200)
+                     document.getElementById("res").innerHTML=this.response;
+             };
+             xhr.send();
+         }
+     </script>
+ </head>
+ <body>
+ <input type="button" value="submit cookie" onclick="submitCookie();" />
+ <div id="res"></div>
+ </body>
+ </html>
