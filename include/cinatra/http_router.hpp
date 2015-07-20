@@ -47,11 +47,11 @@ namespace cinatra
 			return funcName;
 		}
 
-		template<typename Function>
-		typename std::enable_if<std::is_member_function_pointer<Function>::value>::type route(const std::string& name, const Function& f)
+		template<typename Function, typename Self>
+		typename std::enable_if<std::is_member_function_pointer<Function>::value>::type route(const std::string& name, const Function& f, Self* self)
 		{
 			std::string funcName = getFuncName(name);
-			register_member_impl<Function, Function, HTTPRouter>(funcName, f, this);
+			register_member_impl<Function, Function, Self>(funcName, f, self);
 		}
 
 		void remove_function(const std::string& name) {
@@ -121,12 +121,14 @@ namespace cinatra
 				std::tuple<>());
 		}
 
-		//template<class Signature, typename Function, typename Self>
-		//void register_member_impl(const std::string& name, const Function& f, Self* self)
-		//{
-		//	// instantiate and store the invoker by name
-		//	this->map_invokers[name] = std::bind(&invoker<Function, Signature>::template call_member<std::tuple<>, Self>, f, self, std::placeholders::_1, std::tuple<>());
-		//}
+		template<class Signature, typename Function, typename Self>
+		void register_member_impl(const std::string& name, const Function& f, Self* self)
+		{
+			// instantiate and store the invoker by name
+			this->map_invokers[name] = std::bind(&invoker<Function, Signature>::template call_member<std::tuple<>, Self>, f, self, std::placeholders::_1, 
+				std::placeholders::_2, std::placeholders::_3,
+				std::tuple<>());
+		}
 
 	private:
 		template<typename Function, class Signature = Function, size_t N = function_traits<Signature>::arity>
@@ -148,12 +150,17 @@ namespace cinatra
 				return HTTPRouter::invoker<Function, Signature, N - 1>::call(func, req, res, parser, std::tuple_cat(std::make_tuple(param), args));
 			}
 
-			//template<typename Args, typename Self>
-			//static inline void call_member(Function func, Self* self, token_parser & parser, const Args& args)
-			//{
-			//	typedef typename function_traits<Signature>::template args<N>::type arg_type;
-			//	HTTPRouter::invoker<Function, Signature, N + 1, M>::call_member(func, self, parser, std::tuple_cat(args, std::make_tuple(parser.get<arg_type>())));
-			//}
+			template<typename Args, typename Self>
+			static inline bool call_member(Function func, Self* self, const Request& req, Response& res, token_parser & parser, const Args& args)
+			{
+				typedef typename function_traits<Signature>::template args<N-1>::type arg_type;
+				typename std::decay<arg_type>::type param;
+				if (!parser.get<arg_type>(param))
+				{
+					return false;
+				}
+				return HTTPRouter::invoker<Function, Signature, N - 1>::call_member(func, self, req, res, parser, std::tuple_cat(std::make_tuple(param), args));
+			}
 		};
 
 		template<typename Function, class Signature>
@@ -167,11 +174,12 @@ namespace cinatra
 				return true;
 			}
 
-			//template<typename Args, typename Self>
-			//static inline void call_member(const Function& func, Self* self, token_parser &, const Args& args)
-			//{
-			//	apply_member(func, self, args);
-			//}
+			template<typename Args, typename Self>
+			static inline bool call_member(const Function& func, Self* self, const Request& req, Response& res, token_parser &, const Args& args)
+			{
+				apply_member(func, self, req, res, args);
+				return true;
+			}
 		};
 
 		template<int...>
@@ -196,6 +204,18 @@ namespace cinatra
 		static void apply(const F& f, const Request& req, Response& res, const std::tuple<Args...>& tp)
 		{
 			apply_helper(f, req, res, typename MakeIndexes<sizeof... (Args)>::type(), tp);
+		}
+
+		template<typename F, typename Self, int ... Indexes, typename ... Args>
+		static void apply_helper_member(const F& f, Self* self, const Request& req, Response& res, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)
+		{
+			(*self.*f)(req, res, std::get<Indexes>(tup)...);
+		}
+
+		template<typename F, typename Self, typename ... Args>
+		static void apply_member(const F& f, Self* self, const Request& req, Response& res, const std::tuple<Args...>& tp)
+		{
+			apply_helper_member(f, self, req, res, typename MakeIndexes<sizeof... (Args)>::type(), tp);
 		}
 
 	private:
