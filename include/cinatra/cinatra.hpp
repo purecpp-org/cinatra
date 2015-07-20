@@ -96,16 +96,6 @@ namespace cinatra
 				.run();
 		}
 
-		Response& get_response()
-		{
-			return *res_;
-		}
-
-		const Request& get_request()
-		{
-			return *req_;
-		}
-
 	private:
 		template<size_t I, typename Func, typename Self, typename... Args>
 		typename std::enable_if<I == 0, bool>::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)

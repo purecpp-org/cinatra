@@ -7,11 +7,10 @@ struct StringUtil
 	inline static std::vector<std::string> split(std::string& s, char seperator)
 	{
 		std::vector<std::string> v;
-		int pos = 0;
 		while (true)
 		{
-			pos = s.find(seperator, 0);
-			if (size_t(pos) == std::string::npos)
+			auto pos = s.find(seperator, 0);
+			if (pos == std::string::npos)
 			{
 				if (!s.empty())
 					v.push_back(s);

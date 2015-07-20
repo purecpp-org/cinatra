@@ -122,7 +122,7 @@ namespace detail
 
 	inline bool convert(const char* from)
 	{
-		const unsigned int len = strlen(from);
+		const size_t len = strlen(from);
 		if (len != 4 && len != 5)
 			throw std::invalid_argument("argument is invalid");
 
