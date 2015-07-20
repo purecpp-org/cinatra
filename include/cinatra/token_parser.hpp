@@ -3,6 +3,7 @@
 #include "string_utils.hpp"
 #include "request.hpp"
 #include "utils.hpp"
+#include <boost/lexical_cast.hpp>
 class token_parser
 {
 	std::vector<std::string> v_; //解析之后，v_的第一个元素为函数名，后面的元素均为参数.
@@ -82,7 +83,7 @@ public:
 		{
 			typedef typename std::decay<RequestedType>::type result_type;
 			auto const & v = v_.back();
-			param = lexical_cast<typename std::decay<result_type>::type>(v);
+			param = boost::lexical_cast<typename std::decay<result_type>::type>(v);
 			v_.pop_back();
 			return true;
 		}
