@@ -60,9 +60,7 @@ namespace cinatra
 
 		bool dispatch(const Request& req,  Response& resp)
 		{
-			req_ = &req;
-			resp_ = &resp;
-			parser_.parse(*req_);
+			parser_.parse(req);
 
 			if (parser_.empty())
 				return false;
@@ -202,9 +200,6 @@ namespace cinatra
 
 	private:
 		std::map<std::string, invoker_function> map_invokers;
-
-		const Request* req_;
-		Response* resp_;
 		token_parser parser_;
 	};
 }

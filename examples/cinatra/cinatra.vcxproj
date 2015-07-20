@@ -84,7 +84,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\cinatra\aop.hpp" />
-    <ClInclude Include="..\..\include\cinatra\check_login_aspect.hpp" />
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp" />
     <ClInclude Include="..\..\include\cinatra\connection.hpp" />
     <ClInclude Include="..\..\include\cinatra\cookie_builder.hpp" />

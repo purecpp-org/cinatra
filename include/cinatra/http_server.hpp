@@ -47,11 +47,6 @@ namespace cinatra
 			return *this;
 		}
 
-		void set_init_handler(const init_handler_t& init_handler)
-		{
-			init_handler_ = init_handler;
-		}
-
 		HTTPServer& listen(const std::string& address, const std::string& port)
 		{
 			LOG_DBG << "Listen on " << address << ":" << port;
@@ -94,7 +89,7 @@ namespace cinatra
 				auto conn(
 					std::make_shared<Connection<Aspect...>>(
 					io_service_pool_.get_io_service(),
-					request_handler_, error_handler_, init_handler_, router_, public_dir_));
+					request_handler_, error_handler_, router_, public_dir_));
 
 				boost::system::error_code ec;
 				acceptor_.async_accept(conn->socket(), yield[ec]);
@@ -113,7 +108,6 @@ namespace cinatra
 
 		request_handler_t request_handler_;
 		error_handler_t error_handler_;
-		init_handler_t init_handler_;
 		HTTPRouter& router_;
 
 		std::string public_dir_;

@@ -32,7 +32,6 @@ namespace cinatra
 	};
 	using request_handler_t = std::function<bool(const Request&, Response&)>;
 	using error_handler_t = std::function<bool(int, const std::string&, const Request&, Response&)>;
-	using init_handler_t = std::function<void(const Request&, Response&)>;
 
 	template<typename... Aspect>
 	class Connection
@@ -42,10 +41,10 @@ namespace cinatra
 		Connection(boost::asio::io_service& service,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
-			const init_handler_t& init_handler, HTTPRouter& router,
+			HTTPRouter& router,
 			const std::string& public_dir)
 			:service_(service), socket_(service), timer_(service), router_(router),
-			error_handler_(error_handler), request_handler_(request_handler), init_handler_(init_handler),
+			error_handler_(error_handler), request_handler_(request_handler),
 			public_dir_(public_dir)
 		{
 			LOG_DBG << "New connection";
@@ -127,7 +126,6 @@ namespace cinatra
 
 					if (!hasError)
 					{
-						init_handler_(req, res);
 						bool r = Invoke<sizeof...(Aspect)>(res, &Connection::dispatch, this, req, res);
 						if (!res.is_complete() && !r)
 						{
@@ -422,7 +420,7 @@ namespace cinatra
 		const error_handler_t& error_handler_;
 		const std::string& public_dir_;
 		const request_handler_t& request_handler_;
-		const init_handler_t& init_handler_;
+
 		HTTPRouter& router_;
 	};
 }

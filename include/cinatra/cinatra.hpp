@@ -56,16 +56,9 @@ namespace cinatra
 			return *this;
 		}
 
-		void init(const Request& req, Response& res)
-		{
-			req_ = &req;
-			res_ = &res;
-		}
-
 		void run()
 		{
 			HTTPServer<Aspect...> s(num_threads_, router_);
-			s.set_init_handler(std::bind(&Cinatra::init, this, std::placeholders::_1, std::placeholders::_2));
 			s.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
 			{
 				LOG_DBG << "Handle error:" << code << " " << msg << " with path " << req.path();
@@ -123,8 +116,6 @@ namespace cinatra
 		error_handler_t error_handler_;
 
 		HTTPRouter router_;
-		const Request* req_;
-		Response* res_;
 	};
 
 	using SimpleApp = Cinatra<>;
