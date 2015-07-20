@@ -15,7 +15,7 @@ namespace cinatra
 {
 	class HTTPRouter
 	{
-		typedef std::function<bool(const Request&, Response&, token_parser &)> invoker_function;
+		typedef std::function<bool(Request&, Response&, token_parser &)> invoker_function;
 	public:
 		HTTPRouter()
 		{}
@@ -58,7 +58,7 @@ namespace cinatra
 			this->map_invokers.erase(name);
 		}
 
-		bool dispatch(const Request& req,  Response& resp)
+		bool dispatch(Request& req,  Response& resp)
 		{
 			parser_.parse(req);
 
@@ -139,7 +139,7 @@ namespace cinatra
 		{
 			// add an argument to a Fusion cons-list for each parameter type
 			template<typename Args>
-			static inline bool call(const Function& func, const Request& req, Response& res, token_parser & parser, const Args& args)
+			static inline bool call(const Function& func, Request& req, Response& res, token_parser & parser, const Args& args)
 			{
 				typedef typename function_traits<Signature>::template args<N-1>::type arg_type;
 				typename std::decay<arg_type>::type param;
@@ -151,7 +151,7 @@ namespace cinatra
 			}
 
 			template<typename Args, typename Self>
-			static inline bool call_member(Function func, Self* self, const Request& req, Response& res, token_parser & parser, const Args& args)
+			static inline bool call_member(Function func, Self* self, Request& req, Response& res, token_parser & parser, const Args& args)
 			{
 				typedef typename function_traits<Signature>::template args<N-1>::type arg_type;
 				typename std::decay<arg_type>::type param;
@@ -168,14 +168,14 @@ namespace cinatra
 		{
 			// the argument list is complete, now call the function
 			template<typename Args>
-			static inline bool call(const Function& func, const Request& req, Response& res, token_parser &, const Args& args)
+			static inline bool call(const Function& func, Request& req, Response& res, token_parser &, const Args& args)
 			{
 				apply(func, req, res, args);
 				return true;
 			}
 
 			template<typename Args, typename Self>
-			static inline bool call_member(const Function& func, Self* self, const Request& req, Response& res, token_parser &, const Args& args)
+			static inline bool call_member(const Function& func, Self* self, Request& req, Response& res, token_parser &, const Args& args)
 			{
 				apply_member(func, self, req, res, args);
 				return true;
@@ -195,25 +195,25 @@ namespace cinatra
 		};
 
 		template<typename F, int ... Indexes, typename ... Args>
-		static void apply_helper(const F& f, const Request& req, Response& res, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)
+		static void apply_helper(const F& f, Request& req, Response& res, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)
 		{
 			f(req, res, std::get<Indexes>(tup)...);
 		}
 
 		template<typename F, typename ... Args>
-		static void apply(const F& f, const Request& req, Response& res, const std::tuple<Args...>& tp)
+		static void apply(const F& f, Request& req, Response& res, const std::tuple<Args...>& tp)
 		{
 			apply_helper(f, req, res, typename MakeIndexes<sizeof... (Args)>::type(), tp);
 		}
 
 		template<typename F, typename Self, int ... Indexes, typename ... Args>
-		static void apply_helper_member(const F& f, Self* self, const Request& req, Response& res, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)
+		static void apply_helper_member(const F& f, Self* self, Request& req, Response& res, IndexTuple<Indexes...>, const std::tuple<Args...>& tup)
 		{
 			(*self.*f)(req, res, std::get<Indexes>(tup)...);
 		}
 
 		template<typename F, typename Self, typename ... Args>
-		static void apply_member(const F& f, Self* self, const Request& req, Response& res, const std::tuple<Args...>& tp)
+		static void apply_member(const F& f, Self* self, Request& req, Response& res, const std::tuple<Args...>& tp)
 		{
 			apply_helper_member(f, self, req, res, typename MakeIndexes<sizeof... (Args)>::type(), tp);
 		}

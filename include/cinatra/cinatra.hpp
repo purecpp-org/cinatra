@@ -59,11 +59,11 @@ namespace cinatra
 		void run()
 		{
 			HTTPServer s(num_threads_);
-			s.set_request_handler([this](const Request& req, Response& res)
+			s.set_request_handler([this](Request& req, Response& res)
 			{
 				return Invoke<sizeof...(Aspect)>(res, &Cinatra::dispatch, this, req, res);
 			})
-				.set_error_handler([this](int code, const std::string& msg, const Request& req, Response& res)
+				.set_error_handler([this](int code, const std::string& msg, Request& req, Response& res)
 			{
 				LOG_DBG << "Handle error:" << code << " " << msg << " with path " << req.path();
 				if (error_handler_
@@ -108,7 +108,7 @@ namespace cinatra
 			return invoke<Aspect...>(res, &Cinatra::dispatch, this, args...);
 		}
 		
-		bool dispatch(const Request& req, Response& res)
+		bool dispatch(Request& req, Response& res)
 		{
 			return router_.dispatch(req, res);
 		}

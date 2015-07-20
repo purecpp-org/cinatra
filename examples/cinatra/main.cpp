@@ -7,12 +7,12 @@
 
 struct CheckLoginAspect
 {
-	void before(const Request& req, Response& res)
+	void before(Request& req, Response& res)
 	{
 		//std::cout << req.url() << endl;
 	}
 
-	void after(const Request& req, Response& res)
+	void after(Request& req, Response& res)
 	{
 
 	}
@@ -20,7 +20,7 @@ struct CheckLoginAspect
 
 struct MyStruct
 {
-	void hello(const cinatra::Request& req, cinatra::Response& res)
+	void hello(cinatra::Request& req, cinatra::Response& res)
 	{
 		res.end("Hello noname!");
 	}
@@ -29,13 +29,13 @@ struct MyStruct
 int main()
 {
 	cinatra::Cinatra<CheckLoginAspect> app;
-	app.route("/", [](const cinatra::Request& req, cinatra::Response& res)
+	app.route("/", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		res.end("Hello Cinatra");
 	});
 
 	// 访问/login.html进行登录.
-	app.route("/test_post", [](const cinatra::Request& req, cinatra::Response& res)
+	app.route("/test_post", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		if (req.method() != Request::method_t::POST)
 		{
@@ -54,18 +54,18 @@ int main()
 	app.route("/hello", &MyStruct::hello, &t);
 	// 访问类似于/hello/jone/10/xxx
 	// joen、10和xxx会分别作为a、b和c三个参数传入handler
-	app.route("/hello/:name/:age/:test", [](const cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
+	app.route("/hello/:name/:age/:test", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
 	{
 		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b)+"Test: " + lexical_cast<std::string>(c));
 	});
 	// 
-	app.route("/hello/:name/:age", [](const cinatra::Request& req, cinatra::Response& res, const std::string& a, int b)
+	app.route("/hello/:name/:age", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b)
 	{
 		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b));
 	});
 
 	// example: /test_query?a=asdf&b=sdfg
-	app.route("/test_query", [](const cinatra::Request& req, cinatra::Response& res)
+	app.route("/test_query", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		res.write("<html><head><title>test query</title ></head><body>");
 		res.write("Total " + lexical_cast<std::string>(req.query().size()) + "queries<br />");
@@ -78,7 +78,7 @@ int main()
 	});
 
 	//设置cookie
-	app.route("/set_cookies", [](const cinatra::Request& req, cinatra::Response& res)
+	app.route("/set_cookies", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		res.cookies().new_cookie() // 会话cookie
 			.add("foo", "bar")
@@ -89,7 +89,7 @@ int main()
 		res.end("</body></html>");
 	});
 	//列出所有的cookie
-	app.route("/show_cookies", [](const cinatra::Request& req, cinatra::Response& res)
+	app.route("/show_cookies", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		res.write("<html><head><title>Show cookies</title ></head><body>");
 		res.write("Total " + lexical_cast<std::string>(req.cookie().size()) + "cookies<br />");
@@ -103,7 +103,7 @@ int main()
 
 
 	app.error_handler(
-		[](int code, const std::string&, const cinatra::Request&, cinatra::Response& res)
+		[](int code, const std::string&, cinatra::Request&, cinatra::Response& res)
 	{
 		if (code != 404)
 		{

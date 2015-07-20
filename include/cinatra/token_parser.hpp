@@ -27,7 +27,7 @@ public:
 		map_.emplace(path, key);
 	}
 
-	void parse(const cinatra::Request& req)
+	void parse(cinatra::Request& req)
 	{
 		string path = req.path();
 		

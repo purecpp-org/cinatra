@@ -8,7 +8,7 @@ int main()
 	cinatra::HTTPServer s(std::thread::hardware_concurrency());
 
 	s.set_request_handler(
-		[](const cinatra::Request& req, cinatra::Response& res)
+		[](cinatra::Request& req, cinatra::Response& res)
 	{
 		if (req.path() == "/")
 		{
@@ -28,7 +28,7 @@ int main()
 
 		return false;
 	})
-		.set_error_handler([](int code, const std::string&, const cinatra::Request&, cinatra::Response& res)
+		.set_error_handler([](int code, const std::string&, cinatra::Request&, cinatra::Response& res)
 	{
 		res.set_status_code(code);
 		res.write("Error: " + boost::lexical_cast<std::string>(code));

@@ -21,18 +21,18 @@ namespace cinatra
 {
 	struct NullableAspect
 	{
-		void before(const Request& req, Response& res)
+		void before(Request& req, Response& res)
 		{
 
 		}
 
-		void after(const Request& req, Response& res)
+		void after(Request& req, Response& res)
 		{
 
 		}
 	};
-	using request_handler_t = std::function<bool(const Request&, Response&)>;
-	using error_handler_t = std::function<bool(int, const std::string&, const Request&, Response&)>;
+	using request_handler_t = std::function<bool(Request&, Response&)>;
+	using error_handler_t = std::function<bool(int, const std::string&, Request&, Response&)>;
 
 	class Connection
 		: public std::enable_shared_from_this<Connection>
@@ -190,7 +190,7 @@ namespace cinatra
 			};
 		}
 
-		bool check_request(const RequestParser& parser, const Request& req, Response& res)
+		bool check_request(const RequestParser& parser, Request& req, Response& res)
 		{
 			bool hasError = false;
 			//check request
@@ -213,7 +213,7 @@ namespace cinatra
 			return hasError;
 		}
 
-		void add_version(const RequestParser& parser, const Request& req, Response& res)
+		void add_version(const RequestParser& parser, Request& req, Response& res)
 		{
 			if (parser.is_version10())
 			{
@@ -236,7 +236,7 @@ namespace cinatra
 		如果没有close也没有keep-alive
 		那就是长链接但是不用返回keep-alive
 		*/
-		void add_keepalive(const RequestParser& parser, const Request& req, Response& res)
+		void add_keepalive(const RequestParser& parser, Request& req, Response& res)
 		{
 			if (parser.is_version10())
 			{
@@ -279,7 +279,7 @@ namespace cinatra
 			}
 		}
 
-		void close_connection(const RequestParser& parser, const Request& req)
+		void close_connection(const RequestParser& parser, Request& req)
 		{
 			if (parser.is_version10())
 			{
