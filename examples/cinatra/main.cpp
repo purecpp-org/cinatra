@@ -9,7 +9,13 @@ struct CheckLoginAspect
 {
 	void before(Request& req, Response& res)
 	{
-		//std::cout << req.url() << endl;
+		// FIXME: public dir中的js等静态文件不能重定向..
+		if (!req.session().exists("uid")
+			&& req.path() != "/login.html"
+			&& req.path() != "/test_post")
+		{
+			res.redirect("/login.html");
+		}
 	}
 
 	void after(Request& req, Response& res)
@@ -45,6 +51,7 @@ int main()
 		}
 
 		auto body = cinatra::body_parser(req.body());
+		req.session().add("uid", body.get_val("uid"));
 		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
 	});
 
