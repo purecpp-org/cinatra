@@ -24,8 +24,16 @@ namespace cinatra
 			std::unique_lock<std::mutex> lock(mutex_);
 			kv_.emplace(key, val);
 		}
+
 		template<typename T>
-		T const & get(const std::string& key)
+		void set(const std::string& key, T const & val)
+		{
+			std::unique_lock<std::mutex> lock(mutex_);
+			kv_[key] = val;
+		}
+
+		template<typename T>
+		T get(const std::string& key)
 		{
 			auto it = kv_.find(key);
 			if (it == kv_.end())

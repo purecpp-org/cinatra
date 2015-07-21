@@ -9,14 +9,14 @@ struct CheckLoginAspect
 {
 	void before(Request& req, Response& res)
 	{
-		if (!req.session().exists("uid")	//如果session没有uid
-			&& req.path() != "/login.html"	//且访问的不是login
-			&& req.path() != "/test_post"	//和test_post页面
-			&& req.path().compare(0, 7, "/public"))	//也不是 public文件夹下的东西
-		{
-			// 跳转到登陆页面
-			res.redirect("/login.html");
-		}
+// 		if (!req.session().exists("uid")	//如果session没有uid
+// 			&& req.path() != "/login.html"	//且访问的不是login
+// 			&& req.path() != "/test_post"	//和test_post页面
+// 			&& req.path().compare(0, 7, "/public"))	//也不是 public文件夹下的东西
+// 		{
+// 			// 跳转到登陆页面
+// 			res.redirect("/login.html");
+// 		}
 	}
 
 	void after(Request& req, Response& res)
@@ -29,7 +29,7 @@ struct MyStruct
 {
 	void hello(cinatra::Request& req, cinatra::Response& res)
 	{
-		res.end("Hello noname!");
+		res.end("Hello " + req.session().get<std::string>("uid") + "!");
 	}
 };
 
@@ -52,21 +52,21 @@ int main()
 		}
 
 		auto body = cinatra::body_parser(req.body());
-		req.session().add("uid", body.get_val("uid"));
+		req.session().set("uid", body.get_val("uid"));
 		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
 	});
 
 
 	MyStruct t;
 	// 访问/hello
-	app.route("/hello", &MyStruct::hello, &t);
-	// 访问类似于/hello/jone/10/xxx
-	// joen、10和xxx会分别作为a、b和c三个参数传入handler
-	app.route("/hello/:name/:age/:test", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
-	{
-		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b)+"Test: " + lexical_cast<std::string>(c));
-	});
-	// 
+	//app.route("/hello", &MyStruct::hello, &t);
+	//// 访问类似于/hello/jone/10/xxx
+	//// joen、10和xxx会分别作为a、b和c三个参数传入handler
+	//app.route("/hello/:name/:age/:test", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
+	//{
+	//	res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b)+"Test: " + lexical_cast<std::string>(c));
+	//});
+	//// 
 	app.route("/hello/:name/:age", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b)
 	{
 		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b));
