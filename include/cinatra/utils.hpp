@@ -649,6 +649,13 @@ namespace cinatra
 		return (value);
 	}
 
+	inline void itoh(int c, char& out1, char& out2)
+	{
+		unsigned char hexchars[] = "0123456789ABCDEF";
+		out1 = hexchars[c >> 4];
+		out2 = hexchars[c & 15];
+	}
+
 	inline std::string urldecode(const std::string &str_source)
 	{
 		std::string str_dest;

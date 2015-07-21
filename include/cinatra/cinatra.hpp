@@ -24,11 +24,13 @@ namespace cinatra
 			router_.route(std::forward<Args>(args)...);
 			return *this;
 		}
+#ifndef SINGLE_THREAD
 		Cinatra& threads(int num)
 		{
 			num_threads_ = num < 1 ? 1 : num;
 			return *this;
 		}
+#endif // SINGLE_THREAD
 
 		Cinatra& error_handler(error_handler_t error_handler)
 		{
@@ -58,7 +60,11 @@ namespace cinatra
 
 		void run()
 		{
+#ifndef SINGLE_THREAD
 			HTTPServer s(num_threads_);
+#else
+			HTTPServer s;
+#endif // SINGLE_THREAD
 			s.set_request_handler([this](Request& req, Response& res)
 			{
 				return Invoke<sizeof...(Aspect)>(res, &Cinatra::dispatch, this, req, res);
@@ -114,7 +120,10 @@ namespace cinatra
 		}
 
 	private:
+#ifndef SINGLE_THREAD
 		int num_threads_ = std::thread::hardware_concurrency();
+#endif // SINGLE_THREAD
+
 		std::string listen_addr_;
 		std::string listen_port_;
 		std::string static_dir_;

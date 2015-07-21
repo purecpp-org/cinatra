@@ -1,6 +1,8 @@
 
 
 #define DISABLE_LOGGER
+// 单线程的话禁用一些锁提高效率
+//#define SINGLE_THREAD
 
 #include <cinatra/cinatra.hpp>
 #include <fstream>
@@ -134,7 +136,11 @@ int main()
 		return true;
 	});
 
-	app.static_dir("./static").threads(std::thread::hardware_concurrency()).listen("0.0.0.0", "http").run();
+	app.static_dir("./static")
+#ifndef SINGLE_THREAD
+		.threads(4)
+#endif // SINGLE_THREAD
+		.listen("0.0.0.0", "http").run();
 
 	return 0;
 }
