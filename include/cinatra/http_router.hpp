@@ -70,8 +70,8 @@ namespace cinatra
 			if (func == nullptr)
 				return false;
 
-			func(req, resp, parser);
-			return true;
+			return func(req, resp, parser);
+			//return true;
 		}
 
 		//如果有参数key就按照key从query里取出相应的参数值.
