@@ -104,7 +104,7 @@ namespace cinatra
 				else
 				{
 					string params = func_name.substr(pos);
-					parser_.parse(params);
+					parser.parse(params);
 					return it->second;
 				}
 			}
