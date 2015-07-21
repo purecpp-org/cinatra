@@ -27,18 +27,23 @@ public:
 		map_.emplace(path, key);
 	}
 
-	void parse(cinatra::Request& req)
+	const std::multimap<std::string, std::string>& get_map()
+	{
+		return map_;
+	}
+
+	void parse(cinatra::Request& req, const std::multimap<std::string, std::string>& kv)
 	{
 		string path = req.path();
 		
-		if (!map_.empty())
+		if (!kv.empty())
 		{
 			v_.push_back(req.path());
 			
 			cinatra::CaseMap map;
 			if (req.query().empty())
 				map = cinatra::body_parser(req.body());
-			for (auto& it : map_)
+			for (auto& it : kv)
 			{
 				auto& val = req.query().empty() ? map.get_val(it.second) : req.query().get_val(it.second);
 				if (val.empty())
