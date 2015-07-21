@@ -1,5 +1,6 @@
 Debug
 Release
+Profile
 build
 *.sdf
 *.opensdf
