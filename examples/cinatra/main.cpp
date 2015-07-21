@@ -9,14 +9,14 @@ struct CheckLoginAspect
 {
 	void before(Request& req, Response& res)
 	{
-//  		if (!req.session().exists("uid")	//如果session没有uid
-//  			&& req.path() != "/login.html"	//且访问的不是login
-//  			&& req.path() != "/test_post"	//和test_post页面
-//  			&& req.path().compare(0, 7, "/public"))	//也不是 public文件夹下的东西
-//  		{
-//  			// 跳转到登陆页面
-//  			res.redirect("/login.html");
-//  		}
+ 		if (!req.session().exists("uid")	//如果session没有uid
+ 			&& req.path() != "/login.html"	//且访问的不是login
+ 			&& req.path() != "/test_post"	//和test_post页面
+ 			&& req.path().compare(0, 7, "/public"))	//也不是 public文件夹下的东西
+ 		{
+ 			// 跳转到登陆页面
+ 			res.redirect("/login.html");
+ 		}
 	}
 
 	void after(Request& req, Response& res)
