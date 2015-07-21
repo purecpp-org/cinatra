@@ -9,14 +9,14 @@ struct CheckLoginAspect
 {
 	void before(Request& req, Response& res)
 	{
-		if (!req.session().exists("uid")	//如果session没有uid
-			&& req.path() != "/login.html"	//且访问的不是login
-			&& req.path() != "/test_post"	//和test_post页面
-			&& req.path().compare(0, 7, "/public"))	//也不是 public文件夹下的东西
-		{
-			// 跳转到登陆页面
-			res.redirect("/login.html");
-		}
+ 		if (!req.session().exists("uid")	//如果session没有uid
+ 			&& req.path() != "/login.html"	//且访问的不是login
+ 			&& req.path() != "/test_post"	//和test_post页面
+ 			&& req.path().compare(0, 7, "/public"))	//也不是 public文件夹下的东西
+ 		{
+ 			// 跳转到登陆页面
+ 			res.redirect("/login.html");
+ 		}
 	}
 
 	void after(Request& req, Response& res)
@@ -29,7 +29,7 @@ struct MyStruct
 {
 	void hello(cinatra::Request& req, cinatra::Response& res)
 	{
-		res.end("Hello noname!");
+		res.end("Hello " + req.session().get<std::string>("uid") + "!");
 	}
 };
 
@@ -52,7 +52,7 @@ int main()
 		}
 
 		auto body = cinatra::body_parser(req.body());
-		req.session().add("uid", body.get_val("uid"));
+		req.session().set("uid", body.get_val("uid"));
 		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
 	});
 
@@ -126,7 +126,7 @@ int main()
 				<title>404</title>
 			</head>
 			<body>
-			<img src="/img/404.jpg" width="100%" height="100%" />
+			<img src="/public/img/404.jpg" width="100%" height="100%" />
 			</body>
 			</html>)"
 		);

@@ -28,7 +28,8 @@ namespace cinatra
 	public:
 		HTTPServer(std::size_t io_service_pool_size)
 			:io_service_pool_(io_service_pool_size),
-			acceptor_(io_service_pool_.get_io_service())
+			acceptor_(io_service_pool_.get_io_service()),
+			session_container_(io_service_pool_.get_io_service())
 		{
 
 		}

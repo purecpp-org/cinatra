@@ -19,18 +19,6 @@
 
 namespace cinatra
 {
-	struct NullableAspect
-	{
-		void before(Request& req, Response& res)
-		{
-
-		}
-
-		void after(Request& req, Response& res)
-		{
-
-		}
-	};
 	using request_handler_t = std::function<bool(Request&, Response&)>;
 	using error_handler_t = std::function<bool(int, const std::string&, Request&, Response&)>;
 
