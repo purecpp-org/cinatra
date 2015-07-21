@@ -19,6 +19,7 @@ namespace cinatra
 		template<typename T>
 		void add(const std::string& key, T const & val)
 		{
+
 			kv_.emplace(key, val);
 		}
 		template<typename T>
@@ -59,7 +60,9 @@ namespace cinatra
 			auto it = session_container_.find(key);
 			if (it == session_container_.end())
 			{
-				return nullptr;
+				auto ptr(std::make_shared<Session>());
+				session_container_.emplace(key, ptr);
+				return ptr;
 			}
 			return it->second;
 		}
