@@ -86,7 +86,7 @@ namespace cinatra
 		{
 			std::string cookie_str;
 
-			for (auto cookie : jar_)
+			for (auto& cookie : jar_)
 			{
 				cookie_str += "Set-Cookie: ";
 

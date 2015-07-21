@@ -132,15 +132,12 @@ namespace cinatra
 		std::string get_header_str()
 		{
 			auto s = status_header(status_code_);
-			std::string header_str = boost::str(
-				boost::format(
-				"HTTP/%d.%d %d %s\r\n"	//http version and status.
-				"Server: cinatra/0.1\r\n"
-				"Date: %s\r\n"
-				)
-				% version_major_ %version_minor_ % s.first % s.second
-				% header_date_str()
-				);
+			string shttp = "";
+			if (version_minor_ == 0)
+				shttp = "HTTP/1.0 ";
+			else 
+				shttp = "HTTP/1.1 ";
+			string header_str = shttp + s.second + "\r\nServer: cinatra/0.1\r\nDate: " + header_date_str() + "\r\n";
 
 			if (!is_chunked_encoding_)
 			{
@@ -149,7 +146,7 @@ namespace cinatra
 				header_str += "\r\n";
 			}
 
-			for (auto iter : header.get_all())
+			for (auto& iter : header.get_all())
 			{
 				header_str += iter.first;
 				header_str += ": ";
