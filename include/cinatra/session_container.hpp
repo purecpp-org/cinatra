@@ -10,16 +10,18 @@
 #include <string>
 #include <memory>
 #include <sstream>
+#include <mutex>
 
 namespace cinatra
 {
 	class Session
 	{
+		std::mutex mutex_;
 	public:
 		template<typename T>
 		void add(const std::string& key, T const & val)
 		{
-
+			std::unique_lock<std::mutex> lock(mutex_);
 			kv_.emplace(key, val);
 		}
 		template<typename T>
@@ -45,9 +47,11 @@ namespace cinatra
 	using session_ptr_t = std::shared_ptr<Session>;
 	class SessionContainer
 	{
+		std::mutex mutex_;
 	public:
 		std::string new_session()
 		{
+			std::unique_lock<std::mutex> lock(mutex_);
 			boost::uuids::uuid u = boost::uuids::string_generator()("{0123456789abcdef0123456789abcdef}");
 			std::stringstream ss;
 			ss << u;
@@ -57,6 +61,7 @@ namespace cinatra
 
 		session_ptr_t get_container(const std::string& key)
 		{
+			std::unique_lock<std::mutex> lock(mutex_);
 			auto it = session_container_.find(key);
 			if (it == session_container_.end())
 			{
