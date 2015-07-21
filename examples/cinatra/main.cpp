@@ -133,7 +133,7 @@ int main()
 		return true;
 	});
 
-	app.public_dir("./public").threads(std::thread::hardware_concurrency()).listen("0.0.0.0", "http").run();
+	app.static_dir("./static").threads(std::thread::hardware_concurrency()).listen("0.0.0.0", "http").run();
 
 	return 0;
 }

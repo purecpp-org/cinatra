@@ -70,9 +70,9 @@ namespace cinatra
 			return listen(address, lexical_cast<std::string>(port));
 		}
 
-		HTTPServer& public_dir(const std::string& dir)
+		HTTPServer& static_dir(const std::string& dir)
 		{
-			public_dir_ = dir;
+			static_dir_ = dir;
 			return *this;
 		}
 
@@ -90,7 +90,7 @@ namespace cinatra
 				auto conn(
 					std::make_shared<Connection>(
 					io_service_pool_.get_io_service(),session_container_,
-					request_handler_, error_handler_, public_dir_));
+					request_handler_, error_handler_, static_dir_));
 
 				boost::system::error_code ec;
 				acceptor_.async_accept(conn->socket(), yield[ec]);
@@ -110,7 +110,7 @@ namespace cinatra
 		request_handler_t request_handler_;
 		error_handler_t error_handler_;
 
-		std::string public_dir_;
+		std::string static_dir_;
 
 		SessionContainer session_container_;
 	};

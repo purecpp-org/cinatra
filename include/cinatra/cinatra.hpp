@@ -50,9 +50,9 @@ namespace cinatra
 			return *this;
 		}
 
-		Cinatra& public_dir(const std::string& dir)
+		Cinatra& static_dir(const std::string& dir)
 		{
-			public_dir_ = dir;
+			static_dir_ = dir;
 			return *this;
 		}
 
@@ -90,7 +90,7 @@ namespace cinatra
 
 				return true;
 			})
-				.public_dir(public_dir_)
+				.static_dir(static_dir_)
 				.listen(listen_addr_, listen_port_)
 				.run();
 		}
@@ -117,7 +117,7 @@ namespace cinatra
 		int num_threads_ = std::thread::hardware_concurrency();
 		std::string listen_addr_;
 		std::string listen_port_;
-		std::string public_dir_;
+		std::string static_dir_;
 
 		error_handler_t error_handler_;
 
