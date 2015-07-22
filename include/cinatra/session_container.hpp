@@ -84,6 +84,7 @@ namespace cinatra
 	using session_ptr_t = std::shared_ptr<Session>;
 	class SessionContainer
 	{
+		std::string u_str;
 		std::mutex mutex_;
 	public:
 		SessionContainer(boost::asio::io_service& service)
@@ -96,21 +97,22 @@ namespace cinatra
 			UNIQUE_LOCK();
 			boost::uuids::uuid u = boost::uuids::string_generator()("{0123456789abcdef0123456789abcdef}");
 
-			std::stringstream ss;
-			ss << u;
-			session_container_.emplace(ss.str(), std::make_shared<Session>());
-			return ss.str();
-// 			std::string u_str;
-// 			for (auto c : u)
-// 			{
-// 				char out1, out2;
-// 				itoh(c, out1, out2);
-// 
-// 				u_str.push_back(out1);
-// 				u_str.push_back(out2);
-// 			}
-// 			session_container_.emplace(u_str, std::make_shared<Session>());
-// 			return u_str;
+			//std::stringstream ss;
+			//ss << u;
+			//session_container_.emplace(ss.str(), std::make_shared<Session>());
+			//return ss.str();
+			u_str.reserve(36);
+ 			for (auto c : u)
+ 			{
+ 				char out1, out2;
+ 				itoh(c, out1, out2);
+ 
+ 				u_str.push_back(out1);
+ 				u_str.push_back(out2);
+ 			}
+ 			session_container_.emplace(u_str, std::make_shared<Session>());
+			u_str.clear();
+ 			return u_str;
 		}
 
 		session_ptr_t get_container(const std::string& key)
