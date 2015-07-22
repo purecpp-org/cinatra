@@ -133,10 +133,10 @@ namespace cinatra
 		{
 			auto s = status_header(status_code_);
 			string shttp = "";
-			if (version_minor_ == 0)
-				shttp = "HTTP/1.0 ";
-			else 
+			if (version_minor_ == 1)
 				shttp = "HTTP/1.1 ";
+			else 
+				shttp = "HTTP/1.0 ";
 			string header_str = shttp + s.second + "\r\nServer: cinatra/0.1\r\nDate: " + header_date_str() + "\r\n";
 
 			if (!is_chunked_encoding_)
