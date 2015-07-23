@@ -7,6 +7,7 @@
 #include "response.hpp"
 #include "logging.hpp"
 #include "aop.hpp"
+#include <boost/lexical_cast.hpp>
 
 #include <string>
 #include <vector>
@@ -18,10 +19,41 @@ namespace cinatra
 	class Cinatra
 	{
 	public:
-		template<typename...Args>
-		Cinatra& route(Args&&... args)
+		template<typename F>
+		typename std::enable_if<(function_traits<F>::arity>0), Cinatra&>::type route(const std::string& name,const F& f)
 		{
-			router_.route(std::forward<Args>(args)...);
+			router_.route(name, f);
+			return *this;
+		}
+
+		template<typename F, typename Self>
+		typename std::enable_if<(function_traits<F>::arity>0), Cinatra&>::type route(const std::string& name, const F& f, Self* self)
+		{
+			router_.route(name, f, self);
+			return *this;
+		}
+
+		template<typename F>
+		typename std::enable_if<function_traits<F>::arity==0, Cinatra&>::type route(const std::string& name,const F& f)
+		{
+			route(name, [f](cinatra::Request& req, cinatra::Response& res)
+			{
+				auto r = f();
+				res.write(boost::lexical_cast<std::string>(r));
+			});
+
+			return *this;
+		}
+
+		template<typename F, typename Self>
+		typename std::enable_if<function_traits<F>::arity == 0, Cinatra&>::type route(const std::string& name, const F& f, Self* self)
+		{
+			route(name, [f, self](cinatra::Request& req, cinatra::Response& res)
+			{
+				auto r = (*self.*f)();				
+				res.write(boost::lexical_cast<std::string>(r));
+			});
+
 			return *this;
 		}
 #ifndef SINGLE_THREAD
