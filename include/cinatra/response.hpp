@@ -8,6 +8,7 @@
 #include <boost/asio/streambuf.hpp>
 #include "lexical_cast.hpp"
 #include <boost/format.hpp>
+#include <boost/any.hpp>
 
 #include <functional>
 #include <cassert>
@@ -181,6 +182,11 @@ namespace cinatra
 			return is_complete_;
 		}
 
+		std::map<int, boost::any>& context()
+		{
+			return context_;
+		}
+
 	private:
 		
 		int status_code_;
@@ -197,5 +203,7 @@ namespace cinatra
 		bool has_chunked_encoding_header_;
 		cookie_builder cookie_builder_;
 		string header_str;
+
+		std::map<int, boost::any> context_;
 	};
 }
