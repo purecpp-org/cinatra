@@ -138,7 +138,7 @@ int main()
 
 	app.static_dir("./static")
 #ifndef SINGLE_THREAD
-		.threads(4)
+		.threads(8)
 #endif // SINGLE_THREAD
 		.listen("0.0.0.0", "http").run();
 

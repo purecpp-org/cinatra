@@ -140,8 +140,7 @@ namespace cinatra
 			else 
 				shttp = "HTTP/1.0 ";
 			
-			header_str.reserve(shttp.length() + s.second.length() + header_date_str().length() + 38);
-			header_str = shttp + s.second + "\r\nServer: cinatra/0.1\r\nDate: " + header_date_str() + "\r\n";
+			header_str = shttp + lexical_cast<std::string>(s.first) + " " + s.second + "\r\nServer: cinatra/0.1\r\nDate: " + header_date_str() + "\r\n";
 
 			if (!is_chunked_encoding_)
 			{
