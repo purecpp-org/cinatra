@@ -73,9 +73,40 @@ namespace cinatra
 				return nullptr;
 			}
 
-			bool r = false;
-			auto it = map_invokers.equal_range(func_name);
+			bool finish = false;
+			bool r = handle(req, resp, func_name, parser, finish);
+			if (finish)
+				return r;
 
+			auto it = map_invokers.equal_range(func_name);
+			if (it.first==it.second)
+			{
+				//处理非标准的情况.
+				size_t pos = func_name.rfind('/');
+				while (pos != string::npos&&pos!=0)
+				{
+					string name = func_name;
+					if (pos != 0)
+						name = func_name.substr(0, pos);
+
+					string params = func_name.substr(pos);
+					parser.parse(params);
+
+					bool r = handle(req, resp, name, parser, finish);
+					if (finish)
+						return r;
+
+					pos = func_name.rfind('/', pos - 1);
+				}
+			}
+
+			return r;
+		}
+
+		bool handle(Request& req, Response& resp, string& name, token_parser& parser, bool& finish)
+		{
+			bool r = false;
+			auto it = map_invokers.equal_range(name);
 			for (auto itr = it.first; itr != it.second; ++itr)
 			{
 				try
@@ -94,45 +125,9 @@ namespace cinatra
 				}
 
 				if (resp.context().find(PARAM_ERROR) == resp.context().end())
-					return r;
-			}
-
-			if (it.first==it.second)
-			{
-				//处理非标准的情况.
-				size_t pos = func_name.rfind('/');
-				while (pos != string::npos&&pos!=0)
 				{
-					string name = func_name;
-					if (pos != 0)
-						name = func_name.substr(0, pos);
-
-					string params = func_name.substr(pos);
-					parser.parse(params);
-
-					auto it = map_invokers.equal_range(name);
-					for (auto itr = it.first; itr != it.second; ++itr)
-					{
-						try
-						{
-							auto it = resp.context().find(PARAM_ERROR);
-							if (it != resp.context().end())
-							{
-								resp.context().erase(it);
-							}
-							r = itr->second(req, resp, parser);
-						}
-						catch (const std::exception& e)
-						{
-							LOG_INFO << e.what();
-							r = false;
-						}
-
-						if (resp.context().find(PARAM_ERROR) == resp.context().end())
-							return r;
-					}
-
-					pos = func_name.rfind('/', pos - 1);
+					finish = true;
+					break;
 				}
 			}
 
