@@ -3,7 +3,6 @@
 #include "utils.hpp"
 #include "request.hpp"
 
-#include "lexical_cast.hpp"
 #include <boost/algorithm/string/trim.hpp>
 
 #include <algorithm>
@@ -338,7 +337,7 @@ namespace cinatra
 
 				if (header_.get_count("content-length") !=0 )
 				{
-					content_length_ = lexical_cast<unsigned int>(header_.get_val("content-length"));
+					content_length_ = boost::lexical_cast<unsigned int>(header_.get_val("content-length"));
 					if (content_length_ > 0)
 					{
 						state_ = REQUEST_BODY;

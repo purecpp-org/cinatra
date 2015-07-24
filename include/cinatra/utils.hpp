@@ -1,7 +1,6 @@
 #pragma once
 
 #include "function_traits.hpp"
-#include "lexical_cast.hpp"
 #include "string_utils.hpp"
 #include "timer.hpp"
 

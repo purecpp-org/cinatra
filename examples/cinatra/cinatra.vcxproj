@@ -240,7 +240,6 @@
     <ClInclude Include="..\..\include\cinatra\http_router.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_server.hpp" />
     <ClInclude Include="..\..\include\cinatra\io_service_pool.hpp" />
-    <ClInclude Include="..\..\include\cinatra\lexical_cast.hpp" />
     <ClInclude Include="..\..\include\cinatra\logging.hpp" />
     <ClInclude Include="..\..\include\cinatra\noncopyable.hpp" />
     <ClInclude Include="..\..\include\cinatra\request.hpp" />

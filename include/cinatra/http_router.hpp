@@ -4,7 +4,6 @@
 #include <string>
 #include <functional>
 #include "function_traits.hpp"
-#include "lexical_cast.hpp"
 #include "string_utils.hpp"
 //#include "tuple_utils.hpp"
 #include "token_parser.hpp"

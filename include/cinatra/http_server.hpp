@@ -6,7 +6,6 @@
 #endif // _MSC_VER
 
 #include "io_service_pool.hpp"
-#include "lexical_cast.hpp"
 #include "connection.hpp"
 #include "logging.hpp"
 #include "session_container.hpp"
@@ -73,7 +72,7 @@ namespace cinatra
 
 		HTTPServer& listen(const std::string& address, unsigned short port)
 		{
-			return listen(address, lexical_cast<std::string>(port));
+			return listen(address, boost::lexical_cast<std::string>(port));
 		}
 
 		HTTPServer& static_dir(const std::string& dir)

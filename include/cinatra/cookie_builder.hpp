@@ -2,10 +2,8 @@
 #pragma once
 
 #include "utils.hpp"
-
+#include <boost/lexical_cast.hpp>
 #include <string>
-
-#include "lexical_cast.hpp"
 
 namespace cinatra
 {
@@ -101,7 +99,7 @@ namespace cinatra
 				if (cookie.max_age != 0)
 				{
 					cookie_str += "Max-Age=";
-					cookie_str += lexical_cast<std::string>(cookie.max_age);
+					cookie_str += boost::lexical_cast<std::string>(cookie.max_age);
 					cookie_str += ';';
 				}
 				if (!cookie.domain.empty())

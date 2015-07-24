@@ -53,9 +53,6 @@
     <ClInclude Include="..\..\include\cinatra\function_traits.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\lexical_cast.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\string_utils.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
