@@ -106,12 +106,13 @@ namespace cinatra
 					string name = func_name;
 					if (pos != 0)
 						name = func_name.substr(0, pos);
+
+					string params = func_name.substr(pos);
+					parser.parse(params);
+
 					auto it = map_invokers.equal_range(name);
 					for (auto itr = it.first; itr != it.second; ++itr)
 					{
-						string params = func_name.substr(pos);
-						parser.parse(params);
-
 						try
 						{
 							auto it = resp.context().find(PARAM_ERROR);
