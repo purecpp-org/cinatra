@@ -12,6 +12,7 @@
 
 namespace cinatra
 {
+	const static int PARAM_ERROR = -9999;
 	class HTTPRouter
 	{
 		typedef std::function<bool(Request&, Response&, token_parser &)> invoker_function;
@@ -70,7 +71,7 @@ namespace cinatra
 			std::string func_name = parser.get_function_name();
 			if (func_name.empty())
 			{
-				return nullptr;
+				return false;
 			}
 
 			bool finish = false;
@@ -308,6 +309,5 @@ namespace cinatra
 	private:
 		std::multimap<std::string, invoker_function> map_invokers;
 		token_parser parser_;
-		const static int PARAM_ERROR = -9999;
 	};
 }
