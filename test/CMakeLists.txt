@@ -4,7 +4,6 @@ SET(TEST_SOURCES
 	utils/case_map.cpp
 	utils/ncase_multi_map.cpp
 	response/response.cpp
-	router/router.cpp
 )
 
 ADD_EXECUTABLE(cinatra_test ${TEST_SOURCES})
