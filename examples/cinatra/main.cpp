@@ -66,19 +66,19 @@ int main()
 	// joen、10和xxx会分别作为a、b和c三个参数传入handler
 	app.route("/hello/:name/:age/:test", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
 	{
-		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b)+"Test: " + lexical_cast<std::string>(c));
+		res.end("Name: " + a + " Age: " + boost::lexical_cast<std::string>(b)+"Test: " + boost::lexical_cast<std::string>(c));
 	});
 	// 
 	app.route("/hello/:name/:age", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b)
 	{
-		res.end("Name: " + a + " Age: " + lexical_cast<std::string>(b));
+		res.end("Name: " + a + " Age: " + boost::lexical_cast<std::string>(b));
 	});
 
 	// example: /test_query?a=asdf&b=sdfg
 	app.route("/test_query", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		res.write("<html><head><title>test query</title ></head><body>");
-		res.write("Total " + lexical_cast<std::string>(req.query().size()) + "queries<br />");
+		res.write("Total " + boost::lexical_cast<std::string>(req.query().size()) + "queries<br />");
 		for (auto it : req.query())
 		{
 			res.write(it.first + ": " + it.second + "<br />");
@@ -102,7 +102,7 @@ int main()
 	app.route("/show_cookies", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		res.write("<html><head><title>Show cookies</title ></head><body>");
-		res.write("Total " + lexical_cast<std::string>(req.cookie().size()) + "cookies<br />");
+		res.write("Total " + boost::lexical_cast<std::string>(req.cookie().size()) + "cookies<br />");
 		for (auto it : req.cookie())
 		{
 			res.write(it.first + ": " + it.second + "<br />");
