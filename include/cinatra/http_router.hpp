@@ -35,15 +35,17 @@ namespace cinatra
 				return name;
 
 			std::string funcName = name.substr(0, pos - 1);
+			std::vector<string> v;
 			while (pos != string::npos)
 			{
 				//获取参数key，/hello/:name/:age
 				size_t nextpos = name.find_first_of('/', pos);
 				string paramKey = name.substr(pos + 1, nextpos - pos - 1);
-				parser_.add(funcName, paramKey);
+				v.push_back(std::move(paramKey));
+				
 				pos = name.find_first_of(':', nextpos);
 			}
-
+			parser_.add(name, v);
 			return funcName;
 		}
 
@@ -66,12 +68,67 @@ namespace cinatra
 			if (parser.empty())
 				return false;
 
-			auto func = getFunction(parser);
-			if (func == nullptr)
-				return false;
+			std::string func_name = parser.get_function_name();
+			if (func_name.empty())
+			{
+				return nullptr;
+			}
 
-			return func(req, resp, parser);
-			//return true;
+			bool r = false;
+			auto it = map_invokers.equal_range(func_name);
+
+			for (auto itr = it.first; itr != it.second; ++itr)
+			{
+				try
+				{
+					resp.context().clear();
+					r = itr->second(req, resp, parser);
+				}
+				catch (const std::exception& e)
+				{
+					LOG_INFO << e.what();
+					r = false;
+				}
+
+				if (resp.context().find(PARAM_ERROR) == resp.context().end())
+					return r;
+			}
+
+			if (it.first==it.second)
+			{
+				//处理非标准的情况.
+				size_t pos = func_name.rfind('/');
+				while (pos != string::npos&&pos!=0)
+				{
+					string name = func_name;
+					if (pos != 0)
+						name = func_name.substr(0, pos);
+					auto it = map_invokers.equal_range(name);
+					for (auto itr = it.first; itr != it.second; ++itr)
+					{
+						string params = func_name.substr(pos);
+						parser.parse(params);
+
+						try
+						{
+							resp.context().clear();
+							r = itr->second(req, resp, parser);
+						}
+						catch (const std::exception& e)
+						{
+							LOG_INFO << e.what();
+							r = false;
+						}
+
+						if (resp.context().find(PARAM_ERROR) == resp.context().end())
+							return r;
+					}
+
+					pos = func_name.rfind('/', pos - 1);
+				}
+			}
+
+			return r;
 		}
 
 		//如果有参数key就按照key从query里取出相应的参数值.
@@ -91,7 +148,7 @@ namespace cinatra
 			size_t pos = func_name.rfind('/');
 			while (pos != string::npos)
 			{
-				string name = func_name;
+				string& name = func_name;
 				if (pos!=0)
 					name = func_name.substr(0, pos);
 				auto it = map_invokers.find(name);
@@ -117,18 +174,18 @@ namespace cinatra
 		void register_nonmenber_impl(const std::string& name, const Function& f)
 		{
 			// instantiate and store the invoker by name
-			this->map_invokers[name] = std::bind(&invoker<Function, Signature>::template call<std::tuple<>>, f, std::placeholders::_1, 
+			this->map_invokers.emplace(name, std::bind(&invoker<Function, Signature>::template call<std::tuple<>>, f, std::placeholders::_1,
 				std::placeholders::_2, std::placeholders::_3,
-				std::tuple<>());
+				std::tuple<>()));
 		}
 
 		template<class Signature, typename Function, typename Self>
 		void register_member_impl(const std::string& name, const Function& f, Self* self)
 		{
 			// instantiate and store the invoker by name
-			this->map_invokers[name] = std::bind(&invoker<Function, Signature>::template call_member<std::tuple<>, Self>, f, self, std::placeholders::_1, 
+			this->map_invokers.emplace(name, std::bind(&invoker<Function, Signature>::template call_member<std::tuple<>, Self>, f, self, std::placeholders::_1, 
 				std::placeholders::_2, std::placeholders::_3,
-				std::tuple<>());
+				std::tuple<>()));
 		}
 
 	private:
@@ -142,10 +199,17 @@ namespace cinatra
 			template<typename Args>
 			static inline bool call(const Function& func, Request& req, Response& res, token_parser & parser, const Args& args)
 			{
+				if (N != parser.size() + 2)
+				{
+					res.context().emplace(PARAM_ERROR, 0);
+					return false;
+				}
+
 				typedef typename function_traits<Signature>::template args<N-1>::type arg_type;
 				typename std::decay<arg_type>::type param;
 				if (!parser.get<arg_type>(param))
 				{
+					res.context().emplace(PARAM_ERROR, 0);
 					return false;
 				}
 				return HTTPRouter::invoker<Function, Signature, N - 1>::call(func, req, res, parser, std::tuple_cat(std::make_tuple(param), args));
@@ -154,10 +218,17 @@ namespace cinatra
 			template<typename Args, typename Self>
 			static inline bool call_member(Function func, Self* self, Request& req, Response& res, token_parser & parser, const Args& args)
 			{
+				if (N != parser.size() + 2)
+				{
+					res.context().emplace(PARAM_ERROR, 0);
+					return false;
+				}
+
 				typedef typename function_traits<Signature>::template args<N-1>::type arg_type;
 				typename std::decay<arg_type>::type param;
 				if (!parser.get<arg_type>(param))
 				{
+					res.context().emplace(PARAM_ERROR, 0);
 					return false;
 				}
 				return HTTPRouter::invoker<Function, Signature, N - 1>::call_member(func, self, req, res, parser, std::tuple_cat(std::make_tuple(param), args));
@@ -169,15 +240,27 @@ namespace cinatra
 		{
 			// the argument list is complete, now call the function
 			template<typename Args>
-			static inline bool call(const Function& func, Request& req, Response& res, token_parser &, const Args& args)
+			static inline bool call(const Function& func, Request& req, Response& res, token_parser &parser, const Args& args)
 			{
+				if (function_traits<Signature>::arity == 2 && !parser.empty())
+				{
+					res.context().emplace(PARAM_ERROR, 0);
+					return false;
+				}
+
 				apply(func, req, res, args);
 				return true;
 			}
 
 			template<typename Args, typename Self>
-			static inline bool call_member(const Function& func, Self* self, Request& req, Response& res, token_parser &, const Args& args)
+			static inline bool call_member(const Function& func, Self* self, Request& req, Response& res, token_parser &parser, const Args& args)
 			{
+				if (function_traits<Signature>::arity == 2 && !parser.empty())
+				{
+					res.context().emplace(PARAM_ERROR, 0);
+					return false;
+				}
+
 				apply_member(func, self, req, res, args);
 				return true;
 			}
@@ -220,8 +303,8 @@ namespace cinatra
 		}
 
 	private:
-		std::map<std::string, invoker_function> map_invokers;
+		std::multimap<std::string, invoker_function> map_invokers;
 		token_parser parser_;
+		const static int PARAM_ERROR = -9999;
 	};
 }
-
