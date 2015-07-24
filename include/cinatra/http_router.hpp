@@ -81,7 +81,11 @@ namespace cinatra
 			{
 				try
 				{
-					resp.context().clear();
+					auto it = resp.context().find(PARAM_ERROR);
+					if (it != resp.context().end())
+					{
+						resp.context().erase(it);
+					}
 					r = itr->second(req, resp, parser);
 				}
 				catch (const std::exception& e)
@@ -111,7 +115,11 @@ namespace cinatra
 
 						try
 						{
-							resp.context().clear();
+							auto it = resp.context().find(PARAM_ERROR);
+							if (it != resp.context().end())
+							{
+								resp.context().erase(it);
+							}
 							r = itr->second(req, resp, parser);
 						}
 						catch (const std::exception& e)
