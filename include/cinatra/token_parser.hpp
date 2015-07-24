@@ -7,7 +7,7 @@
 class token_parser
 {
 	std::vector<std::string> v_; //解析之后，v_的第一个元素为函数名，后面的元素均为参数.
-	std::multimap<std::string, std::string> map_;
+	std::map<std::string, std::vector<std::string>> map_;
 public:
 	/*
 	get("/hello/:name", (request, response) -> {
@@ -22,39 +22,41 @@ public:
 
 	token_parser() = default;
 
-	void add(const std::string& path, const std::string& key)
+	void add(const std::string& path, std::vector<std::string>& v)
 	{
-		map_.emplace(path, key);
+		map_.emplace(path, std::move(v));
 	}
 
-	const std::multimap<std::string, std::string>& get_map()
+	const std::map<std::string, std::vector<std::string>>& get_map()
 	{
 		return map_;
 	}
 
-	void parse(cinatra::Request& req, const std::multimap<std::string, std::string>& kv)
+	void parse(cinatra::Request& req, const std::map<std::string, std::vector<std::string>>& kv)
 	{
 		string path = req.path();
-		
-		if (!kv.empty())
+		if (kv.empty())
 		{
-			v_.push_back(req.path());
+			v_ = StringUtil::split(path, '/');
+			return;
+		}
+
+		v_.push_back(std::move(path));
+		for (auto it : kv)
+		{
+			if (it.second.size() != req.query().size())
+				continue;
 			
-			cinatra::CaseMap map;
-			if (req.query().empty())
-				map = cinatra::body_parser(req.body());
-			for (auto& it : kv)
+			for (auto& itv : it.second)
 			{
-				auto& val = req.query().empty() ? map.get_val(it.second) : req.query().get_val(it.second);
+				auto& val = req.query().get_val(itv);
 				if (val.empty())
 					break;
 
 				v_.push_back(val);
 			}
-		}
-		else
-		{
-			v_ = StringUtil::split(path, '/');
+
+			break;
 		}
 	}
 
@@ -100,4 +102,9 @@ public:
 	}
 
 	bool empty(){ return v_.empty(); }
+
+	size_t size() const
+	{
+		return v_.size();
+	}
 };
