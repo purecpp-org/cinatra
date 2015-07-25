@@ -42,9 +42,9 @@ struct AOP : NonCopyable
 	typename std::enable_if<has_member_before<T, Args...>::value&&!has_member_after<T, Args...>::value, bool>::type invoke(Response& res, Args&&... args, T&& aspect)
 	{
 		bool r = false;
-		aspect.before(std::forward<Args>(args)...);//ºËĞÄÂß¼­Ö®Ç°µÄÇĞÃæÂß¼­.
+		aspect.before(std::forward<Args>(args)...);//æ ¸å¿ƒé€»è¾‘ä¹‹å‰çš„åˆ‡é¢é€»è¾‘.
 		if (!res.is_complete())
-			r = m_func(std::forward<Args>(args)...);//ºËĞÄÂß¼­.
+			r = m_func(std::forward<Args>(args)...);//æ ¸å¿ƒé€»è¾‘.
 
 		return r;
 	}
@@ -52,8 +52,8 @@ struct AOP : NonCopyable
 	template<typename T>
 	typename std::enable_if<!has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value, bool>::type invoke(Response& res, Args&&... args, T&& aspect)
 	{
-		bool r = m_func(std::forward<Args>(args)...);//ºËĞÄÂß¼­.
-		aspect.after(std::forward<Args>(args)...);//ºËĞÄÂß¼­Ö®ºóµÄÇĞÃæÂß¼­.
+		bool r = m_func(std::forward<Args>(args)...);//æ ¸å¿ƒé€»è¾‘.
+		aspect.after(std::forward<Args>(args)...);//æ ¸å¿ƒé€»è¾‘ä¹‹åçš„åˆ‡é¢é€»è¾‘.
 		return r;
 	}
 
@@ -61,13 +61,13 @@ struct AOP : NonCopyable
 	typename std::enable_if<has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value, bool>::type invoke_member(Response& res, Self* self, Args&&... args, T&& aspect)
 	{
 		bool r = false;
-		aspect.before(std::forward<Args>(args)...);//ºËĞÄÂß¼­Ö®Ç°µÄÇĞÃæÂß¼­.
+		aspect.before(std::forward<Args>(args)...);//æ ¸å¿ƒé€»è¾‘ä¹‹å‰çš„åˆ‡é¢é€»è¾‘.
 		if (!res.is_complete())
 		{
-			r = (*self.*m_func)(std::forward<Args>(args)...);//ºËĞÄÂß¼­.
+			r = (*self.*m_func)(std::forward<Args>(args)...);//æ ¸å¿ƒé€»è¾‘.
 		}
 
-		aspect.after(std::forward<Args>(args)...);//ºËĞÄÂß¼­Ö®ºóµÄÇĞÃæÂß¼­.
+		aspect.after(std::forward<Args>(args)...);//æ ¸å¿ƒé€»è¾‘ä¹‹åçš„åˆ‡é¢é€»è¾‘.
 		return r;
 	}
 
@@ -80,11 +80,11 @@ struct AOP : NonCopyable
 	//}
 
 private:
-	Func m_func; //±»Ö¯ÈëµÄº¯Êı.
+	Func m_func; //è¢«ç»‡å…¥çš„å‡½æ•°.
 };
 template<typename T> using identity_t = T;
 
-//AOPµÄ¸¨Öúº¯Êı£¬¼ò»¯µ÷ÓÃ.
+//AOPçš„è¾…åŠ©å‡½æ•°ï¼Œç®€åŒ–è°ƒç”¨.
 template<typename... AP, typename... Args, typename Func>
 typename std::enable_if<!std::is_member_function_pointer<Func>::value, bool>::type invoke(Response& res, Func&&f, Args&&... args)
 {

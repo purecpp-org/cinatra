@@ -135,7 +135,7 @@ namespace cinatra
 
 		void start_timer()
 		{
-			//2·ÖÖÓ¼ì²âÒ»´Î.
+			//2åˆ†é’Ÿæ£€æµ‹ä¸€æ¬¡.
 			timer_.expires_from_now(boost::posix_time::seconds(2*60));
 			timer_.async_wait([this](const boost::system::error_code& ec)
 			{
@@ -154,7 +154,7 @@ namespace cinatra
 				for (auto it = session_container_.begin();
 					it != session_container_.end();)
 				{
-					if (now - it->second->get_last_used_time() >= 5 * 60)	//³¬¹ý5·ÖÖÓÃ»ÓÐÊ¹ÓÃ¹ý¾Í³¬Ê±É¾³ý
+					if (now - it->second->get_last_used_time() >= 5 * 60)	//è¶…è¿‡5åˆ†é’Ÿæ²¡æœ‰ä½¿ç”¨è¿‡å°±è¶…æ—¶åˆ é™¤
 					{
 						it = session_container_.erase(it);
 						continue;
