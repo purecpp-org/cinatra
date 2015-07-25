@@ -302,7 +302,7 @@ namespace cinatra
 				"Server: cinatra/0.1\r\n"
 				"Date: " + header_date_str() + "\r\n"
 				"Content-Type: " + content_type(path) + "\r\n"
-				"Content-Length: " + boost::lexical_cast<std::string>(in.tellg());
+				"Content-Length: " + boost::lexical_cast<std::string>(in.tellg()) + "\r\n";
 
 			if (keep_alive)
 			{
