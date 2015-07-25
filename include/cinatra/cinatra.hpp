@@ -135,13 +135,13 @@ namespace cinatra
 
 	private:
 		template<size_t I, typename Func, typename Self, typename... Args>
-		typename std::enable_if<I == 0, bool>::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)
+		typename std::enable_if<I == 0, bool>::type Invoke(Response& /* res */, Func&&f, Self* self, Args&&... args)
 		{
 			return (*self.*f)(std::forward<Args>(args)...);
 		}
 
 		template<size_t I, typename Func, typename Self, typename... Args>
-		typename std::enable_if < (I > 0), bool > ::type Invoke(Response& res, Func&&f, Self* self, Args&&... args)
+		typename std::enable_if < (I > 0), bool > ::type Invoke(Response& res, Func&& /* f */, Self* /* self */, Args&&... args)
 		{
 			return invoke<Aspect...>(res, &Cinatra::dispatch, this, args...);
 		}

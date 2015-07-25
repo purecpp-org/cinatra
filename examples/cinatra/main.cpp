@@ -21,7 +21,7 @@ struct CheckLoginAspect
  		}
 	}
 
-	void after(Request& req, Response& res)
+	void after(Request& /* req */, Response& /* res */)
 	{
 
 	}
@@ -38,7 +38,7 @@ struct MyStruct
 int main()
 {
 	cinatra::Cinatra<CheckLoginAspect> app;
-	app.route("/", [](cinatra::Request& req, cinatra::Response& res)
+	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
 	{
 		res.end("Hello Cinatra");
 	});
@@ -64,12 +64,12 @@ int main()
 	app.route("/hello", &MyStruct::hello, &t);
 	// 访问类似于/hello/jone/10/xxx
 	// joen、10和xxx会分别作为a、b和c三个参数传入handler
-	app.route("/hello/:name/:age/:test", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
+	app.route("/hello/:name/:age/:test", [](cinatra::Request& /*req */, cinatra::Response& res, const std::string& a, int b, double c)
 	{
 		res.end("Name: " + a + " Age: " + boost::lexical_cast<std::string>(b)+"Test: " + boost::lexical_cast<std::string>(c));
 	});
 	// 
-	app.route("/hello/:name/:age", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b)
+	app.route("/hello/:name/:age", [](cinatra::Request& /* req */, cinatra::Response& res, const std::string& a, int b)
 	{
 		res.end("Name: " + a + " Age: " + boost::lexical_cast<std::string>(b));
 	});
@@ -88,7 +88,7 @@ int main()
 	});
 
 	//设置cookie
-	app.route("/set_cookies", [](cinatra::Request& req, cinatra::Response& res)
+	app.route("/set_cookies", [](cinatra::Request& /* req */, cinatra::Response& res)
 	{
 		res.cookies().new_cookie() // 会话cookie
 			.add("foo", "bar")

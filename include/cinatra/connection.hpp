@@ -32,8 +32,8 @@ namespace cinatra
 			const error_handler_t& error_handler,
 			const std::string& public_dir)
 			:service_(service), socket_(service), timer_(service),
-			error_handler_(error_handler), request_handler_(request_handler),
-			public_dir_(public_dir), session_container_(session_container)
+			error_handler_(error_handler), public_dir_(public_dir), 
+			request_handler_(request_handler), session_container_(session_container)
 		{
 			LOG_DBG << "New connection";
 		}
@@ -201,7 +201,7 @@ namespace cinatra
 			return hasError;
 		}
 
-		void add_version(const RequestParser& parser, Request& req, Response& res)
+		void add_version(const RequestParser& parser, Request& /* req */, Response& res)
 		{
 			if (parser.is_version10())
 			{
