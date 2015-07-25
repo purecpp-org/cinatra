@@ -1,7 +1,7 @@
 
 
 #define DISABLE_LOGGER
-// µ¥Ïß³ÌµÄ»°½ûÓÃÒ»Ğ©ËøÌá¸ßĞ§ÂÊ
+// å•çº¿ç¨‹çš„è¯ç¦ç”¨ä¸€äº›é”æé«˜æ•ˆç‡
 //#define SINGLE_THREAD
 
 #include <cinatra/cinatra.hpp>
@@ -11,12 +11,12 @@ struct CheckLoginAspect
 {
 	void before(Request& req, Response& res)
 	{
- 		if (!req.session().exists("uid")	//Èç¹ûsessionÃ»ÓĞuid
- 			&& req.path() != "/login.html"	//ÇÒ·ÃÎÊµÄ²»ÊÇlogin
- 			&& req.path() != "/test_post"	//ºÍtest_postÒ³Ãæ
- 			&& req.path().compare(0, 7, "/public"))	//Ò²²»ÊÇ publicÎÄ¼ş¼ĞÏÂµÄ¶«Î÷
+ 		if (!req.session().exists("uid")	//å¦‚æœsessionæ²¡æœ‰uid
+ 			&& req.path() != "/login.html"	//ä¸”è®¿é—®çš„ä¸æ˜¯login
+ 			&& req.path() != "/test_post"	//å’Œtest_posté¡µé¢
+ 			&& req.path().compare(0, 7, "/public"))	//ä¹Ÿä¸æ˜¯ publicæ–‡ä»¶å¤¹ä¸‹çš„ä¸œè¥¿
  		{
- 			// Ìø×ªµ½µÇÂ½Ò³Ãæ
+ 			// è·³è½¬åˆ°ç™»é™†é¡µé¢
  			res.redirect("/login.html");
  		}
 	}
@@ -43,7 +43,7 @@ int main()
 		res.end("Hello Cinatra");
 	});
 
-	// ·ÃÎÊ/login.html½øĞĞµÇÂ¼.
+	// è®¿é—®/login.htmlè¿›è¡Œç™»å½•.
 	app.route("/test_post", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		if (req.method() != Request::method_t::POST)
@@ -60,10 +60,10 @@ int main()
 
 
 	MyStruct t;
-	// ·ÃÎÊ/hello
+	// è®¿é—®/hello
 	app.route("/hello", &MyStruct::hello, &t);
-	// ·ÃÎÊÀàËÆÓÚ/hello/jone/10/xxx
-	// joen¡¢10ºÍxxx»á·Ö±ğ×÷Îªa¡¢bºÍcÈı¸ö²ÎÊı´«Èëhandler
+	// è®¿é—®ç±»ä¼¼äº/hello/jone/10/xxx
+	// joenã€10å’Œxxxä¼šåˆ†åˆ«ä½œä¸ºaã€bå’Œcä¸‰ä¸ªå‚æ•°ä¼ å…¥handler
 	app.route("/hello/:name/:age/:test", [](cinatra::Request& req, cinatra::Response& res, const std::string& a, int b, double c)
 	{
 		res.end("Name: " + a + " Age: " + boost::lexical_cast<std::string>(b)+"Test: " + boost::lexical_cast<std::string>(c));
@@ -87,18 +87,18 @@ int main()
 		res.end("</body></html>");
 	});
 
-	//ÉèÖÃcookie
+	//è®¾ç½®cookie
 	app.route("/set_cookies", [](cinatra::Request& req, cinatra::Response& res)
 	{
-		res.cookies().new_cookie() // »á»°cookie
+		res.cookies().new_cookie() // ä¼šè¯cookie
 			.add("foo", "bar")
-			.new_cookie().max_age(24 * 60 * 60) //Õâ¸öcookie»á±£´æÒ»ÌìµÄÊ±¼ä
+			.new_cookie().max_age(24 * 60 * 60) //è¿™ä¸ªcookieä¼šä¿å­˜ä¸€å¤©çš„æ—¶é—´
 			.add("longtime", "test");
 		res.write("<html><head><title>Set cookies</title ></head><body>");
 		res.write("Please visit <a href='/show_cookies'>show cookies page</a>");
 		res.end("</body></html>");
 	});
-	//ÁĞ³öËùÓĞµÄcookie
+	//åˆ—å‡ºæ‰€æœ‰çš„cookie
 	app.route("/show_cookies", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		res.write("<html><head><title>Show cookies</title ></head><body>");
