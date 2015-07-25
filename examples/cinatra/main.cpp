@@ -9,7 +9,7 @@
 
 struct CheckLoginAspect
 {
-	void before(Request& req, Response& res)
+	void before(cinatra::Request& req, cinatra::Response& res)
 	{
  		if (!req.session().exists("uid")	//如果session没有uid
  			&& req.path() != "/login.html"	//且访问的不是login
@@ -21,7 +21,7 @@ struct CheckLoginAspect
  		}
 	}
 
-	void after(Request& /* req */, Response& /* res */)
+	void after(cinatra::Request& /* req */, cinatra::Response& /* res */)
 	{
 
 	}
