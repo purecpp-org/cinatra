@@ -110,20 +110,12 @@ namespace cinatra
 			auto it = map_invokers.equal_range(name);
 			for (auto itr = it.first; itr != it.second; ++itr)
 			{
-				try
+				auto it = resp.context().find(PARAM_ERROR);
+				if (it != resp.context().end())
 				{
-					auto it = resp.context().find(PARAM_ERROR);
-					if (it != resp.context().end())
-					{
-						resp.context().erase(it);
-					}
-					r = itr->second(req, resp, parser);
+					resp.context().erase(it);
 				}
-				catch (const std::exception& e)
-				{
-					LOG_INFO << e.what();
-					r = false;
-				}
+				r = itr->second(req, resp, parser);
 
 				if (resp.context().find(PARAM_ERROR) == resp.context().end())
 				{
