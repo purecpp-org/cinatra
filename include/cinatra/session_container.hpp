@@ -59,7 +59,7 @@ namespace cinatra
 				throw std::runtime_error("No such key.");
 			}
 
-			return boost::any_cast<T>(*it);
+			return boost::any_cast<T>(it->second);
 		}
 		bool exists(const std::string& key)
 		{
