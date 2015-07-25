@@ -298,16 +298,11 @@ namespace cinatra
 			in.seekg(0, std::ios::end);
 
 			std::string header =
-				boost::str(boost::format(
 				"HTTP/1.1 200 OK\r\n"
 				"Server: cinatra/0.1\r\n"
-				"Date: %1%\r\n"
-				"Content-Type: %2%\r\n"
-				"Content-Length: %3%\r\n"
-				)
-				% header_date_str()
-				% content_type(path)
-				% in.tellg());
+				"Date: " + header_date_str() + "\r\n"
+				"Content-Type: " + content_type(path) + "\r\n"
+				"Content-Length: " + boost::lexical_cast<std::string>(in.tellg());
 
 			if (keep_alive)
 			{

@@ -139,7 +139,12 @@ namespace cinatra
 			else 
 				shttp = "HTTP/1.0 ";
 			
-			header_str = shttp + boost::lexical_cast<std::string>(s.first) + " " + s.second + "\r\nServer: cinatra/0.1\r\nDate: " + header_date_str() + "\r\n";
+			header_str =
+				shttp
+				+ boost::lexical_cast<std::string>(s.first)
+				+ " " + s.second
+				+ "\r\nServer: cinatra/0.1\r\n"
+				"Date: " + header_date_str() + "\r\n";
 
 			if (!is_chunked_encoding_)
 			{
