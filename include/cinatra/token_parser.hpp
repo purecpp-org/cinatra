@@ -35,11 +35,11 @@ public:
 	void parse(cinatra::Request& req, const std::map<std::string, std::vector<std::string>>& kv)
 	{
 		string path = req.path();
-		if (kv.empty())
-		{
-			v_ = StringUtil::split(path, '/');
-			return;
-		}
+// 		if (kv.empty())
+// 		{
+// 			v_ = StringUtil::split(path, '/');
+// 			return;
+// 		}
 
 		v_.push_back(std::move(path));
 		for (auto it : kv)
