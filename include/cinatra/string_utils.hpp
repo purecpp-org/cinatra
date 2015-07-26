@@ -4,12 +4,12 @@
 
 struct StringUtil
 {
-	inline static std::vector<std::string> split(std::string& s, char seperator)
+	inline static std::vector<std::string> split(std::string& s, char seperator, const int offset =0)
 	{
 		std::vector<std::string> v;
 		while (true)
 		{
-			auto pos = s.find(seperator, 0);
+			auto pos = s.find(seperator, offset);
 			if (pos == std::string::npos)
 			{
 				if (!s.empty())
