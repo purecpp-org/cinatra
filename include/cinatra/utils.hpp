@@ -96,6 +96,14 @@ namespace cinatra
 	class NcaseMultiMap
 	{
 	public:
+		auto begin() const {
+			return map_.begin();
+		}
+		
+		auto end() const {
+			return map_.end();
+		}
+
 		void add(const std::string& key, const std::string& val)
 		{
 			map_.emplace(key, val);
