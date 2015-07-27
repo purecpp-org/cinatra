@@ -120,6 +120,16 @@ namespace cinatra
 		};
 		using map_t = boost::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu>;
 	public:
+		map_t::const_iterator begin() const
+		{
+			return map_.begin();
+		}
+
+		map_t::const_iterator end() const
+		{
+			return map_.end();
+		}
+
 		map_t::iterator begin()
 		{
 			return map_.begin();
