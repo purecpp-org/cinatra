@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cinatra/response.hpp>
 #include <iostream>
+#include <cstring>
 
 using namespace cinatra;
 
@@ -16,16 +17,40 @@ public:
 	}
 
 	static void chunked_test() {
-		std::cout << "chunked test..." << std::endl;
-		std::cout << "dump response package which contain 'hello' and 'world':" << std::endl;
 		std::stringstream ss;
 		Response res;
 		res.direct_write_func_ = [](const char* data, std::size_t len) {
-			std::cout.write(data, len);
+			static int step = 0;
+			switch(step) {
+				case 0:
+					++step;
+					break;
+				case 1:
+					BOOST_CHECK(strncmp(data, "5\r\nfirst\r\n", len) == 0);
+					++step;
+					break;
+				case 2:
+					BOOST_CHECK(strncmp(data, "6\r\nsecond\r\n", len) == 0);
+					++step;
+					break;
+				case 3:
+					BOOST_CHECK(strncmp(data, "5\r\nthird\r\n", len) == 0);
+					++step;
+					break;
+				case 4:
+					BOOST_CHECK(strncmp(data, "5\r\nfouth\r\n", len) == 0);
+					++step;
+					break;
+				default:
+					BOOST_CHECK(false);
+			}
 			return true;
 		};
-		res.direct_write("hello");
-		res.direct_write("world");
+		res.direct_write("");
+		res.direct_write("first");
+		res.direct_write("second");
+		res.direct_write("third");
+		res.direct_write("fouth");
 	}
 
 	static void status_test() {
