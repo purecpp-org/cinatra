@@ -43,7 +43,9 @@ public:
 				return;
 			}
 
- 			v_ = StringUtil::split(path, '/', 1);
+			if (req.query().empty())
+ 				v_ = StringUtil::split(path, '/', 1);
+
  			return;
  		}
 
