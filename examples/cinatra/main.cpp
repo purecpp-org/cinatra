@@ -11,14 +11,13 @@ struct CheckLoginAspect
 {
 	void before(cinatra::Request& req, cinatra::Response& res)
 	{
- 		if (!req.session().exists("uid")	//如果session没有uid
- 			&& req.path() != "/login.html"	//且访问的不是login
- 			&& req.path() != "/test_post"	//和test_post页面
- 			&& req.path().compare(0, 7, "/public"))	//也不是 public文件夹下的东西
- 		{
- 			// 跳转到登陆页面
- 			res.redirect("/login.html");
- 		}
+		res.end("hello cinatra");
+		//if (!req.session().exists("uid")&&req.path()!="/login.html"&&
+		//	req.path() != "/test_post"&&req.path().compare(0, 7, "/public"))	//如果session没有uid且访问的不是login和test_post页面
+ 	//	{
+ 	//		// 跳转到登陆页面
+ 	//		res.redirect("/login.html");
+ 	//	}
 	}
 
 	void after(cinatra::Request& /* req */, cinatra::Response& /* res */)
@@ -111,36 +110,7 @@ int main()
 		res.end("</body></html>");
 	});
 
-
-	app.error_handler(
-		[](int code, const std::string&, cinatra::Request&, cinatra::Response& res)
-	{
-		if (code != 404)
-		{
-			return false;
-		}
-
-		res.set_status_code(404);
-		res.write(
-			R"(<html>
-			<head>
-				<meta charset="UTF-8">
-				<title>404</title>
-			</head>
-			<body>
-			<img src="/public/img/404.jpg" width="100%" height="100%" />
-			</body>
-			</html>)"
-		);
-
-		return true;
-	});
-
-	app.static_dir("./static")
-#ifndef SINGLE_THREAD
-		.threads(8)
-#endif // SINGLE_THREAD
-		.listen("0.0.0.0", "http").run();
+	app.listen("http").run();
 
 	return 0;
 }
