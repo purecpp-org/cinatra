@@ -56,13 +56,13 @@ namespace cinatra
 
 			return *this;
 		}
-#ifndef SINGLE_THREAD
+
 		Cinatra& threads(int num)
 		{
 			num_threads_ = num < 1 ? 1 : num;
 			return *this;
 		}
-#endif // SINGLE_THREAD
+
 
 		Cinatra& error_handler(error_handler_t error_handler)
 		{
@@ -73,6 +73,13 @@ namespace cinatra
 		Cinatra& listen(const std::string& address, const std::string& port)
 		{
 			listen_addr_ = address;
+			listen_port_ = port;
+			return *this;
+		}
+
+		Cinatra& listen(const std::string& port)
+		{
+			listen_addr_ = "0.0.0.0";
 			listen_port_ = port;
 			return *this;
 		}
@@ -92,11 +99,8 @@ namespace cinatra
 
 		void run()
 		{
-#ifndef SINGLE_THREAD
 			HTTPServer s(num_threads_);
-#else
-			HTTPServer s;
-#endif // SINGLE_THREAD
+
 			s.set_request_handler([this](Request& req, Response& res)
 			{
 				return Invoke<sizeof...(Aspect)>(res, &Cinatra::dispatch, this, req, res);
@@ -158,7 +162,7 @@ namespace cinatra
 
 		std::string listen_addr_;
 		std::string listen_port_;
-		std::string static_dir_;
+		std::string static_dir_ = "./static";
 
 		error_handler_t error_handler_;
 
