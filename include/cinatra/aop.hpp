@@ -71,6 +71,31 @@ struct AOP : NonCopyable
 		return r;
 	}
 
+	template<typename T, typename Self>
+	typename std::enable_if<has_member_before<T, Args...>::value&&!has_member_after<T, Args...>::value, bool>::type invoke_member(Response& res, Self* self, Args&&... args, T&& aspect)
+	{
+		bool r = false;
+		aspect.before(std::forward<Args>(args)...);//核心逻辑之前的切面逻辑.
+		if (!res.is_complete())
+		{
+			r = (*self.*m_func)(std::forward<Args>(args)...);//核心逻辑.
+		}
+
+		return r;
+	}
+
+	template<typename T, typename Self>
+	typename std::enable_if<!has_member_before<T, Args...>::value&&has_member_after<T, Args...>::value, bool>::type invoke_member(Response& res, Self* self, Args&&... args, T&& aspect)
+	{
+		bool r = false;
+		if (!res.is_complete())
+		{
+			r = (*self.*m_func)(std::forward<Args>(args)...);//核心逻辑.
+		}
+		aspect.after(std::forward<Args>(args)...);//核心逻辑之后的切面逻辑.
+		return r;
+	}
+
 	//template<typename Head, typename... Tail>
 	//void invoke(bool& result, Args&&... args, Head&&headAspect, Tail&&... tailAspect)
 	//{
