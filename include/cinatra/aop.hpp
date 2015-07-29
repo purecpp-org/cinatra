@@ -96,13 +96,25 @@ struct AOP : NonCopyable
 		return r;
 	}
 
-	//template<typename Head, typename... Tail>
-	//void invoke(bool& result, Args&&... args, Head&&headAspect, Tail&&... tailAspect)
-	//{
-	//	headAspect.before(std::forward<Args>(args)...);
-	//	invoke(result, std::forward<Args>(args)..., std::forward<Tail>(tailAspect)...);
-	//	headAspect.after(std::forward<Args>(args)...);
-	//}
+	template<typename Head, typename... Tail>
+	bool invoke(Response& res, Args&&... args, Head&&headAspect, Tail&&... tailAspect)
+	{
+		headAspect.before(std::forward<Args>(args)...);
+		bool r = invoke(res, std::forward<Args>(args)..., std::forward<Tail>(tailAspect)...);
+		headAspect.after(std::forward<Args>(args)...);
+		return r;
+	}
+
+	template<typename Self, typename Head, typename... Tail>
+	bool invoke_member(Response& res, Self* self, Args&&... args, Head&&headAspect, Tail&&... tailAspect)
+	{
+		bool r = false;
+		headAspect.before(std::forward<Args>(args)...);
+		if (!res.is_complete())
+			r = invoke_member(res, self, std::forward<Args>(args)..., std::forward<Tail>(tailAspect)...);
+		headAspect.after(std::forward<Args>(args)...);
+		return r;
+	}
 
 private:
 	Func m_func; //被织入的函数.
