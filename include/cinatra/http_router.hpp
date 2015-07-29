@@ -63,28 +63,29 @@ namespace cinatra
 		bool dispatch(Request& req,  Response& resp)
 		{
 			token_parser parser;
-			parser.parse(req, parser_.get_map());
-
-			if (parser.empty())
-				return false;
-
-			std::string func_name = parser.get_function_name();
+			
+			std::string func_name = req.path();
 			if (func_name.empty())
 			{
 				return false;
 			}
 
 			bool finish = false;
-			bool r = handle(req, resp, func_name, parser, finish);
-			if (finish)
-				return r;
-
 			auto it = map_invokers.equal_range(func_name);
-			if (it.first==it.second)
+			if (it.first != it.second) //直接通过path找到对应的handler了，这个handler是没有参数的
 			{
-				//处理非标准的情况.
+				//处理hello?name=a&age=12
+				bool r = handle(req, resp, func_name, parser, finish);
+				if (finish)
+					return r;
+			}
+			else
+			{
+				//处理hello/a/12
+				//先分离path，如果有参数key就按照key从query里取出相应的参数值.
+				//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path.
 				size_t pos = func_name.rfind('/');
-				while (pos != string::npos&&pos!=0)
+				while (pos != string::npos&&pos != 0)
 				{
 					string name = func_name;
 					if (pos != 0)
@@ -101,7 +102,7 @@ namespace cinatra
 				}
 			}
 
-			return r;
+			return false;
 		}
 
 		bool handle(Request& req, Response& resp, string& name, token_parser& parser, bool& finish)
@@ -125,44 +126,6 @@ namespace cinatra
 			}
 
 			return r;
-		}
-
-		//如果有参数key就按照key从query里取出相应的参数值.
-		//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path.
-		invoker_function getFunction(token_parser& parser)
-		{
-			std::string func_name = parser.get_function_name();
-			if (func_name.empty())
-			{
-				return nullptr;
-			}
-			auto it = map_invokers.find(func_name);
-			if (it != map_invokers.end())
-				return it->second;
-
-			//处理非标准的情况.
-			size_t pos = func_name.rfind('/');
-			while (pos != string::npos)
-			{
-				string& name = func_name;
-				if (pos!=0)
-					name = func_name.substr(0, pos);
-				auto it = map_invokers.find(name);
-				if (it == map_invokers.end())
-				{
-					pos = func_name.rfind('/', pos - 1);
-					if (pos == 0)
-						return nullptr;
-				}
-				else
-				{
-					string params = func_name.substr(pos);
-					parser.parse(params);
-					return it->second;
-				}
-			}
-
-			return nullptr;
 		}
 
 	public:
@@ -238,12 +201,6 @@ namespace cinatra
 			template<typename Args>
 			static inline bool call(const Function& func, Request& req, Response& res, token_parser &parser, const Args& args)
 			{
-				if (function_traits<Signature>::arity == 2 && !parser.empty())
-				{
-					res.context().emplace(PARAM_ERROR, 0);
-					return false;
-				}
-
 				apply(func, req, res, args);
 				return true;
 			}
@@ -251,12 +208,6 @@ namespace cinatra
 			template<typename Args, typename Self>
 			static inline bool call_member(const Function& func, Self* self, Request& req, Response& res, token_parser &parser, const Args& args)
 			{
-				if (function_traits<Signature>::arity == 2 && !parser.empty())
-				{
-					res.context().emplace(PARAM_ERROR, 0);
-					return false;
-				}
-
 				apply_member(func, self, req, res, args);
 				return true;
 			}

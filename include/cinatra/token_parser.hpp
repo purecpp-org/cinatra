@@ -32,42 +32,6 @@ public:
 		return map_;
 	}
 
-	void parse(cinatra::Request& req, const std::map<std::string, std::vector<std::string>>& kv)
-	{
-		string path = req.path();
- 		if (kv.empty())
- 		{
-			if (path == "/")
-			{
-				v_.push_back(std::move(path));
-				return;
-			}
-
-			if (req.query().empty())
- 				v_ = StringUtil::split(path, '/', 1);
-
- 			return;
- 		}
-
-		v_.push_back(std::move(path));
-		for (auto it : kv)
-		{
-			if (it.second.size() != req.query().size())
-				continue;
-			
-			for (auto& itv : it.second)
-			{
-				auto& val = req.query().get_val(itv);
-				if (val.empty())
-					break;
-
-				v_.push_back(val);
-			}
-
-			break;
-		}
-	}
-
 	void parse(std::string& params)
 	{
 		v_ = StringUtil::split(params, '/');
