@@ -46,3 +46,9 @@ BOOST_AUTO_TEST_CASE(router_dispatch_test_2)
 	r.dispatch(req, res);
 	BOOST_CHECK(flag);
 }
+
+BOOST_AUTO_TEST_CASE(router_funcname_test)
+{
+	HTTPRouter r;
+	BOOST_CHECK(r.getFuncName("/hello/world/:name/:age") == "/hello/world");
+}
