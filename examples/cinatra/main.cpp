@@ -2,7 +2,6 @@
 
 #define DISABLE_LOGGER
 // 单线程的话禁用一些锁提高效率
-//#define SINGLE_THREAD
 
 #include <cinatra/cinatra.hpp>
 #include <fstream>
@@ -11,13 +10,12 @@ struct CheckLoginAspect
 {
 	void before(cinatra::Request& req, cinatra::Response& res)
 	{
-		res.end("hello cinatra");
-		//if (!req.session().exists("uid")&&req.path()!="/login.html"&&
-		//	req.path() != "/test_post"&&req.path().compare(0, 7, "/public"))	//如果session没有uid且访问的不是login和test_post页面
- 	//	{
- 	//		// 跳转到登陆页面
- 	//		res.redirect("/login.html");
- 	//	}
+		if (!req.session().exists("uid")&&req.path()!="/login.html"&&
+			req.path() != "/test_post"&&req.path().compare(0, 7, "/public"))	//如果session没有uid且访问的不是login和test_post页面
+ 		{
+ 			// 跳转到登陆页面
+ 			res.redirect("/login.html");
+ 		}
 	}
 
 	void after(cinatra::Request& /* req */, cinatra::Response& /* res */)
