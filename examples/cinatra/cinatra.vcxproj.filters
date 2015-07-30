@@ -44,9 +44,6 @@
     <ClInclude Include="..\..\include\cinatra\request_parser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\logging.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\http_router.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -54,9 +51,6 @@
       <Filter>头文件\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\cinatra\string_utils.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\tuple_utils.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\cinatra\token_parser.hpp">
@@ -79,6 +73,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\cinatra\session_container.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\logging.hpp">
+      <Filter>头文件\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
