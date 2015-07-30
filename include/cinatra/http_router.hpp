@@ -32,7 +32,12 @@ namespace cinatra
 		{
 			size_t pos = name.find_first_of(':');
 			if (pos == std::string::npos)
+			{
+				if (name!="/"&&name[name.length() - 1] == '/') //移除最后的'/'符
+					return name.substr(0, name.length() - 1);
+
 				return name;
+			}
 
 			std::string funcName = name.substr(0, pos - 1);
 			std::vector<string> v;
