@@ -85,7 +85,7 @@ namespace cinatra
 				//先分离path，如果有参数key就按照key从query里取出相应的参数值.
 				//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path.
 				size_t pos = func_name.rfind('/');
-				while (pos != string::npos&&pos != 0)
+				while (pos != string::npos && pos != 0)
 				{
 					string name = func_name;
 					if (pos != 0)
@@ -199,14 +199,14 @@ namespace cinatra
 		{
 			// the argument list is complete, now call the function
 			template<typename Args>
-			static inline bool call(const Function& func, Request& req, Response& res, token_parser &parser, const Args& args)
+			static inline bool call(const Function& func, Request& req, Response& res, token_parser &/*parser*/, const Args& args)
 			{
 				apply(func, req, res, args);
 				return true;
 			}
 
 			template<typename Args, typename Self>
-			static inline bool call_member(const Function& func, Self* self, Request& req, Response& res, token_parser &parser, const Args& args)
+			static inline bool call_member(const Function& func, Self* self, Request& req, Response& res, token_parser &/*parser*/, const Args& args)
 			{
 				apply_member(func, self, req, res, args);
 				return true;
