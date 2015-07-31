@@ -22,8 +22,9 @@ BOOST_AUTO_TEST_CASE(router_dispatch_test_1)
 {
 	bool flag = false;
 	HTTPRouter r;
-	r.route("/", [&](Request&, Response&) {
+	r.route("/:id", [&](Request&, Response&, int a) {
 		flag = true;
+		BOOST_CHECK(a == 1);
 	});
 	Request req{ "/1", {}, "GET", "/1", {}, {}};
 	Response res;
@@ -35,11 +36,11 @@ BOOST_AUTO_TEST_CASE(router_dispatch_test_2)
 {
 	bool flag = false;
 	HTTPRouter r;
-	r.route("/1/2/", [](Request&, Response&) {
-		BOOST_CHECK(false);
-	});
-	r.route("/1", [&](Request&, Response&) {
+	r.route("/1/2/", [&](Request&, Response&) {
 		flag = true;
+	});
+	r.route("/1", [](Request&, Response&) {
+		BOOST_CHECK(false);
 	});
 	Request req{ "/1/2", {}, "GET", "/1/2", {}, {}};
 	Response res;
