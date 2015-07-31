@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "http_server", "http_server\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello_world", "hello_world\hello_world.vcxproj", "{054026B9-419F-40AB-A0E2-2F8549454450}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "session_control", "session_control\session_control.vcxproj", "{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -52,6 +54,15 @@ Global
 		{054026B9-419F-40AB-A0E2-2F8549454450}.Release|Win32.ActiveCfg = Release|Win32
 		{054026B9-419F-40AB-A0E2-2F8549454450}.Release|Win32.Build.0 = Release|Win32
 		{054026B9-419F-40AB-A0E2-2F8549454450}.Release|x64.ActiveCfg = Release|x64
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Debug|Win32.Build.0 = Debug|Win32
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Debug|x64.ActiveCfg = Debug|Win32
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Profile|Win32.ActiveCfg = Release|Win32
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Profile|Win32.Build.0 = Release|Win32
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Profile|x64.ActiveCfg = Release|Win32
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Release|Win32.ActiveCfg = Release|Win32
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Release|Win32.Build.0 = Release|Win32
+		{0DD6B2F3-C38A-4A23-8CB8-A2AF5E57D593}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

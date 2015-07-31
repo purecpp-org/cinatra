@@ -1,0 +1,38 @@
+    <div class="login" id="login" style="display: block">
+        <div id="header" class="header">
+            <span>登陆</span>
+        </div>
+        <div class="web_login" id="web_login" style="display: block">
+            <div class="errtips" id="tips">
+                <div class="error_tips" id="error_tips" style="display: none;">
+                    <span class="error_logo" id="error_logo"></span>
+                    <span class="err_m" id="err_m"></span>
+                </div>
+                <div class="loading_tips" id="loading_tips">
+                    <span id="loading">登录中</span>
+                    <img src="image/load.gif" id="loading_img" />
+                </div>
+            </div>
+            <div class="login_form">
+                <form id="loginform" name="loginform" method="post">
+                    <div class="uinArea" id="uinArea">
+                        <label class="input_tips" id="uin_tips" ></label>
+                        <div class="inputOuter">
+                            <input type="text" class="inputstyle" name="uin" tabindex="1" />
+                        </div>
+                    </div>
+                    <div class="pwdArea" id="pwdArea">
+                        <label class="input_tips" id="pwd_tips"></label>
+                        <div class="inputOuter">
+                            <input type="password" class="inputstyle password" maxlength="32" name="pwd" tabindex="2" />
+                        </div>
+                    </div>
+                    <div class="submit">
+                        <a class="btn btn_primary" tabindex="5" href="" onclick="javascript:validate_required();return false;">
+                            <!--input type="submit" tabindex="6" value="登陆" class="btn" id="login_button"-->登陆
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

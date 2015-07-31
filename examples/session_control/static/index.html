@@ -1,0 +1,126 @@
+<html>
+<head>
+    <meta http-equiv="content-Type" content="text/html; charset=utf-8" />
+    <meta name="Description" content="">
+    <meta name="Keywords" content="">
+    <title>session测试</title>
+    <link rel="stylesheet" href="style/main.css" type="text/css">
+    <link rel="stylesheet" href="style/login.css" type="text/css">
+    <script type="text/javascript" src="script/md5-min.js"></script>
+    <script src="script/ajax.js" type="text/javascript"></script>
+    <script src="script/base.js" type="text/javascript"></script>
+    <script src="script/index.js" type="text/javascript"></script>
+</head>
+<body onload="onLoad();">
+<!--body-->
+    <div>
+            <span>
+
+                <input type="hidden" name="flag" id="flag" value>
+                <input type="hidden" name="user" id="user" value>
+            </span>
+    </div>
+    <div class="headlink">
+        <div class="wrapper">
+            <div id="loginbar">
+                <span id="weclome" style="display: none;">您好，&nbsp;
+                    <strong id="userid"></strong>
+                    <img id="vip" src="image/vip.gif" title="" alt="">
+                </span>
+                <a href="" id="login" onclick="return false;">登陆</a>
+                <a href="" id="logout" style="display: none;" onclick="loginOut();return false;">退出</a>
+            </div>
+        </div>
+    </div>
+    <div class="header">
+        <div class="wrapper">
+            <h1>cinatra登陆测试</h1>
+            <span class="vip">测试demo</span>
+        </div>
+    </div>
+    <div class="content">
+        <div class="wrapper">
+            <div class="left-menu">
+                <div class="title-content">
+                    <h2>Cookie信息</h2>
+                </div>
+                <ul class="user-nav-list">
+                    <li>
+                        <a class="current" id="tongji" onclick="infoSelect();return false;">当前Cookies：</a>
+                    </li>
+                </ul>
+                <div class="title-content">
+                    <h2>Session信息</h2>
+                </div>
+                <ul class="user-nav-list">
+                    <li>
+                        <a id="huodong" onclick="huodongSelect();return false;">修改Session信息</a>
+                    </li>
+                    <li>
+                        <a id="guanggao" onclick="guanggaoSelect();return false;" >Session信息</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="right-sider">
+                <div class="info">
+                    <div class="tips">
+                        <div class="payerror" id="payerror" style="display: none;">
+                            <span class="error_logo" id="error_logo"></span>
+                            <span class="errormsg"  id="errormsg"></span>
+                        </div>
+                        <div class="payerror" id="paysuccess" style="display: none;">
+                            <span class="success_logo" id="success_logo"></span>
+                            <span class="errormsg"  id="successmsg"></span>
+                        </div>
+                        <div class="loading_pay" id="loading_pay" style="display: none;">
+                            <span id="loading">正在操作中，请稍候......</span>
+                            <img src="image/load.gif" id="loading_img">
+                        </div>
+                    </div>
+                    <div id="base-info">
+                        <dl>
+                            <span class="balance-area">当前Cookies：</span><span class="txt" id="usercount"></span>
+                        </dl>
+                    </div>
+                    <div id="huodong-control" style="display: none;">
+                        <dl>
+                            <span class="balance-area">用户昵称：</span>
+                            <input class="inputTxt" type="text" name="nick" id="nick" tabindex="1" value="">
+                        </dl>
+                        <dl>
+                            <span class="balance-area">输入新密码：</span>
+                            <input class="inputTxt" type="password" name="new_password" id="new_password" tabindex="2" value="">
+                        </dl>
+                        <dl>
+                            <span class="balance-area">再次输入新密码：</span>
+                            <input class="inputTxt" type="password" name="new_password_again" id="new_password_again" tabindex="3" value="">
+                        </dl>
+                        <dl>
+                            <div class="submit">
+                                <a class="btn btn_primary" tabindex="4" href="" onclick="changeInfo();return false;">修改
+                                </a>
+                            </div>
+                        </dl>
+                    </div>
+                    <div id="guangguao-control" style="display: none;" >
+                        <dl>
+                            <span class="balance-area">用户ID：</span>
+                            <span class="balance-area" id="show_uid"></span>
+                        </dl>
+                        <dl>
+                            <span class="balance-area">用户昵称：</span>
+                            <span class="balance-area" id="show_nick"></span>
+                        </dl>
+                        <dl>
+                            <span class="balance-area">用户密码：</span>
+                            <span class="balance-area" id="show_pwd"></span>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="clr"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="script/login.js"></script>
+</body>
+</html>

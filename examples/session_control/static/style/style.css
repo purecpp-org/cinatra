@@ -1,0 +1,163 @@
+*{ word-wrap:break-word; }
+body{ padding:5px 0; background:#FFF; text-align:center; }
+body, td, input, textarea, select, button{ color:#666; font:12px/1.5 Verdana, Tahoma, Arial, 'Microsoft Yahei', 'Simsun', sans-serif; }
+ul, dl, dd, p, h1, h2, h3, h4, h5, h6, form, fieldset { margin:0; padding:0; }
+h1, h2, h3, h4, h5, h6{ font-size:12px; }
+a{ color:#2366A8; text-decoration:none; }
+a:hover { text-decoration:underline; }
+a img{ border:none; }
+
+body {
+    padding: 5px 0;
+    background: #FFF;
+    text-align: center;
+}
+
+.container {
+    overflow: hidden;
+    margin: 0 auto;
+    width: 700px;
+    height: auto !important;
+    text-align: left;
+    border: 1px solid #B5CFD9;
+}
+
+.header {
+    height: 194px;
+    background: url(../image/bg_repx.gif) repeat-x;
+}
+
+.header h1 {
+    display: inline-block;
+    width: 270px;
+    height: 48px;
+    margin-left: 30px;
+    font-size: 24px;
+}
+
+h1 {
+    display: block;
+    font-size: 2em;
+    -webkit-margin-before: 0.67em;
+    -webkit-margin-after: 0.67em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    font-weight: bold;
+}
+
+.header span {
+    float: right;
+    padding-right: 10px;
+    margin-top: 40px;
+}
+
+.main {
+    padding: 20px 20px 0;
+    background: #F7FBFE url(../image/bg_repx.gif) repeat-x 0 -194px;
+}
+
+.licenseblock {
+    margin-bottom: 15px;
+    padding: 8px;
+    height: 280px;
+    border: 1px solid #EEE;
+    background: #FFF;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.license h1 {
+    padding-bottom: 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.license p {
+    line-height: 150%;
+    margin: 10px 0;
+    text-indent: 25px;
+}
+
+.marginbot {
+    margin-bottom: 20px;
+}
+
+.btnbox {
+    text-align: center;
+}
+
+.btnbox input {
+    margin: 0 2px;
+}
+
+.footer {
+    line-height: 40px;
+    text-align: center;
+    background: url(../image/bg_footer.gif) repeat-x;
+    font-size: 11px;
+}
+
+form {
+    display: block;
+    margin-top: 0em;
+}
+
+.desc {
+    margin: 0 auto;
+    width: 537px;
+    line-height: 180%;
+    clear: both;
+}
+
+strong, b {
+    font-weight: bold;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.tb, .tb2 {
+    margin: 15px 0 15px 67px;
+}
+
+tbody {
+    display: table-row-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
+em, cite, strong, th {
+    font-style: normal;
+    font-weight: normal;
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+.tb2 th, .tb2 td {
+    padding: 3px 5px;
+}
+
+.tbopt {
+    width: 130px;
+}
+
+th {
+    text-align: left;
+}
+
+.txt {
+    width: 200px;
+}
+
+.tbopt {
+    width: 130px;
+}
+
+.btn {
+    margin-top: 10px;
+}

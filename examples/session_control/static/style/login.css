@@ -1,0 +1,230 @@
+html{overflow:hidden}
+body{font-family:Tahoma,Verdana,Arial,宋体;font-size:12px;margin:0}
+ul{padding:0;margin:0}
+ul li{list-style-type:none}
+a{text-decoration:none}
+a:hover{text-decoration:underline}
+input[type="text"]:focus,input[type="password"]:focus{outline:0}
+input::-ms-clear{display:none}
+.header{
+    height: 68px;
+    background: url(../image/header_bg.gif);
+}
+.login {
+    margin: 0 auto;
+    width: 418px;
+    border: 2px solid #eee;
+    position: relative;
+    background-color: #ffffff;
+}
+.login .header {
+    height: 50px;
+    border-bottom: 1px solid #e2e2e2;
+    position: relative;
+    font-family: "Hiragino Sans GB","微软雅黑";
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+}
+.login .header span{
+    color: #333;
+    display: inline-block;
+    height: 45px;
+    line-height: 45px;
+    outline: 0;
+}
+.login .web_login {
+    position: relative;
+    height: 236px;
+    overflow: hidden;
+}
+.login .web_login .errtips {
+    height: 50px;
+    width: 270px;
+    position: relative;
+    margin: 0 auto;
+    z-index: 11;
+}
+.login .web_login .error_tips {
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #dad699;
+    background: #f9f5c7;
+    display: none;
+    position: absolute;
+    bottom: -2px;
+    border-radius: 2px;
+}
+.login .web_login .error_tips .err_m {
+    display: inline-block;
+    padding-left: 20px;
+    line-height: 18px;
+    color: #434343;
+    vertical-align: middle;
+    text-align: left;
+}
+.login .web_login .error_tips .error_logo {
+    position: absolute;
+    left: 3px;
+    height: 18px;
+    line-height: 18px;
+    width: 18px;
+    background: url(../image/icon_3.png) no-repeat 0 -162px;
+}
+.login .web_login .loading_tips {
+    text-align: center;
+    height: 24px;
+    display: none;
+    position: absolute;
+    top: 10px;
+    width: 274px;
+}
+.login .web_login .login_form {
+    width: 272px;
+    margin: 0 auto;
+}
+.login .login_form form {
+    display: block;
+    margin-top: 0em;
+}
+.login .web_login  .uinArea {
+    height: 55px;
+    position: relative;
+    z-index: 10;
+}
+.login .web_login .input_tips, .web_login .input_tips_focus {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    font-size: 14px;
+    line-height: 16px;
+    color: #aaa;
+    cursor: text;
+}
+.login .web_login .inputOuter {
+    width: 272px;
+    height: 42px;
+    background: url(../image/icon_3.png) no-repeat -1px -1px;
+}
+.login .web_login .inputstyle {
+    width: 258px;
+    position: relative;
+    top: 12px;
+    left: 2px;
+    height: 18px;
+    /*padding: 11px 0px 11px 10px;*/
+    line-height: 18px;
+    border: 0;
+    background: 0;
+    color: #333;
+    font-family: Verdana,Tahoma,Arial;
+    font-size: 16px;
+    ime-mode: disabled;
+}
+.login .web_login .uin_del {
+    width: 21px;
+    height: 21px;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    background: url(../image/icon_3.png) no-repeat -116px -160px;
+    display: none;
+}
+a {
+    text-decoration: none;
+}
+.login .web_login .pwdArea {
+    height: 55px;
+    position: relative;
+    z-index: 3;
+}
+.login .web_login .verifyArea {
+    height: 120px;
+    position: relative;
+}
+.login .web_login .verifyinputArea {
+    height: 55px;
+}
+.login .web_login .verifycode {
+    color: #333;
+    font-size: 16px;
+}
+.login .web_login .verifyimgArea {
+    position: relative;
+    height: 55px;
+    cursor: pointer;
+}
+.login .web_login .verifyimgArea .verifyimg {
+    height: 55px;
+    width: 150px;
+    position: absolute;
+    left: 0;
+}
+.login .web_login .verifyimgArea .verifyimg_tips {
+    position: absolute;
+    left: 165px;
+    top: 15px;
+    color: #000;
+}
+.submit {
+    position: relative;
+    height: 40px;
+    color: #fff;
+}
+ .login_button {
+    position: absolute;
+    left: 0;
+    outline: 0;
+}
+.btn {
+    display: inline-block;
+    overflow: visible;
+    padding: 0 36px;
+    height: 35px;
+    line-height: 35px;
+    vertical-align: middle;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    font-size: 14px;
+    border-width: 1px;
+    border-style: solid;
+    cursor: pointer;
+}
+ .btn_primary {
+    background-color: #4aaf33;
+    background-image: -moz-linear-gradient(top,#4aaf33 0,#4aaf33 100%);
+    background-image: -webkit-gradient(linear,0 0,0 100%,from(#4aaf33),to(#4aaf33));
+    background-image: -webkit-linear-gradient(top,#4aaf33 0,#4aaf33 100%);
+    background-image: -o-linear-gradient(top,#4aaf33 0,#4aaf33 100%);
+    background-image: linear-gradient(to bottom,#4aaf33 0,#4aaf33 100%);
+    border-color: #3eac27;
+    color: #fff;
+}
+ .login_button .btn {
+    width: 115px;
+    height: 35px;
+    line-height: 35px;
+    border: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    background: url(../image/icon_3.png) no-repeat 0 -90px;
+}
+.login .bottom {
+    height: 16px;
+    margin-bottom: 8px;
+    width: 300px;
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    text-align: right;
+    font-size: 12px;
+}
+.login .bottom a{
+    color: #333333;
+}

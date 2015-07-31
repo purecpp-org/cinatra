@@ -1,0 +1,229 @@
+html, body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, textarea, p, blockquote, th, td, iframe, hr {
+    margin: 0;
+    padding: 0;
+}
+
+ol, ul, li {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font: 12px/1.6 Tahoma,"微软雅黑","宋体";
+    height: 100%;
+}
+
+.headlink {
+    background-color: #666666;
+    height: 32px;
+    overflow: hidden;
+}
+
+.wrapper {
+    text-align: left;
+    margin: 0 auto;
+    width: 960px;
+    clear: both;
+    float: none;
+    overflow: hidden;
+}
+
+#loginbar {
+    float: right;
+    height: 30px;
+}
+
+a:link, a:visited {
+    color: #0b5ba5;
+    text-decoration: none;
+    outline: 0;
+}
+a:link, a:visited {
+    color: #0b5ba5;
+    text-decoration: none;
+    outline: 0;
+}
+a {
+    text-decoration: none;
+}
+
+#loginbar a {
+    color: #FFFFFF;
+    margin: 0 5px;
+    line-height: 30px;
+}
+
+.header{
+    height: 50px;
+    line-height: 50px;
+    background: #f8f8f8;
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.header h1{
+    margin-top: 20px;
+    margin-left: 12px;
+    font-size: 24px;
+    line-height: 24px;
+    width: 200px;
+    display: inline-block;
+    float: left;
+}
+
+.header .vip{
+    margin-left: 20px;
+    font-size: 14px;
+    line-height: 14px;
+    margin-top: 35px;
+    color: #D7CA99;
+    float: left;
+    display: inline-block;
+}
+
+.left-menu{
+    float: left;
+    width: 190px;
+    margin-right: 20px;
+    margin-top: 30px;
+    border-right: 1px solid #ccc;
+}
+
+.title-content{
+    font-size: 14px;
+    margin-left: 25px;
+    color: #2366A8;
+    font-weight: bolder;
+    margin-top: 20px;
+}
+
+.user-nav-list {
+    margin-left: 42px;
+    margin-top: 10px;
+}
+
+
+.user-nav-list .current{
+    color: #000;
+    background-color: #eee;
+    border-left: solid 4px #000;
+    font-weight: bolder;
+}
+
+.user-nav-list a {
+    display: block;
+    height: 35px;
+    overflow: hidden;
+    border-left: solid 4px #fff;
+    color: #333;
+    text-indent: 16px;
+    font-size: 14px;
+    line-height: 35px;
+    cursor: hand;
+}
+
+.user-nav-list a:hover{
+    text-decoration: none;
+}
+
+.right-sider {
+    float: right;
+    margin-right: 10px;
+    width: 700px;
+    margin-top: 30px;
+}
+
+.clr {
+    clear: both;
+}
+
+.info dl {
+    clear: both;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 100px;
+    line-height: 26px;
+    font-size: 15px;
+    color: #555;
+}
+
+.info{
+    padding-bottom: 10px;
+    padding-top: 50px;
+}
+/*.info .tips{
+    width: 460px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    float: left;
+}*/
+.info dl .balance-area{
+    width: 150px;
+    display: inline-block;
+    margin-right: 5px;
+    color: #000;
+}
+
+.tips{
+    width: 460px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    float: left;
+}
+
+.payerror{
+    width: 330px;
+    padding: 5px;
+    border: 1px solid #dad699;
+    background: #f9f5c7;
+    border-radius: 2px;
+}
+.payerror .errormsg{
+    overflow: hidden;
+    color: #b11516;
+    font-size: 14px;
+    padding-left: 10px;
+    line-height: 18px;
+}
+.payerror .error_logo{
+    height: 18px;
+    line-height: 18px;
+    width: 18px;
+    background: url(../image/icon_3.png) no-repeat 0 -162px;
+    display: inline-block;
+    float: left;
+    margin-top: 1px;
+}
+.payerror .success_logo{
+    height: 18px;
+    line-height: 18px;
+    width: 18px;
+    background: url(../image/icon_3.png) no-repeat -20px -162px;
+    display: inline-block;
+    float: left;
+    margin-top: 1px;
+}
+.loading_pay{
+    width: 330px;
+    padding: 5px;
+    text-align: center;
+    font-size: 14px;
+    height: 24px;
+}
+
+.inputTxt {
+    width: 280px;
+    height: 25px;
+    padding: 2px 5px 0;
+    overflow: hidden;
+    font-family: Tahoma,Arial;
+    font-size: 12px;
+    line-height: 1.5;
+    vertical-align: middle;
+    border: 1px solid #7F9DB9;
+}
+
+#vip{
+    padding-top: 8px;
+}
