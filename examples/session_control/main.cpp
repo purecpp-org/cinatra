@@ -1,6 +1,6 @@
 #include "Login.h"
 
-int main(int argc, char* argv[])
+int main()
 {
 	cinatra::Cinatra<LoginControl> app;
 

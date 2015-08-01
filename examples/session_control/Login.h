@@ -25,7 +25,7 @@ const std::string SessionData::password_ = "e10adc3949ba59abbe56e057f20f883e";
 
 struct LoginControl
 {
-	void before(cinatra::Request& req, cinatra::Response& res)
+	void before(cinatra::Request& /* req */, cinatra::Response& /* res */)
 	{
 		
 		/*if (req.session().exists(SessionData::loginin_)
