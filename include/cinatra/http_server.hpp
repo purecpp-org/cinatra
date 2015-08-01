@@ -5,10 +5,10 @@
 #pragma warning(disable:4819)
 #endif // _MSC_VER
 
-#include "io_service_pool.hpp"
-#include "connection.hpp"
-#include "logging.hpp"
-#include "session_container.hpp"
+#include <cinatra/io_service_pool.hpp>
+#include <cinatra/connection.hpp>
+#include <cinatra/logging.hpp>
+#include <cinatra/session_container.hpp>
 
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>

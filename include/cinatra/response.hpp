@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "utils.hpp"
-#include "cookie_builder.hpp"
+#include <cinatra/utils.hpp>
+#include <cinatra/cookie_builder.hpp>
 
 #include <boost/noncopyable.hpp>
 #include <boost/asio/streambuf.hpp>

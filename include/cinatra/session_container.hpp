@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "logging.hpp"
-#include "utils.hpp"
+#include <cinatra/logging.hpp>
+#include <cinatra/utils.hpp>
 
 #include <boost/any.hpp>
 #include <boost/uuid/uuid.hpp>

@@ -1,12 +1,13 @@
 
 #pragma once
 
-#include "http_server.hpp"
-#include "http_router.hpp"
-#include "request.hpp"
-#include "response.hpp"
-#include "logging.hpp"
-#include "aop.hpp"
+#include <cinatra/http_server.hpp>
+#include <cinatra/http_router.hpp>
+#include <cinatra/request.hpp>
+#include <cinatra/response.hpp>
+#include <cinatra/logging.hpp>
+#include <cinatra/aop.hpp>
+
 #include <boost/lexical_cast.hpp>
 
 #include <string>
