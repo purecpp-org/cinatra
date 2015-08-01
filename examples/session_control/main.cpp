@@ -3,7 +3,11 @@
 int main()
 {
 	cinatra::Cinatra<LoginControl> app;
-
+	app.route("/", [](cinatra::Request& req, cinatra::Response& res)
+	{
+		res.redirect("index.html");
+		return;
+	});
 	app.route("/login", [](cinatra::Request& req, cinatra::Response& res)
 	{
 		auto body = cinatra::body_parser(req.body());
