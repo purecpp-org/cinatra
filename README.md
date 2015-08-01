@@ -16,7 +16,9 @@ sudo apt-get install libboost-system-dev libboost-coroutine-dev libboost-thread-
 ```
 git clone https://github.com/topcpporg/cinatra.git
 cd cinatra
-cmake ./
+mkdir build
+cd build
+cmake ..
 make
 ```
 ##### Done!
