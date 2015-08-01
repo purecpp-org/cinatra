@@ -5,7 +5,7 @@
 #include <functional>
 #include <cinatra/function_traits.hpp>
 #include <cinatra/string_utils.hpp>
-//#include "tuple_utils.hpp"
+//#include <cinatra/tuple_utils.hpp>
 #include <cinatra/token_parser.hpp>
 #include <cinatra/request.hpp>
 #include <cinatra/response.hpp>
@@ -50,7 +50,7 @@ namespace cinatra
 				
 				pos = name.find_first_of(':', nextpos);
 			}
-			parser_.add(name, v);
+			parser_.add(funcName, v);
 			return funcName;
 		}
 
@@ -89,21 +89,45 @@ namespace cinatra
 				//处理hello/a/12
 				//先分离path，如果有参数key就按照key从query里取出相应的参数值.
 				//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path.
+				bool needbreak = false;
 				size_t pos = func_name.rfind('/');
-				while (pos != std::string::npos && pos != 0)
+				while (pos != std::string::npos &&!needbreak)
 				{
 					std::string name = func_name;
 					if (pos != 0)
 						name = func_name.substr(0, pos);
+					else
+					{
+						name = "";
+						needbreak = true;
+					}
 
 					std::string params = func_name.substr(pos);
 					parser.parse(params);
 
-					bool r = handle(req, resp, name, parser, finish);
-					if (finish)
-						return r;
+					if (check(parser, name))
+					{
+						bool r = handle(req, resp, name, parser, finish);
+						if (finish)
+							return r;
+					}
 
 					pos = func_name.rfind('/', pos - 1);
+				}
+			}
+
+			return false;
+		}
+
+		bool check(token_parser& parser, const std::string& name)
+		{
+			auto kv = parser_.get_map();
+			auto rg = kv.equal_range(name);
+			for (auto itr = rg.first; itr != rg.second; ++itr)
+			{
+				if (itr->second.size() == parser.size())
+				{
+					return true;
 				}
 			}
 

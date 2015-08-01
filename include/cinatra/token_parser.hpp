@@ -9,7 +9,7 @@
 class token_parser
 {
 	std::vector<std::string> v_; //解析之后，v_的第一个元素为函数名，后面的元素均为参数.
-	std::map<std::string, std::vector<std::string>> map_;
+	std::multimap<std::string, std::vector<std::string>> map_;
 public:
 	/*
 	get("/hello/:name", (request, response) -> {
@@ -29,7 +29,7 @@ public:
 		map_.emplace(path, std::move(v));
 	}
 
-	const std::map<std::string, std::vector<std::string>>& get_map()
+	const std::multimap<std::string, std::vector<std::string>>& get_map()
 	{
 		return map_;
 	}
