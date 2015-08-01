@@ -133,7 +133,7 @@ namespace cinatra
 		{
 			header_str.clear();
 			auto s = status_header(status_code_);
-			string shttp = "";
+			std::string shttp = "";
 			if (version_minor_ == 1)
 				shttp = "HTTP/1.1 ";
 			else 
@@ -205,7 +205,7 @@ namespace cinatra
 		// 是否已经在header中添加了Transfer-Encoding: chunked.
 		bool has_chunked_encoding_header_;
 		cookie_builder cookie_builder_;
-		string header_str;
+		std::string header_str;
 
 		std::map<int, boost::any> context_;
 	};

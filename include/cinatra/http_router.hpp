@@ -40,12 +40,12 @@ namespace cinatra
 			}
 
 			std::string funcName = name.substr(0, pos - 1);
-			std::vector<string> v;
-			while (pos != string::npos)
+			std::vector<std::string> v;
+			while (pos != std::string::npos)
 			{
 				//获取参数key，/hello/:name/:age
 				size_t nextpos = name.find_first_of('/', pos);
-				string paramKey = name.substr(pos + 1, nextpos - pos - 1);
+				std::string paramKey = name.substr(pos + 1, nextpos - pos - 1);
 				v.push_back(std::move(paramKey));
 				
 				pos = name.find_first_of(':', nextpos);
@@ -90,13 +90,13 @@ namespace cinatra
 				//先分离path，如果有参数key就按照key从query里取出相应的参数值.
 				//如果没有则直接查找，需要逐步匹配，先匹配最长的，接着匹配次长的，直到查找完所有可能的path.
 				size_t pos = func_name.rfind('/');
-				while (pos != string::npos && pos != 0)
+				while (pos != std::string::npos && pos != 0)
 				{
-					string name = func_name;
+					std::string name = func_name;
 					if (pos != 0)
 						name = func_name.substr(0, pos);
 
-					string params = func_name.substr(pos);
+					std::string params = func_name.substr(pos);
 					parser.parse(params);
 
 					bool r = handle(req, resp, name, parser, finish);
@@ -110,7 +110,7 @@ namespace cinatra
 			return false;
 		}
 
-		bool handle(Request& req, Response& resp, string& name, token_parser& parser, bool& finish)
+		bool handle(Request& req, Response& resp, std::string& name, token_parser& parser, bool& finish)
 		{
 			bool r = false;
 			auto it = map_invokers.equal_range(name);
