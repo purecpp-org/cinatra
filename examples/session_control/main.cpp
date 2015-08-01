@@ -3,7 +3,7 @@
 int main()
 {
 	cinatra::Cinatra<LoginControl> app;
-	app.route("/", [](cinatra::Request& req, cinatra::Response& res)
+	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
 	{
 		res.redirect("index.html");
 		return;
