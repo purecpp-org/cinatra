@@ -437,7 +437,7 @@ namespace cinatra
 		int version_major_;
 		int version_minor_;
 		CaseMap query_;
-		std::vector<char> body_;
+		std::string body_;
 		NcaseMultiMap header_;
 	};
 }

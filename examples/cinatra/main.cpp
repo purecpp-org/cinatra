@@ -50,7 +50,7 @@ int main()
 			return;
 		}
 
-		auto body = cinatra::body_parser(req.body());
+		auto body = cinatra::urlencoded_body_parser(req.body());
 		req.session().set("uid", body.get_val("uid"));
 		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
 	});

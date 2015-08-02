@@ -77,5 +77,8 @@
     <ClInclude Include="..\..\include\cinatra\logging.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\body_parser.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

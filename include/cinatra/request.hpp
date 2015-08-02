@@ -19,11 +19,6 @@ namespace cinatra
 		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
 	}
 
-	inline CaseMap body_parser(const std::vector<char>& data)
-	{
-		return kv_parser<std::vector<char>::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
-	}
-
 	inline CaseMap cookie_parser(const std::string& data)
 	{
 		return kv_parser<std::string::const_iterator, CaseMap, '=', ';'>(data.begin(), data.end(), true);
@@ -39,7 +34,7 @@ namespace cinatra
 
 		}
 
-		Request(const std::string& url, const std::vector<char>& body,
+		Request(const std::string& url, const std::string& body,
 			const std::string& method, const std::string& path,
 			const CaseMap& query_map, const NcaseMultiMap& header)
 			:url_(url), body_(body), path_(path),
@@ -103,7 +98,7 @@ namespace cinatra
 		{
 			return header_.get_val("host");
 		}
-		const std::vector<char>& body() const
+		const std::string& body() const
 		{
 			return body_;
 		}
@@ -145,7 +140,7 @@ namespace cinatra
 		}
 
 		std::string url_;
-		std::vector<char> body_;
+		std::string body_;
 		method_t method_;
 		std::string path_;
 		CaseMap query_;

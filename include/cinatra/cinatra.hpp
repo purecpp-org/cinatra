@@ -7,6 +7,7 @@
 #include <cinatra/response.hpp>
 #include <cinatra/logging.hpp>
 #include <cinatra/aop.hpp>
+#include <cinatra/body_parser.hpp>
 
 #include <boost/lexical_cast.hpp>
 
