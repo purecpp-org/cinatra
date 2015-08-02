@@ -10,12 +10,12 @@ int main()
 	});
 	app.route("/login", [](cinatra::Request& req, cinatra::Response& res)
 	{
-		auto body = cinatra::body_parser(req.body());
-		if (!req.session().exists(SessionData::loginin_)) {//第一次登陆
+		auto body = cinatra::urlencoded_body_parser(req.body());
+		if (!req.session().exists(SessionData::loginin_)) { //第一次登陆.
 			if (body.get_val(SessionData::uid_).compare(SessionData::username_) != 0
 				|| body.get_val(SessionData::pwd_).compare(SessionData::password_) != 0)
 			{
-				//登陆失败
+				//登陆失败.
 				res.end("{\"result\":-3}");
 				return;
 			}
@@ -23,7 +23,7 @@ int main()
 		else if (!req.session().get<bool>(SessionData::loginin_)) {
 			if (req.session().get<std::string>(SessionData::uid_).compare(body.get_val(SessionData::uid_)) != 0
 				|| req.session().get<std::string>(SessionData::pwd_).compare(body.get_val(SessionData::pwd_)) != 0) {
-				//登陆失败
+				//登陆失败.
 				res.end("{\"result\":-3}");
 				return;
 			}
@@ -34,7 +34,7 @@ int main()
 		req.session().set(SessionData::pwd_, SessionData::password_);
 		res.cookies().new_cookie()
 			.add("uid", body.get_val(SessionData::uid_))
-			.max_age(10 * 60) //10分钟的登陆有效期
+			.max_age(10 * 60) //10分钟的登陆有效期.
 			.new_cookie()
 			.add("flag", "1")
 			.max_age(10 * 60); 
@@ -53,7 +53,7 @@ int main()
 	});
 	app.route("/change", [](cinatra::Request& req, cinatra::Response& res)
 	{
-		auto body = cinatra::body_parser(req.body());
+		auto body = cinatra::urlencoded_body_parser(req.body());
 		if (!req.session().exists(SessionData::loginin_) || (body.get_val(SessionData::uid_)
 			.compare(req.session().get<std::string>(SessionData::uid_)) != 0
 			|| !req.session().get<bool>(SessionData::loginin_)))
@@ -67,7 +67,7 @@ int main()
 	});
 	app.route("/queryInfo", [](cinatra::Request& req, cinatra::Response& res)
 	{
-		auto body = cinatra::body_parser(req.body());
+		auto body = cinatra::urlencoded_body_parser(req.body());
 		if (!req.session().exists(SessionData::loginin_) || (body.get_val(SessionData::uid_)
 			.compare(req.session().get<std::string>(SessionData::uid_)) != 0
 			|| !req.session().get<bool>(SessionData::loginin_)))
