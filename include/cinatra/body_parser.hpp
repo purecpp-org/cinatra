@@ -98,6 +98,8 @@ namespace cinatra
 // 		std::cout << "-----------------------------" << std::endl;
 
 		pos = 0;
+		bool has_type = false;//Content-Type: 
+		bool has_filename = false;//Content-Disposition: filename=""
 		for (;;)
 		{
 			auto tmp = headers.find("\r\n", pos);
@@ -119,12 +121,17 @@ namespace cinatra
 				parse_disposition(header_val, item.content_disposition);
 				if (item.content_disposition.get_count("filename") != 0)
 				{
-					item.is_file = true;
+					auto tempValue = item.content_disposition.get_val("filename");
+					if (!tempValue.empty())
+					{
+						has_filename = true;
+					}
 				}
 			}
 			else if (boost::iequals(header_name, "Content-Type"))
 			{
 				item.content_type = header_val;
+				has_type = true;
 			}
 			else
 			{
@@ -132,6 +139,8 @@ namespace cinatra
 			}
 			pos = tmp + 2;
 		}
+		if (has_type && has_filename)
+			item.is_file = true;
 
 		return true;
 	}
