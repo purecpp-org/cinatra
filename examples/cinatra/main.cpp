@@ -1,7 +1,9 @@
 
 
 #define DISABLE_LOGGER
-// 单线程的话禁用一些锁提高效率.
+
+// set max request size 10m,default is 2m
+#define REQ_MAX_SIZE 10 * 1024 * 1024
 
 #include <cinatra/cinatra.hpp>
 #include <fstream>

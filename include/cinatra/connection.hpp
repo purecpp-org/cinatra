@@ -17,6 +17,13 @@
 #include <iostream>
 #include <fstream>
 
+
+// 默认一个request的大小限制.
+#ifndef REQ_MAX_SIZE
+#define REQ_MAX_SIZE 2 * 1024 * 1024
+#endif // !REQ_MAX_SIZE
+
+
 namespace cinatra
 {
 	using request_handler_t = std::function<bool(Request&, Response&)>;
@@ -86,7 +93,7 @@ namespace cinatra
 
 						cancel_timer();	//读取到了数据之后就取消关闭连接的timer
 						total_size += n;
-						if (total_size > 2 * 1024 * 1024)
+						if (total_size > REQ_MAX_SIZE)
 						{
 							throw std::runtime_error("Request toooooooo large");
 						}
