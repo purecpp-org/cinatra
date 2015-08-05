@@ -17,11 +17,11 @@
 #include <sstream>
 #include <time.h>
 
-#ifdef SINGLE_THREAD
-#define UNIQUE_LOCK()  
+#ifdef CINATRA_SINGLE_THREAD
+#define CINATRA_UNIQUE_LOCK()  
 #else
-#define UNIQUE_LOCK() std::unique_lock<std::mutex> lock(mutex_)
-#endif // SINGLE_THREAD
+#define CINATRA_UNIQUE_LOCK() std::unique_lock<std::mutex> lock(mutex_)
+#endif // CINATRA_SINGLE_THREAD
 
 
 namespace cinatra
@@ -37,7 +37,7 @@ namespace cinatra
 		void add(const std::string& key, T const & val)
 		{
 			update_time();
-			UNIQUE_LOCK();
+			CINATRA_UNIQUE_LOCK();
 			kv_.emplace(key, val);
 		}
 
@@ -45,7 +45,7 @@ namespace cinatra
 		void set(const std::string& key, T const & val)
 		{
 			update_time();
-			UNIQUE_LOCK();
+			CINATRA_UNIQUE_LOCK();
 			kv_[key] = val;
 		}
 
@@ -95,7 +95,7 @@ namespace cinatra
 		}
 		std::string new_session()
 		{
-			UNIQUE_LOCK();
+			CINATRA_UNIQUE_LOCK();
 			boost::uuids::uuid u = boost::uuids::string_generator()("{0123456789abcdef0123456789abcdef}");
 
 			//std::stringstream ss;
@@ -121,7 +121,7 @@ namespace cinatra
 			if (it == session_container_.end())
 			{
 				auto ptr(std::make_shared<Session>());
-				UNIQUE_LOCK();
+				CINATRA_UNIQUE_LOCK();
 				session_container_.emplace(key, ptr);
 				return ptr;
 			}
@@ -149,7 +149,7 @@ namespace cinatra
 				}
 
 				time_t now = time(NULL);
-				UNIQUE_LOCK();
+				CINATRA_UNIQUE_LOCK();
 
 				for (auto it = session_container_.begin();
 					it != session_container_.end();)

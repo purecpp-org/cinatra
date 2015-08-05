@@ -1,9 +1,9 @@
 
 
-#define DISABLE_LOGGER
+#define CINATRA_DISABLE_LOGGER
 
 // set max request size 10m,default is 2m
-#define REQ_MAX_SIZE 10 * 1024 * 1024
+#define CINATRA_REQ_MAX_SIZE 10 * 1024 * 1024
 
 #include <cinatra/cinatra.hpp>
 #include <fstream>

@@ -25,13 +25,13 @@ namespace cinatra
 	class HTTPServer : boost::noncopyable
 	{
 	public:
-#ifndef SINGLE_THREAD
+#ifndef CINATRA_SINGLE_THREAD
 		HTTPServer(std::size_t io_service_pool_size)
 			:io_service_pool_(io_service_pool_size),
 #else
 		HTTPServer()
 			: io_service_pool_(1),
-#endif // SINGLE_THREAD
+#endif // CINATRA_SINGLE_THREAD
 			acceptor_(io_service_pool_.get_io_service()),
 			session_container_(io_service_pool_.get_io_service())
 		{

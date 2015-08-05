@@ -297,7 +297,7 @@ namespace cinatra
 	} while (0)
 
 
-#if (defined(DEBUG) || defined(_DEBUG) || defined(ENABLE_LOGGER)) && !defined(DISABLE_LOGGER)
+#if (defined(DEBUG) || defined(_DEBUG) || defined(CINATRA_ENABLE_LOGGER)) && !defined(CINATRA_DISABLE_LOGGER)
 
 #define LOG_DBG cinatra::logger(cinatra::LOGGER_DEBUG_STR)
 #define LOG_INFO cinatra::logger(cinatra::LOGGER_INFO_STR)

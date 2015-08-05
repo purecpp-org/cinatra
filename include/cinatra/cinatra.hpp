@@ -158,9 +158,9 @@ namespace cinatra
 		}
 
 	private:
-#ifndef SINGLE_THREAD
+#ifndef CINATRA_SINGLE_THREAD
 		int num_threads_ = std::thread::hardware_concurrency();
-#endif // SINGLE_THREAD
+#endif // CINATRA_SINGLE_THREAD
 
 		std::string listen_addr_;
 		std::string listen_port_;
