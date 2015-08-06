@@ -14,7 +14,7 @@ sudo apt-get install libboost-system-dev libboost-coroutine-dev libboost-thread-
 
 ```
 
-### ArchLinux
+#### ArchLinux
 ```
 sudo pacman -S boost
 ```
@@ -30,5 +30,3 @@ make
 ```
 ##### Done!
 ##### wiki:https://github.com/topcpporg/cinatra/wiki
-
-
