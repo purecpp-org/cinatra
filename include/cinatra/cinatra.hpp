@@ -164,7 +164,7 @@ namespace cinatra
 
 		std::string listen_addr_;
 		std::string listen_port_;
-		std::string static_dir_ = "./static";
+		std::string static_dir_ = {"./static"};
 
 		error_handler_t error_handler_;
 
