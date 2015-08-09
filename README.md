@@ -29,4 +29,5 @@ cmake ..
 make
 ```
 ##### Done!
-##### wiki:https://github.com/topcpporg/cinatra/wiki
+##### chinese wiki:https://github.com/topcpporg/cinatra/wiki
+##### english wiki:https://github.com/topcpporg/cinatra/wiki/Introduction
