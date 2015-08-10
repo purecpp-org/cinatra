@@ -22,6 +22,46 @@
 
 namespace cinatra
 {
+	struct HttpsConfig 
+	{
+		using pwd_callback_t = std::function < std::string(std::size_t, int) > ;
+		enum verify_mode_t
+		{
+			none,
+			optional,
+			required,
+		};
+
+		HttpsConfig(bool ssl_enable_v3,
+			verify_mode_t verify_mode,
+			pwd_callback_t pwd_callback,
+			const std::string& certificate_chain_file,
+			const std::string& private_key_file,
+			const std::string& tmp_dh_file,
+			const std::string& verify_file)
+			:use_https(true),
+			ssl_enable_v3(ssl_enable_v3),
+			verify_mode(verify_mode),
+			pwd_callback(pwd_callback),
+			certificate_chain_file(certificate_chain_file),
+			private_key_file(private_key_file),
+			tmp_dh_file(tmp_dh_file),
+			verify_file(verify_file)
+		{}
+		HttpsConfig()
+			:use_https(false)
+		{}
+		bool use_https;
+		bool ssl_enable_v3;
+		verify_mode_t verify_mode;
+
+		pwd_callback_t pwd_callback;
+		std::string certificate_chain_file;
+		std::string private_key_file;
+		std::string tmp_dh_file;
+		std::string verify_file;
+	};
+
 	class HTTPServer : boost::noncopyable
 	{
 	public:
@@ -81,6 +121,12 @@ namespace cinatra
 			return *this;
 		}
 
+		HTTPServer& https_config(const HttpsConfig& cfg)
+		{
+			config_ = cfg;
+			return *this;
+		}
+
 		void run()
 		{
 			LOG_DBG << "Starting HTTP Server";
@@ -90,12 +136,61 @@ namespace cinatra
 	private:
 		void do_accept(const boost::asio::yield_context& yield)
 		{
+			std::shared_ptr<ConnectionBase> conn;
+			std::unique_ptr<boost::asio::ssl::context> ctx;
+			if (config_.use_https)
+			{
+				ctx.reset(new boost::asio::ssl::context(boost::asio::ssl::context::sslv23));
+				unsigned long ssl_options = boost::asio::ssl::context::default_workarounds
+					| boost::asio::ssl::context::no_sslv2
+					| boost::asio::ssl::context::single_dh_use;
+
+				if (!config_.ssl_enable_v3)
+					ssl_options |= boost::asio::ssl::context::no_sslv3;
+				ctx->set_options(ssl_options);
+
+				if (config_.pwd_callback)
+				{
+					ctx->set_password_callback(config_.pwd_callback);
+				}
+
+				if (config_.verify_mode == HttpsConfig::none)
+				{
+					ctx->set_verify_mode(boost::asio::ssl::context::verify_none);
+				}
+				else if (config_.verify_mode == HttpsConfig::optional)
+				{
+					ctx->set_verify_mode(boost::asio::ssl::context::verify_peer);
+					ctx->load_verify_file(config_.verify_file);
+				}
+				else
+				{
+					// required
+					ctx->set_verify_mode(boost::asio::ssl::context::verify_peer |
+						boost::asio::ssl::context::verify_fail_if_no_peer_cert);
+					ctx->load_verify_file(config_.verify_file);
+				}
+
+				ctx->use_certificate_chain_file(config_.certificate_chain_file);
+				ctx->use_private_key_file(config_.private_key_file,
+					boost::asio::ssl::context::pem);
+				ctx->use_tmp_dh_file(config_.tmp_dh_file);
+			}
 			for (;;)
 			{
-				auto conn(
-					std::make_shared<Connection>(
-					io_service_pool_.get_io_service(),session_container_,
-					request_handler_, error_handler_, static_dir_));
+				if (ctx)
+				{
+					conn = std::make_shared<SSLConnection>(
+						io_service_pool_.get_io_service(),
+						*ctx, session_container_,
+						request_handler_, error_handler_, static_dir_);
+				}
+				else
+				{
+					conn = std::make_shared<TCPConnection>(
+						io_service_pool_.get_io_service(),session_container_,
+						request_handler_, error_handler_, static_dir_);
+				}
 
 				boost::system::error_code ec;
 				acceptor_.async_accept(conn->socket(), yield[ec]);
@@ -111,6 +206,8 @@ namespace cinatra
 	private:
 		IOServicePool io_service_pool_;
 		boost::asio::ip::tcp::acceptor acceptor_;
+		HttpsConfig config_;
+
 
 		request_handler_t request_handler_;
 		error_handler_t error_handler_;

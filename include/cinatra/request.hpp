@@ -133,7 +133,7 @@ namespace cinatra
 			return *session_;
 		}
 	private:
-		friend class Connection;
+		friend class ConnectionBase;
 		void set_session(session_ptr_t session)
 		{
 			session_ = session;

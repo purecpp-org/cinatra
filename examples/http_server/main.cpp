@@ -34,7 +34,17 @@ int main()
 		res.write("Error: " + boost::lexical_cast<std::string>(code));
 		return true;
 	})
-	.listen("0.0.0.0", "http").run();
+		.https_config(
+		cinatra::HttpsConfig(
+		true,
+		cinatra::HttpsConfig::none,
+		[](std::size_t, int)->std::string{ return "123456"; },
+		"server.crt",
+		"server.key",
+		"dh2048.pem",
+		""
+		))
+	.listen("0.0.0.0", "https").run();
 
 	return 0;
 }

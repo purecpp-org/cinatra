@@ -19,7 +19,7 @@ namespace cinatra
 {
 	class Response : boost::noncopyable
 	{
-	friend class Connection;
+		friend class ConnectionBase;
 	public:
 		Response()
 			:status_code_(200),
@@ -189,8 +189,6 @@ namespace cinatra
 		{
 			return context_;
 		}
-
-	private:
 		
 		int status_code_;
 		int version_major_;

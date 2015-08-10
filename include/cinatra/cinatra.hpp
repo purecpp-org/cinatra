@@ -99,6 +99,12 @@ namespace cinatra
 			return *this;
 		}
 
+		Cinatra& https_config(const HttpsConfig& cfg)
+		{
+			config_ = cfg;
+			return *this;
+		}
+
 		void run()
 		{
 			HTTPServer s(num_threads_);
@@ -135,6 +141,7 @@ namespace cinatra
 				return true;
 			})
 				.static_dir(static_dir_)
+				.https_config(config_)
 				.listen(listen_addr_, listen_port_)
 				.run();
 		}
@@ -165,6 +172,7 @@ namespace cinatra
 		std::string listen_addr_;
 		std::string listen_port_;
 		std::string static_dir_;
+		HttpsConfig config_;
 
 		error_handler_t error_handler_;
 
