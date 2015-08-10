@@ -121,11 +121,13 @@ namespace cinatra
 			return *this;
 		}
 
+#ifdef CINATRA_ENABLE_HTTPS
 		HTTPServer& https_config(const HttpsConfig& cfg)
 		{
 			config_ = cfg;
 			return *this;
 		}
+#endif // CINATRA_ENABLE_HTTPS
 
 		void run()
 		{
@@ -137,6 +139,7 @@ namespace cinatra
 		void do_accept(const boost::asio::yield_context& yield)
 		{
 			std::shared_ptr<ConnectionBase> conn;
+#ifdef CINATRA_ENABLE_HTTPS
 			std::unique_ptr<boost::asio::ssl::context> ctx;
 			if (config_.use_https)
 			{
@@ -176,8 +179,11 @@ namespace cinatra
 					boost::asio::ssl::context::pem);
 				ctx->use_tmp_dh_file(config_.tmp_dh_file);
 			}
+#endif // CINATRA_ENABLE_HTTPS
+
 			for (;;)
 			{
+#ifdef CINATRA_ENABLE_HTTPS
 				if (ctx)
 				{
 					conn = std::make_shared<SSLConnection>(
@@ -186,6 +192,7 @@ namespace cinatra
 						request_handler_, error_handler_, static_dir_);
 				}
 				else
+#endif // CINATRA_ENABLE_HTTPS
 				{
 					conn = std::make_shared<TCPConnection>(
 						io_service_pool_.get_io_service(),session_container_,
@@ -206,7 +213,9 @@ namespace cinatra
 	private:
 		IOServicePool io_service_pool_;
 		boost::asio::ip::tcp::acceptor acceptor_;
+#ifdef CINATRA_ENABLE_HTTPS
 		HttpsConfig config_;
+#endif // CINATRA_ENABLE_HTTPS
 
 
 		request_handler_t request_handler_;

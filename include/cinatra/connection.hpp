@@ -9,7 +9,10 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
+#ifdef CINATRA_ENABLE_HTTPS
 #include <boost/asio/ssl.hpp>
+#endif // CINATRA_ENABLE_HTTPS
+
 
 #include <memory>
 #include <string>
@@ -484,6 +487,7 @@ namespace cinatra
 		boost::asio::ip::tcp::socket socket_;
 	};
 
+#ifdef CINATRA_ENABLE_HTTPS
 	//HTTPS链接.
 	class SSLConnection
 		: public ConnectionBase
@@ -658,4 +662,5 @@ namespace cinatra
 			boost::asio::ip::tcp::socket
 		> socket_;
 	};
+#endif // CINATRA_ENABLE_HTTPS
 }

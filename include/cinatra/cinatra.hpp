@@ -99,11 +99,13 @@ namespace cinatra
 			return *this;
 		}
 
+#ifdef CINATRA_ENABLE_HTTPS
 		Cinatra& https_config(const HttpsConfig& cfg)
 		{
 			config_ = cfg;
 			return *this;
 		}
+#endif // CINATRA_ENABLE_HTTPS
 
 		void run()
 		{
@@ -141,7 +143,9 @@ namespace cinatra
 				return true;
 			})
 				.static_dir(static_dir_)
+#ifdef CINATRA_ENABLE_HTTPS
 				.https_config(config_)
+#endif // CINATRA_ENABLE_HTTPS
 				.listen(listen_addr_, listen_port_)
 				.run();
 		}
@@ -172,7 +176,9 @@ namespace cinatra
 		std::string listen_addr_;
 		std::string listen_port_;
 		std::string static_dir_;
+#ifdef CINATRA_ENABLE_HTTPS
 		HttpsConfig config_;
+#endif // CINATRA_ENABLE_HTTPS
 
 		error_handler_t error_handler_;
 
