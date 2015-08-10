@@ -110,7 +110,7 @@ int main()
 		res.end("</body></html>");
 	});
 
-	app.listen("http").run();
+	app.static_dir("./static").listen("http").run();
 
 	return 0;
 }

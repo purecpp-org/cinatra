@@ -37,9 +37,9 @@ namespace cinatra
 			SessionContainer& session_container,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
-			const std::string& public_dir)
+			const std::string& static_dir)
 			:service_(service), socket_(service), timer_(service),
-			error_handler_(error_handler), public_dir_(public_dir), 
+			error_handler_(error_handler), static_dir_(static_dir), 
 			request_handler_(request_handler), session_container_(session_container)
 		{
 			LOG_DBG << "New connection";
@@ -294,7 +294,11 @@ namespace cinatra
 
 		bool response_file(Request& req, bool keep_alive, const boost::asio::yield_context& yield)
 		{
-			std::string path = public_dir_ + req.path();
+			if (static_dir_.empty())
+			{
+				return false;
+			}
+			std::string path = static_dir_ + req.path();
 			std::fstream in(path, std::ios::binary | std::ios::in);
 			if (!in)
 			{
@@ -403,7 +407,7 @@ namespace cinatra
 		boost::asio::ip::tcp::socket socket_;
 		boost::asio::deadline_timer timer_;	// 长连接超时使用的timer.
 		const error_handler_t& error_handler_;
-		const std::string& public_dir_;
+		const std::string& static_dir_;
 		const request_handler_t& request_handler_;
 		SessionContainer& session_container_;
 	};
