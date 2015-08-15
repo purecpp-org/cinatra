@@ -45,7 +45,6 @@ namespace cinatra
 			error_handler_(error_handler), static_dir_(static_dir),
 			request_handler_(request_handler), session_container_(session_container)
 		{
-			LOG_DBG << "New connection";
 		}
 		~ConnectionBase()
 		{
@@ -320,7 +319,7 @@ namespace cinatra
 			request_handler,error_handler,static_dir),
 			socket_(service)
 		{
-			LOG_DBG << "New connection";
+			LOG_DBG << "New http connection";
 		}
 
 		boost::asio::ip::tcp::socket& socket() override { return socket_; }
@@ -503,7 +502,7 @@ namespace cinatra
 			request_handler, error_handler, static_dir),
 			socket_(service,ctx)
 		{
-			LOG_DBG << "New connection";
+			LOG_DBG << "New https connection";
 		}
 
 		boost::asio::ip::tcp::socket& socket() override { return socket_.next_layer(); }
