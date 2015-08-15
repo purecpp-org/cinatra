@@ -1,4 +1,5 @@
 ADD_EXECUTABLE(http_server main.cpp)
+ADD_DEFINITIONS(-DCINATRA_ENABLE_HTTPS)
 INCLUDE_DIRECTORIES(../../include)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	TARGET_LINK_LIBRARIES(http_server boost_coroutine-mt boost_context-mt boost_system-mt boost_thread-mt pthread)
