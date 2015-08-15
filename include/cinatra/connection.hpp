@@ -566,6 +566,19 @@ namespace cinatra
 					for (;;)
 					{
 						std::size_t n = async_read_some(boost::asio::buffer(buffer), yield);
+						if (ec)
+						{
+							if (ec == boost::asio::error::eof)
+							{
+								LOG_DBG << "Socket shutdown";
+							}
+							else
+							{
+								LOG_DBG << "Network exception: " << ec.message();
+							}
+							close();
+							return;
+						}
 
 						cancel_timer();	//读取到了数据之后就取消关闭连接的timer
 						total_size += n;
