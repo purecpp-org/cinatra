@@ -74,10 +74,10 @@ namespace cinatra
 			boost::asio::streambuf& buffer,
 			const boost::asio::yield_context& yield) = 0;
 		virtual std::size_t async_read(
-			boost::asio::mutable_buffers_1& buffer,
+			const boost::asio::mutable_buffers_1& buffer,
 			const boost::asio::yield_context& yield) = 0;
 		virtual std::size_t async_read_some(
-			boost::asio::mutable_buffers_1& buffer,
+			const boost::asio::mutable_buffers_1& buffer,
 			const boost::asio::yield_context& yield) = 0;
 
 		bool init_req_res(Request& req, Response& res,
@@ -349,14 +349,14 @@ namespace cinatra
 		}
 
 		virtual std::size_t async_read(
-			boost::asio::mutable_buffers_1& buffer,
+			const boost::asio::mutable_buffers_1& buffer,
 			const boost::asio::yield_context& yield) override
 		{
 			return boost::asio::async_read(socket_, buffer, yield);
 		}
 
 		virtual std::size_t async_read_some(
-			boost::asio::mutable_buffers_1& buffer,
+			const boost::asio::mutable_buffers_1& buffer,
 			const boost::asio::yield_context& yield) override
 		{
 			return socket_.async_read_some(buffer, yield);
@@ -532,14 +532,14 @@ namespace cinatra
 		}
 
 		virtual std::size_t async_read(
-			boost::asio::mutable_buffers_1& buffer,
+			const boost::asio::mutable_buffers_1& buffer,
 			const boost::asio::yield_context& yield) override
 		{
 			return boost::asio::async_read(socket_, buffer, yield);
 		}
 
 		virtual std::size_t async_read_some(
-			boost::asio::mutable_buffers_1& buffer,
+			const boost::asio::mutable_buffers_1& buffer,
 			const boost::asio::yield_context& yield) override
 		{
 			return socket_.async_read_some(buffer, yield);
