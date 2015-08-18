@@ -170,7 +170,7 @@ namespace cinatra
 
 	private:
 #ifndef CINATRA_SINGLE_THREAD
-		int num_threads_ = std::thread::hardware_concurrency();
+		int num_threads_ = 0;
 #endif // CINATRA_SINGLE_THREAD
 
 		std::string listen_addr_;
