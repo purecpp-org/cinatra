@@ -109,7 +109,11 @@ namespace cinatra
 
 		void run()
 		{
+#ifndef CINATRA_SINGLE_THREAD
 			HTTPServer s(num_threads_);
+#else
+			HTTPServer s;
+#endif
 
 			s.set_request_handler([this](Request& req, Response& res)
 			{
