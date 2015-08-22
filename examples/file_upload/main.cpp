@@ -44,6 +44,6 @@ int main()
 		res.end("upload success!");
 	});
 
-	app.static_dir("./static").listen("HTTP").run();
+	app.static_dir("./static").listen("http").run();
 	return 0;
 }
