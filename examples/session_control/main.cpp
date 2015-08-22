@@ -84,6 +84,6 @@ int main()
 		res.end(json);
 		return;
 	});
-	app.listen("http").run();
+	app.static_dir("./static").listen("http").run();
 	return 0;
 }

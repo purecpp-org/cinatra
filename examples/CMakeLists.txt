@@ -4,4 +4,5 @@ SUBDIRS(
 	hello_world
 	echo
 	session_control
+	file_upload
 )
