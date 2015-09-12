@@ -99,6 +99,32 @@ namespace cinatra
 			return *this;
 		}
 
+		template<typename T>
+		T& get(const std::string& key)
+		{
+			auto it = app_container_.find(key);
+			if (it == app_container_.end())
+			{
+				throw std::runtime_error("No such key.");
+			}
+
+			return boost::any_cast<T>(it->second);
+		}
+
+		bool has(const std::string& key)
+		{
+			auto it = app_container_.find(key);
+			return it != app_container_.end();
+		}
+		template<typename T>
+		void set(const std::string& key, T const & val)
+		{
+#ifndef CINATRA_SINGLE_THREAD
+			std::lock_guard<std::mutex> guard(app_con_mtx_);
+#endif
+			app_container_.emplace(key, val);
+		}
+
 #ifdef CINATRA_ENABLE_HTTPS
 		Cinatra& https_config(const HttpsConfig& cfg)
 		{
@@ -174,9 +200,9 @@ namespace cinatra
 
 	private:
 #ifndef CINATRA_SINGLE_THREAD
-	int num_threads_ = 1;
+		int num_threads_ = 1;
 #else
-	int num_threads_ = std::thread::hardware_concurrency();
+		int num_threads_ = std::thread::hardware_concurrency();
 #endif // CINATRA_SINGLE_THREAD
 
 		std::string listen_addr_;
@@ -189,6 +215,11 @@ namespace cinatra
 		error_handler_t error_handler_;
 
 		HTTPRouter router_;
+
+		std::map<std::string, boost::any> app_container_;
+#ifndef CINATRA_SINGLE_THREAD
+		std::mutex app_con_mtx_;
+#endif
 	};
 
 	using SimpleApp = Cinatra<>;
