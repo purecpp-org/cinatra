@@ -3,9 +3,12 @@
 
 #include <cinatra/session_container.hpp>
 #include <cinatra/utils.hpp>
+#include <boost/any.hpp>
 
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <type_traits>
 
 // 也不知道M$定义DELETE这个宏作甚...
 #ifdef DELETE
@@ -132,6 +135,37 @@ namespace cinatra
 		{
 			return *session_;
 		}
+
+	private:
+		template<typename T>
+		std::type_index make_ctx_key()
+		{
+			return std::type_index(typeid(std::decay_t<T>));
+		}
+	public:
+		template<typename T>
+		void add_context(T& val)
+		{
+			context_.emplace(make_ctx_key<T>(), val);
+		}
+
+		template<typename T>
+		bool has_context()
+		{
+			return context_.find(make_ctx_key<T>()) != context_.end();
+		}
+
+		template<typename T>
+		T& get_context()
+		{
+			auto it = context_.find(make_ctx_key<T>());
+			if (it == context_.end())
+			{
+				throw std::runtime_error("No such key.");
+			}
+
+			return boost::any_cast<T>(it->second);
+		}
 	private:
 		friend class ConnectionBase;
 		void set_session(session_ptr_t session)
@@ -148,5 +182,8 @@ namespace cinatra
 		CaseMap cookie_;
 
 		session_ptr_t session_;
+
+		std::unordered_map<std::type_index, boost::any>
+			context_;
 	};
 }
