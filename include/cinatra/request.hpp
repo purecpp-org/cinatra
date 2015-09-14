@@ -120,9 +120,6 @@ namespace cinatra
 			return *session_;
 		}
 
-	private:
-
-	public:
 		template<typename T>
 		void add_context(T& val)
 		{
@@ -146,6 +143,8 @@ namespace cinatra
 
 			return boost::any_cast<typename T::Context&>(it->second);
 		}
+
+		bool param_error_ = false;
 	private:
 		friend class ConnectionBase;
 		void set_session(session_ptr_t session)

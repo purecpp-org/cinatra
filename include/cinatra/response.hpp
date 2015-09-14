@@ -176,11 +176,6 @@ namespace cinatra
 		{
 			return is_complete_;
 		}
-
-		std::map<int, boost::any>& context()
-		{
-			return context_;
-		}
 		
 		int status_code_;
 		int version_major_;
@@ -195,7 +190,5 @@ namespace cinatra
 		// 是否已经在header中添加了Transfer-Encoding: chunked.
 		bool has_chunked_encoding_header_;
 		std::string header_str;
-
-		std::map<int, boost::any> context_;
 	};
 }

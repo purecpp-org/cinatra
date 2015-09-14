@@ -246,6 +246,7 @@
     <ClInclude Include="..\..\include\cinatra\io_service_pool.hpp" />
     <ClInclude Include="..\..\include\cinatra\logging.hpp" />
     <ClInclude Include="..\..\include\cinatra\middleware\cookie.hpp" />
+    <ClInclude Include="..\..\include\cinatra\middleware\session.hpp" />
     <ClInclude Include="..\..\include\cinatra\noncopyable.hpp" />
     <ClInclude Include="..\..\include\cinatra\request.hpp" />
     <ClInclude Include="..\..\include\cinatra\request_parser.hpp" />

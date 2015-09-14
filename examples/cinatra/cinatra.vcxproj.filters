@@ -83,5 +83,8 @@
     <ClInclude Include="..\..\include\cinatra\middleware\cookie.hpp">
       <Filter>头文件\middleware</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\middleware\session.hpp">
+      <Filter>头文件\middleware</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

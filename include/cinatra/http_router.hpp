@@ -12,7 +12,6 @@
 
 namespace cinatra
 {
-	const static int PARAM_ERROR = -9999;
 	class HTTPRouter
 	{
 		typedef std::function<bool(Request&, Response&, token_parser &)> invoker_function;
@@ -140,14 +139,10 @@ namespace cinatra
 			auto it = map_invokers.equal_range(name);
 			for (auto itr = it.first; itr != it.second; ++itr)
 			{
-				auto it = resp.context().find(PARAM_ERROR);
-				if (it != resp.context().end())
-				{
-					resp.context().erase(it);
-				}
+				req.param_error_ = false;
 				r = itr->second(req, resp, parser);
 
-				if (resp.context().find(PARAM_ERROR) == resp.context().end())
+				if (!req.param_error_)
 				{
 					finish = true;
 					break;
@@ -189,7 +184,7 @@ namespace cinatra
 			{
 				if (N != parser.size() + 2)
 				{
-					res.context().emplace(PARAM_ERROR, 0);
+					req.param_error_ = true;
 					return false;
 				}
 
@@ -197,7 +192,7 @@ namespace cinatra
 				typename std::decay<arg_type>::type param;
 				if (!parser.get<arg_type>(param))
 				{
-					res.context().emplace(PARAM_ERROR, 0);
+					req.param_error_ = true;
 					return false;
 				}
 				return HTTPRouter::invoker<Function, Signature, N - 1>::call(func, req, res, parser, std::tuple_cat(std::make_tuple(param), args));
@@ -208,7 +203,7 @@ namespace cinatra
 			{
 				if (N != parser.size() + 2)
 				{
-					res.context().emplace(PARAM_ERROR, 0);
+					req.param_error_ = true;
 					return false;
 				}
 
@@ -216,7 +211,7 @@ namespace cinatra
 				typename std::decay<arg_type>::type param;
 				if (!parser.get<arg_type>(param))
 				{
-					res.context().emplace(PARAM_ERROR, 0);
+					req.param_error_ = true;
 					return false;
 				}
 				return HTTPRouter::invoker<Function, Signature, N - 1>::call_member(func, self, req, res, parser, std::tuple_cat(std::make_tuple(param), args));

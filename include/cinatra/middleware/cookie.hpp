@@ -11,6 +11,7 @@
 
 namespace cinatra
 {
+	//负责解析请求中的cookie并放入context
 	struct RequestCookie
 	{
 		class Context
@@ -57,7 +58,7 @@ namespace cinatra
 		}
 	};
 
-
+	//负责将用户设置的cookie组合成字符串并放入响应头
 	struct ResponseCookie 
 	{
 		class Context
