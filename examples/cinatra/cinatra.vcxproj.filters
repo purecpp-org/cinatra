@@ -16,6 +16,9 @@
     <Filter Include="头文件\utils">
       <UniqueIdentifier>{cb69976a-985b-4ac0-8381-29eeffa64d9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\middleware">
+      <UniqueIdentifier>{41ff07b8-83b5-47b2-a15d-36c61374ec90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -62,9 +65,6 @@
     <ClInclude Include="..\..\include\cinatra\timer.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\cookie_builder.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\aop.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
@@ -79,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\cinatra\body_parser.hpp">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\middleware\cookie.hpp">
+      <Filter>头文件\middleware</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

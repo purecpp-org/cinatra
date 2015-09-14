@@ -6,25 +6,27 @@
 #define CINATRA_REQ_MAX_SIZE 10 * 1024 * 1024
 
 #include <cinatra/cinatra.hpp>
+#include <cinatra/middleware/cookie.hpp>
+
 #include <fstream>
 
-struct CheckLoginAspect
-{
-	void before(cinatra::Request& req, cinatra::Response& res)
-	{
-		if (!req.session().exists("uid")&&req.path()!="/login.html"&&
-			req.path() != "/test_post"&&req.path().compare(0, 7, "/public"))	//如果session没有uid且访问的不是login和test_post页面.
- 		{
- 			// 跳转到登陆页面.
- 			res.redirect("/login.html");
- 		}
-	}
-
-	void after(cinatra::Request& /* req */, cinatra::Response& /* res */)
-	{
-
-	}
-};
+// struct CheckLoginAspect
+// {
+// 	void before(cinatra::Request& req, cinatra::Response& res)
+// 	{
+// 		if (!req.session().exists("uid")&&req.path()!="/login.html"&&
+// 			req.path() != "/test_post"&&req.path().compare(0, 7, "/public"))	//如果session没有uid且访问的不是login和test_post页面.
+//  		{
+//  			// 跳转到登陆页面.
+//  			res.redirect("/login.html");
+//  		}
+// 	}
+// 
+// 	void after(cinatra::Request& /* req */, cinatra::Response& /* res */)
+// 	{
+// 
+// 	}
+// };
 
 struct MyStruct
 {
@@ -36,7 +38,11 @@ struct MyStruct
 
 int main()
 {
-	cinatra::Cinatra<CheckLoginAspect> app;
+	cinatra::Cinatra<
+		//CheckLoginAspect,
+		cinatra::RequestCookie,
+		cinatra::ResponseCookie
+	> app;
 	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
 	{
 		res.end("Hello Cinatra");
@@ -87,9 +93,10 @@ int main()
 	});
 
 	//设置cookie
-	app.route("/set_cookies", [](cinatra::Request& /* req */, cinatra::Response& res)
+	app.route("/set_cookies", [](cinatra::Request& req, cinatra::Response& res)
 	{
-		res.cookies().new_cookie() // 会话cookie
+		auto& cookie = req.get_context<cinatra::ResponseCookie>();
+		cookie.new_cookie() // 会话cookie
 			.add("foo", "bar")
 			.new_cookie().max_age(24 * 60 * 60) //这个cookie会保存一天的时间.
 			.add("longtime", "test");
@@ -100,9 +107,10 @@ int main()
 	//列出所有的cookie
 	app.route("/show_cookies", [](cinatra::Request& req, cinatra::Response& res)
 	{
+		auto& cookie = req.get_context<cinatra::RequestCookie>();
 		res.write("<html><head><title>Show cookies</title ></head><body>");
-		res.write("Total " + boost::lexical_cast<std::string>(req.cookie().size()) + "cookies<br />");
-		for (auto it : req.cookie())
+		res.write("Total " + boost::lexical_cast<std::string>(cookie.get_all().size()) + "cookies<br />");
+		for (auto it : cookie.get_all())
 		{
 			res.write(it.first + ": " + it.second + "<br />");
 		}

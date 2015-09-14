@@ -161,16 +161,8 @@ namespace cinatra
 				header_str += "\r\n";
 			}
 
-			header_str += cookie_builder_.to_string();
-
 			header_str += "\r\n";
-
 			return header_str;
-		}
-
-		cookie_builder& cookies()
-		{
-			return cookie_builder_;
 		}
 
 		void redirect(const std::string& url)
@@ -202,7 +194,6 @@ namespace cinatra
 		bool is_chunked_encoding_;
 		// 是否已经在header中添加了Transfer-Encoding: chunked.
 		bool has_chunked_encoding_header_;
-		cookie_builder cookie_builder_;
 		std::string header_str;
 
 		std::map<int, boost::any> context_;

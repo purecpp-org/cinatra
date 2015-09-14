@@ -22,12 +22,6 @@ namespace cinatra
 		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
 	}
 
-	inline CaseMap cookie_parser(const std::string& data)
-	{
-		return kv_parser<std::string::const_iterator, CaseMap, '=', ';'>(data.begin(), data.end(), true);
-	}
-
-
 	class Request
 	{
 	public:
@@ -41,7 +35,7 @@ namespace cinatra
 			const std::string& method, const std::string& path,
 			const CaseMap& query_map, const NcaseMultiMap& header)
 			:url_(url), body_(body), path_(path),
-			query_(query_map), header_(header), cookie_(cookie_parser(raw_cookie()))
+			query_(query_map), header_(header)
 		{
 			if (boost::iequals(method, "GET"))
 			{
@@ -121,50 +115,36 @@ namespace cinatra
 			return boost::lexical_cast<int>(header_.get_val("Content-Length"));
 		}
 
-		const std::string& raw_cookie() const
-		{
-			return header_.get_val("Cookie");
-		}
-
-		const CaseMap& cookie() const
-		{
-			return cookie_;
-		}
-
 		Session& session()
 		{
 			return *session_;
 		}
 
 	private:
-		template<typename T>
-		std::type_index make_ctx_key()
-		{
-			return std::type_index(typeid(std::decay_t<T>));
-		}
+
 	public:
 		template<typename T>
 		void add_context(T& val)
 		{
-			context_.emplace(make_ctx_key<T>(), val);
+			context_.emplace(std::type_index(typeid(std::decay_t<T>)), val);
 		}
 
 		template<typename T>
 		bool has_context()
 		{
-			return context_.find(make_ctx_key<T>()) != context_.end();
+			return context_.find(std::type_index(typeid(typename T::Context))) != context_.end();
 		}
 
 		template<typename T>
-		T& get_context()
+		typename T::Context& get_context()
 		{
-			auto it = context_.find(make_ctx_key<T>());
+			auto it = context_.find(std::type_index(typeid(typename T::Context)));
 			if (it == context_.end())
 			{
 				throw std::runtime_error("No such key.");
 			}
 
-			return boost::any_cast<T>(it->second);
+			return boost::any_cast<typename T::Context&>(it->second);
 		}
 	private:
 		friend class ConnectionBase;
@@ -179,7 +159,6 @@ namespace cinatra
 		std::string path_;
 		CaseMap query_;
 		NcaseMultiMap header_;
-		CaseMap cookie_;
 
 		session_ptr_t session_;
 

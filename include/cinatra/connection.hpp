@@ -82,18 +82,18 @@ namespace cinatra
 		bool init_req_res(Request& req, Response& res,
 			const RequestParser& parser, boost::asio::yield_context& yield)
 		{
-			// 获取session id
-			std::string session_id = req.cookie().get_val("CSESSIONID");
-			if (session_id.empty())
-			{
-				// ID为空则新建一个session
-				session_id = session_container_.new_session();
-			}
-			// 设置session到req上
-			req.set_session(session_container_.get_container(session_id));
-
-			// 把session id写到cookie中
-			res.cookies().new_cookie().add("CSESSIONID", session_id);
+// 			// 获取session id
+// 			std::string session_id = req.cookie().get_val("CSESSIONID");
+// 			if (session_id.empty())
+// 			{
+// 				// ID为空则新建一个session
+// 				session_id = session_container_.new_session();
+// 			}
+// 			// 设置session到req上
+// 			req.set_session(session_container_.get_container(session_id));
+// 
+// 			// 把session id写到cookie中
+// 			res.cookies().new_cookie().add("CSESSIONID", session_id);
 			init_response(res, yield);
 			bool has_error = check_request(parser, req, res);
 			add_version(parser, req, res);
