@@ -240,6 +240,7 @@
     <ClInclude Include="..\..\include\cinatra\body_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp" />
     <ClInclude Include="..\..\include\cinatra\connection.hpp" />
+    <ClInclude Include="..\..\include\cinatra\context_container.hpp" />
     <ClInclude Include="..\..\include\cinatra\function_traits.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_router.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_server.hpp" />

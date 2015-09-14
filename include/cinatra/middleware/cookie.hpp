@@ -3,6 +3,7 @@
 
 #include <cinatra/request.hpp>
 #include <cinatra/response.hpp>
+#include <cinatra/context_container.hpp>
 #include <cinatra/utils.hpp>
 
 #include <boost/lexical_cast.hpp>
@@ -42,12 +43,12 @@ namespace cinatra
 			CaseMap cookie_;
 		};
 
-		void before(Request& req, Response& res)
+		void before(Request& req, Response& res, ContextContainer& ctx)
 		{
-			req.add_context(Context(req.header().get_val("Cookie")));
+			ctx.add_req_ctx(Context(req.header().get_val("Cookie")));
 		}
 
-		void after(Request& /*req*/, Response& /*res*/)
+		void after(Request& /*req*/, Response& /*res*/, ContextContainer& /*ctx*/)
 		{
 		}
 
@@ -206,15 +207,15 @@ namespace cinatra
 			std::vector<cookie_t> jar_;
 		};
 
-		void before(Request& req, Response& res)
+		void before(Request& req, Response& res, ContextContainer& ctx)
 		{
-			req.add_context(Context());
+			ctx.add_req_ctx(Context());
 		}
 
-		void after(Request& req, Response& res)
+		void after(Request& req, Response& res, ContextContainer& ctx)
 		{
-			auto const & ctx = req.get_context<ResponseCookie>();
- 			for (auto const & it : ctx.to_strings())
+			auto const & cookie = ctx.get_req_ctx<ResponseCookie>();
+			for (auto const & it : cookie.to_strings())
  			{
  				res.header.add("Set-Cookie", it);
  			}

@@ -43,38 +43,38 @@ int main()
 		cinatra::RequestCookie,
 		cinatra::ResponseCookie
 	> app;
-	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
-	{
-		res.end("Hello Cinatra");
-	});
-
-	// 访问/login.html进行登录.
-	app.route("/test_post", [](cinatra::Request& req, cinatra::Response& res)
-	{
-		if (req.method() != Request::method_t::POST)
-		{
-			res.set_status_code(404);
-			res.end("404 Not found");
-			return;
-		}
-
-		auto body = cinatra::urlencoded_body_parser(req.body());
-		req.session().set("uid", body.get_val("uid"));
-		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
-	});
-
-
-	MyStruct t;
-	// 访问/hello
-	app.route("/hello", &MyStruct::hello, &t);
+// 	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
+// 	{
+// 		res.end("Hello Cinatra");
+// 	});
+// 
+// 	// 访问/login.html进行登录.
+// 	app.route("/test_post", [](cinatra::Request& req, cinatra::Response& res)
+// 	{
+// 		if (req.method() != Request::method_t::POST)
+// 		{
+// 			res.set_status_code(404);
+// 			res.end("404 Not found");
+// 			return;
+// 		}
+// 
+// 		auto body = cinatra::urlencoded_body_parser(req.body());
+// 		req.session().set("uid", body.get_val("uid"));
+// 		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
+// 	});
+// 
+// 
+// 	MyStruct t;
+// 	// 访问/hello
+// 	app.route("/hello", &MyStruct::hello, &t);
 	// 访问类似于/hello/jone/10/xxx
 	// joen、10和xxx会分别作为a、b和c三个参数传入handler
-	app.route("/hello/:name/:age/:test", [](cinatra::Request& /*req */, cinatra::Response& res, const std::string& a, int b, double c)
+	app.route("/hello/:name/:age/:test", [](cinatra::Response& res, const std::string& a, int b, double c)
 	{
 		res.end("Name: " + a + " Age: " + boost::lexical_cast<std::string>(b)+"Test: " + boost::lexical_cast<std::string>(c));
 	});
 	// 
-	app.route("/hello/:name/:age", [](cinatra::Request& /* req */, cinatra::Response& res, const std::string& a, int b)
+	app.route("/hello/:name/:age", [](cinatra::Response& res, const std::string& a, int b)
 	{
 		res.end("Name: " + a + " Age: " + boost::lexical_cast<std::string>(b));
 	});
@@ -93,9 +93,9 @@ int main()
 	});
 
 	//设置cookie
-	app.route("/set_cookies", [](cinatra::Request& req, cinatra::Response& res)
+	app.route("/set_cookies", [](cinatra::ContextContainer& ctx, cinatra::Request& req, cinatra::Response& res)
 	{
-		auto& cookie = req.get_context<cinatra::ResponseCookie>();
+		auto& cookie = ctx.get_req_ctx<cinatra::ResponseCookie>();
 		cookie.new_cookie() // 会话cookie
 			.add("foo", "bar")
 			.new_cookie().max_age(24 * 60 * 60) //这个cookie会保存一天的时间.
@@ -105,9 +105,9 @@ int main()
 		res.end("</body></html>");
 	});
 	//列出所有的cookie
-	app.route("/show_cookies", [](cinatra::Request& req, cinatra::Response& res)
+	app.route("/show_cookies", [](cinatra::Request& req, cinatra::Response& res, cinatra::ContextContainer& ctx)
 	{
-		auto& cookie = req.get_context<cinatra::RequestCookie>();
+		auto& cookie = ctx.get_req_ctx<cinatra::RequestCookie>();
 		res.write("<html><head><title>Show cookies</title ></head><body>");
 		res.write("Total " + boost::lexical_cast<std::string>(cookie.get_all().size()) + "cookies<br />");
 		for (auto it : cookie.get_all())

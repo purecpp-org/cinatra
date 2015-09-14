@@ -86,5 +86,8 @@
     <ClInclude Include="..\..\include\cinatra\middleware\session.hpp">
       <Filter>头文件\middleware</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\context_container.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

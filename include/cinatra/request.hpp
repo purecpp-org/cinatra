@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <type_traits>
 
 // 也不知道M$定义DELETE这个宏作甚...
 #ifdef DELETE
@@ -22,7 +21,7 @@ namespace cinatra
 		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
 	}
 
-	class Request
+	class Request : boost::noncopyable
 	{
 	public:
 		Request()
@@ -120,31 +119,6 @@ namespace cinatra
 			return *session_;
 		}
 
-		template<typename T>
-		void add_context(T& val)
-		{
-			context_.emplace(std::type_index(typeid(std::decay_t<T>)), val);
-		}
-
-		template<typename T>
-		bool has_context()
-		{
-			return context_.find(std::type_index(typeid(typename T::Context))) != context_.end();
-		}
-
-		template<typename T>
-		typename T::Context& get_context()
-		{
-			auto it = context_.find(std::type_index(typeid(typename T::Context)));
-			if (it == context_.end())
-			{
-				throw std::runtime_error("No such key.");
-			}
-
-			return boost::any_cast<typename T::Context&>(it->second);
-		}
-
-		bool param_error_ = false;
 	private:
 		friend class ConnectionBase;
 		void set_session(session_ptr_t session)
@@ -160,8 +134,5 @@ namespace cinatra
 		NcaseMultiMap header_;
 
 		session_ptr_t session_;
-
-		std::unordered_map<std::type_index, boost::any>
-			context_;
 	};
 }

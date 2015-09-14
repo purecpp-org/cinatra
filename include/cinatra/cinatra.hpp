@@ -8,6 +8,7 @@
 #include <cinatra/logging.hpp>
 #include <cinatra/aop.hpp>
 #include <cinatra/body_parser.hpp>
+#include <cinatra/context_container.hpp>
 
 #include <boost/lexical_cast.hpp>
 
@@ -99,32 +100,6 @@ namespace cinatra
 			return *this;
 		}
 
-		template<typename T>
-		T& get(const std::string& key)
-		{
-			auto it = app_container_.find(key);
-			if (it == app_container_.end())
-			{
-				throw std::runtime_error("No such key.");
-			}
-
-			return boost::any_cast<T>(it->second);
-		}
-
-		bool has(const std::string& key)
-		{
-			auto it = app_container_.find(key);
-			return it != app_container_.end();
-		}
-		template<typename T>
-		void set(const std::string& key, T const & val)
-		{
-#ifndef CINATRA_SINGLE_THREAD
-			std::lock_guard<std::mutex> guard(app_con_mtx_);
-#endif
-			app_container_.emplace(key, val);
-		}
-
 #ifdef CINATRA_ENABLE_HTTPS
 		Cinatra& https_config(const HttpsConfig& cfg)
 		{
@@ -143,7 +118,8 @@ namespace cinatra
 
 			s.set_request_handler([this](Request& req, Response& res)
 			{
-				return Invoke<sizeof...(Aspect)>(res, &Cinatra::dispatch, this, req, res);
+				ContextContainer ctx(app_container_);
+				return Invoke<sizeof...(Aspect)>(res, &Cinatra::dispatch, this, req, res, ctx);
 			})
 				.set_error_handler([this](int code, const std::string& msg, Request& req, Response& res)
 			{
@@ -193,9 +169,9 @@ namespace cinatra
 			return invoke<Aspect...>(res, &Cinatra::dispatch, this, args...);
 		}
 		
-		bool dispatch(Request& req, Response& res)
+		bool dispatch(Request& req, Response& res,ContextContainer& ctx)
 		{
-			return router_.dispatch(req, res);
+			return router_.dispatch(req, res, ctx);
 		}
 
 	private:
@@ -216,10 +192,7 @@ namespace cinatra
 
 		HTTPRouter router_;
 
-		std::map<std::string, boost::any> app_container_;
-#ifndef CINATRA_SINGLE_THREAD
-		std::mutex app_con_mtx_;
-#endif
+		app_ctx_container_t app_container_;
 	};
 
 	using SimpleApp = Cinatra<>;
