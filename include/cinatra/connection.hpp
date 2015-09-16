@@ -5,7 +5,6 @@
 #include <cinatra/request_parser.hpp>
 #include <cinatra/logging.hpp>
 #include <cinatra/http_router.hpp>
-#include <cinatra/session_container.hpp>
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
@@ -37,13 +36,12 @@ namespace cinatra
 	{
 	public:
 		ConnectionBase(boost::asio::io_service& service,
-			SessionContainer& session_container,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
 			const std::string& static_dir)
 			:service_(service), timer_(service),
 			error_handler_(error_handler), static_dir_(static_dir),
-			request_handler_(request_handler), session_container_(session_container)
+			request_handler_(request_handler)
 		{
 		}
 		~ConnectionBase()
@@ -302,7 +300,6 @@ namespace cinatra
 		const error_handler_t& error_handler_;
 		const std::string& static_dir_;
 		const request_handler_t& request_handler_;
-		SessionContainer& session_container_;
 	};
 
 	//HTTP链接.
@@ -311,12 +308,11 @@ namespace cinatra
 	{
 	public:
 		TCPConnection(boost::asio::io_service& service,
-			SessionContainer& session_container,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
 			const std::string& static_dir)
-			:ConnectionBase(service,session_container,
-			request_handler,error_handler,static_dir),
+			:ConnectionBase(service,request_handler,
+			error_handler,static_dir),
 			socket_(service)
 		{
 			LOG_DBG << "New http connection";
@@ -494,12 +490,11 @@ namespace cinatra
 	public:
 		SSLConnection(boost::asio::io_service& service,
 			boost::asio::ssl::context& ctx,
-			SessionContainer& session_container,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
 			const std::string& static_dir)
-			:ConnectionBase(service, session_container,
-			request_handler, error_handler, static_dir),
+			:ConnectionBase(service, request_handler,
+			error_handler, static_dir),
 			socket_(service,ctx)
 		{
 			LOG_DBG << "New https connection";

@@ -8,7 +8,6 @@
 #include <cinatra/io_service_pool.hpp>
 #include <cinatra/connection.hpp>
 #include <cinatra/logging.hpp>
-#include <cinatra/session_container.hpp>
 
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
@@ -72,8 +71,7 @@ namespace cinatra
 		HTTPServer()
 			: io_service_pool_(1),
 #endif // CINATRA_SINGLE_THREAD
-			acceptor_(io_service_pool_.get_io_service()),
-			session_container_(io_service_pool_.get_io_service())
+			acceptor_(io_service_pool_.get_io_service())
 		{
 
 		}
@@ -188,14 +186,13 @@ namespace cinatra
 				{
 					conn = std::make_shared<SSLConnection>(
 						io_service_pool_.get_io_service(),
-						*ctx, session_container_,
-						request_handler_, error_handler_, static_dir_);
+						*ctx, request_handler_, error_handler_, static_dir_);
 				}
 				else
 #endif // CINATRA_ENABLE_HTTPS
 				{
 					conn = std::make_shared<TCPConnection>(
-						io_service_pool_.get_io_service(),session_container_,
+						io_service_pool_.get_io_service(),
 						request_handler_, error_handler_, static_dir_);
 				}
 
@@ -222,7 +219,5 @@ namespace cinatra
 		error_handler_t error_handler_;
 
 		std::string static_dir_;
-
-		SessionContainer session_container_;
 	};
 }

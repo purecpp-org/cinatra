@@ -252,7 +252,6 @@
     <ClInclude Include="..\..\include\cinatra\request.hpp" />
     <ClInclude Include="..\..\include\cinatra\request_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\response.hpp" />
-    <ClInclude Include="..\..\include\cinatra\session_container.hpp" />
     <ClInclude Include="..\..\include\cinatra\string_utils.hpp" />
     <ClInclude Include="..\..\include\cinatra\timer.hpp" />
     <ClInclude Include="..\..\include\cinatra\token_parser.hpp" />

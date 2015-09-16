@@ -22,7 +22,15 @@ namespace cinatra
 		bool invoke(Request& req, Response& res, ContextContainer& ctx)
 		{
 			invoke_before<0>(req, res, ctx);
-			bool ret = func_(req, res, ctx);
+			bool ret = false;
+			if (res.is_complete())
+			{
+				ret = true;
+			}
+			else
+			{
+				ret = func_(req, res, ctx);
+			}
 			invoke_after<0>(req, res, ctx);
 			return ret;
 		}

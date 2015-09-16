@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <cinatra/session_container.hpp>
 #include <cinatra/utils.hpp>
 #include <boost/any.hpp>
 
@@ -114,25 +113,12 @@ namespace cinatra
 			return boost::lexical_cast<int>(header_.get_val("Content-Length"));
 		}
 
-		Session& session()
-		{
-			return *session_;
-		}
-
 	private:
-		friend class ConnectionBase;
-		void set_session(session_ptr_t session)
-		{
-			session_ = session;
-		}
-
 		std::string url_;
 		std::string body_;
 		method_t method_;
 		std::string path_;
 		CaseMap query_;
 		NcaseMultiMap header_;
-
-		session_ptr_t session_;
 	};
 }

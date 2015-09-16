@@ -71,9 +71,6 @@
     <ClInclude Include="..\..\include\cinatra\noncopyable.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\session_container.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\logging.hpp">
       <Filter>头文件\utils</Filter>
     </ClInclude>

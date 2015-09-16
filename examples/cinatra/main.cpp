@@ -7,14 +7,16 @@
 
 #include <cinatra/cinatra.hpp>
 #include <cinatra/middleware/cookie.hpp>
+#include <cinatra/middleware/session.hpp>
 
 #include <fstream>
 
 struct CheckLoginAspect
 {
-	void before(cinatra::Request& req, cinatra::Response& res, cinatra::ContextContainer& /*ctx*/)
+	void before(cinatra::Request& req, cinatra::Response& res, cinatra::ContextContainer& ctx)
 	{
-		if (!req.session().exists("uid")&&req.path()!="/login.html"&&
+		auto & session = ctx.get_req_ctx<cinatra::Session>();
+		if (!session.has("uid")&&req.path()!="/login.html"&&
 			req.path() != "/test_post"&&req.path().compare(0, 7, "/public"))	//如果session没有uid且访问的不是login和test_post页面.
  		{
  			// 跳转到登陆页面.
@@ -30,18 +32,20 @@ struct CheckLoginAspect
 
 struct MyStruct
 {
-	void hello(cinatra::Request& req, cinatra::Response& res)
+	void hello(cinatra::Response& res, cinatra::ContextContainer& ctx)
 	{
-		res.end("Hello " + req.session().get<std::string>("uid") + "!");
+		auto& session = ctx.get_req_ctx<cinatra::Session>();
+		res.end("Hello " + session.get<std::string>("uid") + "!");
 	}
 };
 
 int main()
 {
 	cinatra::Cinatra<
-		//CheckLoginAspect,
 		cinatra::RequestCookie,
-		cinatra::ResponseCookie
+		cinatra::ResponseCookie,
+		cinatra::Session,
+		CheckLoginAspect
 	> app;
 	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
 	{
@@ -49,7 +53,7 @@ int main()
 	});
 
 	// 访问/login.html进行登录.
-	app.route("/test_post", [](cinatra::Request& req, cinatra::Response& res)
+	app.route("/test_post", [](cinatra::Request& req, cinatra::Response& res, cinatra::ContextContainer& ctx)
 	{
 		if (req.method() != cinatra::Request::method_t::POST)
 		{
@@ -59,7 +63,8 @@ int main()
 		}
 
 		auto body = cinatra::urlencoded_body_parser(req.body());
-		req.session().set("uid", body.get_val("uid"));
+		auto& session = ctx.get_req_ctx<cinatra::Session>();
+		session.add("uid", body.get_val("uid"));
 		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
 	});
 
