@@ -64,7 +64,7 @@ int main()
 
 		auto body = cinatra::urlencoded_body_parser(req.body());
 		auto& session = ctx.get_req_ctx<cinatra::Session>();
-		session.add("uid", body.get_val("uid"));
+		session.set("uid", body.get_val("uid"));
 		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
 	});
 

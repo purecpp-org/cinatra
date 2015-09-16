@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cinatra/cinatra.hpp>
+#include <cinatra/middleware/cookie.hpp>
+#include <cinatra/middleware/session.hpp>
 #include <string>
 
 
@@ -21,11 +23,11 @@ const std::string SessionData::loginin_ = "loginin";
 const std::string SessionData::nick_ = "nick";
 //用户名和密码
 const std::string SessionData::username_ = "cinatra";
-const std::string SessionData::password_ = "e10adc3949ba59abbe56e057f20f883e";
+const std::string SessionData::password_ = "e10adc3949ba59abbe56e057f20f883e";	//123456
 
 struct LoginControl
 {
-	void before(cinatra::Request& /* req */, cinatra::Response& /* res */)
+	void before(cinatra::Request& /* req */, cinatra::Response& /* res */,cinatra::ContextContainer& /*ctx*/)
 	{
 		
 		/*if (req.session().exists(SessionData::loginin_)
@@ -40,7 +42,7 @@ struct LoginControl
 			}*/
 	}
 
-	void after(cinatra::Request& /* req */, cinatra::Response& /* res */)
+	void after(cinatra::Request& /* req */, cinatra::Response& /* res */, cinatra::ContextContainer& /*ctx*/)
 	{
 
 	}
