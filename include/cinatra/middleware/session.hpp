@@ -18,13 +18,14 @@
 #include <string>
 #include <memory>
 #include <mutex>
+#include <atomic>
 #include <sstream>
-#include <time.h>
+#include <ctime>
 
 #ifdef CINATRA_SINGLE_THREAD
-#define CINATRA_UNIQUE_LOCK()  
+#define CINATRA_UNIQUE_LOCK(mtx)  
 #else
-#define CINATRA_UNIQUE_LOCK() std::unique_lock<std::mutex> lock(mutex_)
+#define CINATRA_UNIQUE_LOCK(mtx) std::unique_lock<std::mutex> lock(mtx)
 #endif // CINATRA_SINGLE_THREAD
 
 
@@ -35,7 +36,7 @@ namespace cinatra
 	public:
 		void before(Request& req, Response& res,ContextContainer& ctx)
 		{
-			// 如果这里抛异常请检查是否添加了RequestCookie和ResponseCookie中间件
+			// 如果这里抛异常请检查是否添加了RequestCookie和ResponseCookie中间件,并且在session中间件的前面
 			auto& req_cookie = ctx.get_req_ctx<RequestCookie>();
 
   			// 获取session id
@@ -54,34 +55,60 @@ namespace cinatra
 
 		void after(Request& /*req*/, Response& /*res*/, ContextContainer& /*ctx*/)
 		{
+			CINATRA_UNIQUE_LOCK(mutex_);
+			//检查所有session有没有超时的
+			for (auto it = sessions_.begin(); it != sessions_.end();)
+			{
+				if (std::time(nullptr) - it->second->last_used_time >= 10*60)
+				{
+					it = sessions_.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
 		}
 
-		using session_map_t = std::unordered_map<std::string, boost::any>;
+		struct SessionMap
+		{
+			SessionMap()
+				:last_used_time(std::time(nullptr))
+			{}
+#ifndef CINATRA_SINGLE_THREAD
+			std::mutex mutex;
+#endif //CINATRA_SINGLE_THREAD
+			std::atomic<std::time_t> last_used_time;
+			std::unordered_map<std::string, boost::any> m;
+		};
 
 		class Context
 		{
 		public:
-			Context(session_map_t& m)
-				:m_(m)
+			Context(std::shared_ptr<SessionMap> sm)
+				:sm_(sm)
 			{}
 
 			template<typename T>
 			void add(const std::string& key, T const & val)
 			{
-				//CINATRA_UNIQUE_LOCK();
-				m_.emplace(key, val);
+				CINATRA_UNIQUE_LOCK(sm_->mutex);
+				sm_->last_used_time = std::time(nullptr);
+				sm_->m.emplace(key, val);
 			}
 			bool has(const std::string& key)
 			{
-				return m_.find(key) != m_.end();
+				sm_->last_used_time = std::time(nullptr);
+				return sm_->m.find(key) != sm_->m.end();
 			}
 
 			template<typename T>
 			T& get(const std::string& key)
 			{
-				//CINATRA_UNIQUE_LOCK();
-				auto it = m_.find(key);
-				if (it == m_.end())
+				CINATRA_UNIQUE_LOCK(sm_->mutex);
+				sm_->last_used_time = std::time(nullptr);
+				auto it = sm_->m.find(key);
+				if (it == sm_->m.end())
 				{
 					throw std::invalid_argument("key \"" + key + "\" not found.");
 				}
@@ -89,7 +116,7 @@ namespace cinatra
 				return boost::any_cast<typename std::decay<T>::type&>(it->second);
 			}
 		private:
-			session_map_t& m_;
+			std::shared_ptr<SessionMap> sm_;
 		};
 	private:
 #ifndef CINATRA_SINGLE_THREAD
@@ -110,10 +137,11 @@ namespace cinatra
 				u_str.push_back(out2);
 			}
 			
-			sessions_.emplace(u_str, session_map_t());
+			CINATRA_UNIQUE_LOCK(mutex_);
+			sessions_.emplace(u_str, std::make_shared<SessionMap>());
 			return u_str;
 		}
 
-		std::unordered_map<std::string, session_map_t> sessions_;
+		std::unordered_map<std::string, std::shared_ptr<SessionMap>> sessions_;
  	};
 }
