@@ -42,11 +42,9 @@ namespace cinatra
 			std::get<N>(aspects_).before(req, res, ctx);
 			invoke_before<N + 1>(req, res, ctx);
 		}
-
 		template<>
-		void invoke_before<sizeof...(Aspect)-1>(Request& req, Response& res, ContextContainer& ctx)
+		void invoke_before<sizeof...(Aspect)>(Request&, Response&, ContextContainer&)
 		{
-			std::get<sizeof...(Aspect)-1>(aspects_).before(req, res, ctx);
 		}
 
 
@@ -56,11 +54,9 @@ namespace cinatra
 			std::get<N>(aspects_).after(req, res, ctx);
 			invoke_after<N + 1>(req, res, ctx);
 		}
-
 		template<>
-		void invoke_after<sizeof...(Aspect)-1>(Request& req, Response& res, ContextContainer& ctx)
+		void invoke_after<sizeof...(Aspect)>(Request&, Response&, ContextContainer&)
 		{
-			std::get<sizeof...(Aspect)-1>(aspects_).after(req, res, ctx);
 		}
 
 	private:
