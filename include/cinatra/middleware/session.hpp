@@ -90,11 +90,11 @@ namespace cinatra
 			{}
 
 			template<typename T>
-			void add(const std::string& key, T const & val)
+			void set(const std::string& key, T const & val)
 			{
 				CINATRA_UNIQUE_LOCK(sm_->mutex);
 				sm_->last_used_time = std::time(nullptr);
-				sm_->m.emplace(key, val);
+				sm_->m[key](val);
 			}
 			bool has(const std::string& key)
 			{
