@@ -94,7 +94,7 @@ namespace cinatra
 			{
 				CINATRA_UNIQUE_LOCK(sm_->mutex);
 				sm_->last_used_time = std::time(nullptr);
-				sm_->m[key](val);
+				sm_->m[key] = val;
 			}
 			bool has(const std::string& key)
 			{
