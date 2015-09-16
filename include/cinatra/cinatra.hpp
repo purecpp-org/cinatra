@@ -115,11 +115,11 @@ namespace cinatra
 #else
 			HTTPServer s;
 #endif
-
+			aop_.set_func(std::bind(&HTTPRouter::dispatch, router_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 			s.set_request_handler([this](Request& req, Response& res)
 			{
 				ContextContainer ctx(app_container_);
-				return Invoke<sizeof...(Aspect)>(res, &Cinatra::dispatch, this, req, res, ctx);
+				return aop_.invoke(req, res, ctx);
 			})
 				.set_error_handler([this](int code, const std::string& msg, Request& req, Response& res)
 			{
@@ -157,24 +157,8 @@ namespace cinatra
 		}
 
 	private:
-		template<size_t I, typename Func, typename Self, typename... Args>
-		typename std::enable_if<I == 0, bool>::type Invoke(Response& /* res */, Func&&f, Self* self, Args&&... args)
-		{
-			return (*self.*f)(std::forward<Args>(args)...);
-		}
+		AOP<Aspect...> aop_;
 
-		template<size_t I, typename Func, typename Self, typename... Args>
-		typename std::enable_if < (I > 0), bool > ::type Invoke(Response& res, Func&& /* f */, Self* /* self */, Args&&... args)
-		{
-			return invoke<Aspect...>(res, &Cinatra::dispatch, this, args...);
-		}
-		
-		bool dispatch(Request& req, Response& res,ContextContainer& ctx)
-		{
-			return router_.dispatch(req, res, ctx);
-		}
-
-	private:
 #ifndef CINATRA_SINGLE_THREAD
 		int num_threads_ = 1;
 #else

@@ -10,23 +10,23 @@
 
 #include <fstream>
 
-// struct CheckLoginAspect
-// {
-// 	void before(cinatra::Request& req, cinatra::Response& res)
-// 	{
-// 		if (!req.session().exists("uid")&&req.path()!="/login.html"&&
-// 			req.path() != "/test_post"&&req.path().compare(0, 7, "/public"))	//如果session没有uid且访问的不是login和test_post页面.
-//  		{
-//  			// 跳转到登陆页面.
-//  			res.redirect("/login.html");
-//  		}
-// 	}
-// 
-// 	void after(cinatra::Request& /* req */, cinatra::Response& /* res */)
-// 	{
-// 
-// 	}
-// };
+struct CheckLoginAspect
+{
+	void before(cinatra::Request& req, cinatra::Response& res, cinatra::ContextContainer& /*ctx*/)
+	{
+		if (!req.session().exists("uid")&&req.path()!="/login.html"&&
+			req.path() != "/test_post"&&req.path().compare(0, 7, "/public"))	//如果session没有uid且访问的不是login和test_post页面.
+ 		{
+ 			// 跳转到登陆页面.
+ 			res.redirect("/login.html");
+ 		}
+	}
+
+	void after(cinatra::Request& /* req */, cinatra::Response& /* res */, cinatra::ContextContainer& /*ctx*/)
+	{
+
+	}
+};
 
 struct MyStruct
 {
@@ -43,30 +43,30 @@ int main()
 		cinatra::RequestCookie,
 		cinatra::ResponseCookie
 	> app;
-// 	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
-// 	{
-// 		res.end("Hello Cinatra");
-// 	});
-// 
-// 	// 访问/login.html进行登录.
-// 	app.route("/test_post", [](cinatra::Request& req, cinatra::Response& res)
-// 	{
-// 		if (req.method() != Request::method_t::POST)
-// 		{
-// 			res.set_status_code(404);
-// 			res.end("404 Not found");
-// 			return;
-// 		}
-// 
-// 		auto body = cinatra::urlencoded_body_parser(req.body());
-// 		req.session().set("uid", body.get_val("uid"));
-// 		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
-// 	});
-// 
-// 
-// 	MyStruct t;
-// 	// 访问/hello
-// 	app.route("/hello", &MyStruct::hello, &t);
+	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
+	{
+		res.end("Hello Cinatra");
+	});
+
+	// 访问/login.html进行登录.
+	app.route("/test_post", [](cinatra::Request& req, cinatra::Response& res)
+	{
+		if (req.method() != cinatra::Request::method_t::POST)
+		{
+			res.set_status_code(404);
+			res.end("404 Not found");
+			return;
+		}
+
+		auto body = cinatra::urlencoded_body_parser(req.body());
+		req.session().set("uid", body.get_val("uid"));
+		res.end("Hello " + body.get_val("uid") + "! Your password is " + body.get_val("pwd") + "...hahahahaha...");
+	});
+
+
+	MyStruct t;
+	// 访问/hello
+	app.route("/hello", &MyStruct::hello, &t);
 	// 访问类似于/hello/jone/10/xxx
 	// joen、10和xxx会分别作为a、b和c三个参数传入handler
 	app.route("/hello/:name/:age/:test", [](cinatra::Response& res, const std::string& a, int b, double c)
