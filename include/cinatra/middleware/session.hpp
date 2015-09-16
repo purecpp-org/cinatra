@@ -101,7 +101,6 @@ namespace cinatra
 				sm_->last_used_time = std::time(nullptr);
 				return sm_->m.find(key) != sm_->m.end();
 			}
-
 			template<typename T>
 			T& get(const std::string& key)
 			{
@@ -114,6 +113,18 @@ namespace cinatra
 				}
 
 				return boost::any_cast<typename std::decay<T>::type&>(it->second);
+			}
+			void del(const std::string& key)
+			{
+				CINATRA_UNIQUE_LOCK(sm_->mutex);
+				sm_->last_used_time = std::time(nullptr);
+				auto it = sm_->m.find(key);
+				if (it == sm_->m.end())
+				{
+					throw std::invalid_argument("key \"" + key + "\" not found.");
+				}
+
+				sm_->m.erase(it);
 			}
 		private:
 			std::shared_ptr<SessionMap> sm_;
