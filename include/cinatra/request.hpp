@@ -2,7 +2,9 @@
 #pragma once
 
 #include <cinatra/utils.hpp>
+
 #include <boost/any.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <string>
 #include <vector>
@@ -20,7 +22,7 @@ namespace cinatra
 		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
 	}
 
-	class Request : boost::noncopyable
+	class Request
 	{
 	public:
 		Request()

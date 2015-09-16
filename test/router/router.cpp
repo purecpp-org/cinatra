@@ -14,7 +14,9 @@ BOOST_AUTO_TEST_CASE(router_dispatch_test_0)
 	});
 	Request req{ "/1", {}, "GET", "/1", {}, {}};
 	Response res;
-	r.dispatch(req, res);
+	app_ctx_container_t container;
+	ContextContainer ctx(container);
+	r.dispatch(req, res, ctx);
 	BOOST_CHECK(flag);
 }
 
@@ -28,7 +30,9 @@ BOOST_AUTO_TEST_CASE(router_dispatch_test_1)
 	});
 	Request req{ "/1", {}, "GET", "/1", {}, {}};
 	Response res;
-	r.dispatch(req, res);
+	app_ctx_container_t container;
+	ContextContainer ctx(container);
+	r.dispatch(req, res, ctx);
 	BOOST_CHECK(flag);
 }
 
@@ -44,7 +48,9 @@ BOOST_AUTO_TEST_CASE(router_dispatch_test_2)
 	});
 	Request req{ "/1/2", {}, "GET", "/1/2", {}, {}};
 	Response res;
-	r.dispatch(req, res);
+	app_ctx_container_t container;
+	ContextContainer ctx(container);
+	r.dispatch(req, res, ctx);
 	BOOST_CHECK(flag);
 }
 

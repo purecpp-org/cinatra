@@ -172,7 +172,7 @@ namespace cinatra
 		}
 
 	private:
-		template<typename ParamT>
+		template<typename ParamT,typename T=void>
 		struct GetParam
 		{
 			using type = ParamT;
@@ -182,8 +182,8 @@ namespace cinatra
 			}
 		};
 
-		template<>
-		struct GetParam<Request>
+		template<typename T>
+		struct GetParam<Request,T>
 		{
 			using type = std::reference_wrapper<Request>;
 			static type get_param(token_parser& parser, bool& ret)
@@ -192,8 +192,8 @@ namespace cinatra
 				return std::ref(parser.get_req());
 			}
 		};
-		template<>
-		struct GetParam<Response>
+		template<typename T>
+		struct GetParam<Response,T>
 		{
 			using type = std::reference_wrapper<Response>;
 			static type get_param(token_parser& parser, bool& ret)
@@ -202,8 +202,8 @@ namespace cinatra
 				return std::ref(parser.get_res());
 			}
 		};
-		template<>
-		struct GetParam<ContextContainer>
+		template<typename T>
+		struct GetParam<ContextContainer,T>
 		{
 			using type = std::reference_wrapper<ContextContainer>;
 			static type get_param(token_parser& parser, bool& ret)

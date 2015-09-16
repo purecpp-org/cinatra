@@ -4,6 +4,7 @@
 #include <cinatra/request.hpp>
 #include <cinatra/response.hpp>
 #include <cinatra/context_container.hpp>
+#include <cinatra/logging.hpp>
 
 #include <boost/lexical_cast.hpp>
 
