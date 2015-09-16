@@ -207,12 +207,12 @@ namespace cinatra
 			std::vector<cookie_t> jar_;
 		};
 
-		void before(Request& req, Response& res, ContextContainer& ctx)
+		void before(Request& /*req*/, Response& /*res*/, ContextContainer& ctx)
 		{
 			ctx.add_req_ctx(Context());
 		}
 
-		void after(Request& req, Response& res, ContextContainer& ctx)
+		void after(Request& /*req*/, Response& res, ContextContainer& ctx)
 		{
 			auto const & cookie = ctx.get_req_ctx<ResponseCookie>();
 			for (auto const & it : cookie.to_strings())

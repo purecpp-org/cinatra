@@ -34,7 +34,7 @@ namespace cinatra
 	class Session
 	{
 	public:
-		void before(Request& req, Response& res,ContextContainer& ctx)
+		void before(Request& /*req*/, Response& /*res*/,ContextContainer& ctx)
 		{
 			// 如果这里抛异常请检查是否添加了RequestCookie和ResponseCookie中间件,并且在session中间件的前面
 			auto& req_cookie = ctx.get_req_ctx<RequestCookie>();
