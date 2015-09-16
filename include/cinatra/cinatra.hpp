@@ -100,6 +100,12 @@ namespace cinatra
 			return *this;
 		}
 
+		template<typename T>
+		T& get_middleware()
+		{
+			return aop_.get_aspect<T>();
+		}
+
 #ifdef CINATRA_ENABLE_HTTPS
 		Cinatra& https_config(const HttpsConfig& cfg)
 		{

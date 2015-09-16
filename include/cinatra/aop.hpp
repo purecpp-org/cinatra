@@ -38,6 +38,11 @@ namespace cinatra
 			return ret;
 		}
 
+		template<typename T>
+		T& get_aspect()
+		{
+			return std::get<T>(aspects_);
+		}
 	private:
 		template<int N>
 		void invoke_before(Request& req, Response& res, ContextContainer& ctx, Identity<N>)
