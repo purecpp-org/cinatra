@@ -9,6 +9,9 @@
 
 namespace cinatra
 {
+	template<int N>
+	struct Identity {};
+
 	template <typename...Aspect>
 	class AOP
 	{
@@ -21,7 +24,7 @@ namespace cinatra
 
 		bool invoke(Request& req, Response& res, ContextContainer& ctx)
 		{
-			invoke_before<0>(req, res, ctx);
+			invoke_before(req, res, ctx, Identity<0>());
 			bool ret = false;
 			if (res.is_complete())
 			{
@@ -31,31 +34,29 @@ namespace cinatra
 			{
 				ret = func_(req, res, ctx);
 			}
-			invoke_after<0>(req, res, ctx);
+			invoke_after(req, res, ctx, Identity<0>());
 			return ret;
 		}
 
 	private:
 		template<int N>
-		void invoke_before(Request& req, Response& res, ContextContainer& ctx)
+		void invoke_before(Request& req, Response& res, ContextContainer& ctx, Identity<N>)
 		{
 			std::get<N>(aspects_).before(req, res, ctx);
-			invoke_before<N + 1>(req, res, ctx);
+			invoke_before(req, res, ctx, Identity<N+1>());
 		}
-		template<>
-		void invoke_before<sizeof...(Aspect)>(Request&, Response&, ContextContainer&)
+		void invoke_before(Request&, Response&, ContextContainer&, Identity<sizeof...(Aspect)>)
 		{
 		}
 
 
 		template<int N>
-		void invoke_after(Request& req, Response& res, ContextContainer& ctx)
+		void invoke_after(Request& req, Response& res, ContextContainer& ctx, Identity<N>)
 		{
 			std::get<N>(aspects_).after(req, res, ctx);
-			invoke_after<N + 1>(req, res, ctx);
+			invoke_after(req, res, ctx, Identity<N+1>());
 		}
-		template<>
-		void invoke_after<sizeof...(Aspect)>(Request&, Response&, ContextContainer&)
+		void invoke_after(Request&, Response&, ContextContainer&, Identity<sizeof...(Aspect)>)
 		{
 		}
 

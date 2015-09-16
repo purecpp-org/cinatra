@@ -23,9 +23,9 @@ namespace cinatra
 		}
 
 		template<typename T>
-		void add_req_ctx(T& val)
+		void add_req_ctx(T const & val)
 		{
-			req_ctx_.emplace(std::type_index(typeid(std::decay_t<T>)), val);
+			req_ctx_.emplace(std::type_index(typeid(typename std::decay<T>::type)), val);
 		}
 
 		template<typename T>
