@@ -26,7 +26,7 @@ namespace cinatra
 
 
 
-	void parse_disposition(const std::string& disposition, NcaseMultiMap& kv)
+	inline void parse_disposition(const std::string& disposition, NcaseMultiMap& kv)
 	{
 		std::string key, val;
 		bool is_k = true;
@@ -80,7 +80,7 @@ namespace cinatra
 		}
 	}
 
-	bool parse_item(const std::string& part,item_t& item)
+	inline bool parse_item(const std::string& part,item_t& item)
 	{
 		item.is_file = false;
 		auto pos = part.find("\r\n\r\n");
@@ -145,7 +145,7 @@ namespace cinatra
 		return true;
 	}
 
-	bool data_body_parser(Request& req, std::vector<item_t>& items)
+	inline bool data_body_parser(Request& req, std::vector<item_t>& items)
 	{
 		const std::string& content_type = req.header().get_val("Content-Type");
 		auto pos = content_type.find("boundary=");

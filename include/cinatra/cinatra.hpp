@@ -100,6 +100,7 @@ namespace cinatra
 			return *this;
 		}
 
+		//´ıĞŞ¸Ä£¬ĞèÒªC++14
 		template<typename T>
 		T& get_middleware()
 		{
