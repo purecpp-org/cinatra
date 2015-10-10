@@ -104,7 +104,7 @@ namespace cinatra
 		template<typename T>
 		T& get_middleware()
 		{
-			return aop_.get_aspect<T>();
+			return aop_.template get_aspect<T>();
 		}
 
 #ifdef CINATRA_ENABLE_HTTPS
