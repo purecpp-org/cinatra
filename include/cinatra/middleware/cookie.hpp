@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include <cinatra/request.hpp>
-#include <cinatra/response.hpp>
+#include <cinatra/http_server/request.hpp>
+#include <cinatra/http_server/response.hpp>
+#include <cinatra/utils/utils.hpp>
 #include <cinatra/context_container.hpp>
-#include <cinatra/utils.hpp>
 
 #include <boost/lexical_cast.hpp>
 

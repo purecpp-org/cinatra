@@ -3,12 +3,12 @@
 #include <map>
 #include <string>
 #include <functional>
-#include <cinatra/function_traits.hpp>
-#include <cinatra/string_utils.hpp>
+#include <cinatra/utils/function_traits.hpp>
+#include <cinatra/utils/string_utils.hpp>
 //#include <cinatra/tuple_utils.hpp>
 #include <cinatra/token_parser.hpp>
-#include <cinatra/request.hpp>
-#include <cinatra/response.hpp>
+#include <cinatra/http_server/request.hpp>
+#include <cinatra/http_server/response.hpp>
 
 namespace cinatra
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cinatra/function_traits.hpp>
-#include <cinatra/string_utils.hpp>
-#include <cinatra/timer.hpp>
+#include <cinatra/utils/function_traits.hpp>
+#include <cinatra/utils/string_utils.hpp>
+#include <cinatra/utils/timer.hpp>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/functional/hash.hpp>

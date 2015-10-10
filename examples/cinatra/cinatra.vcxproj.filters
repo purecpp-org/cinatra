@@ -19,6 +19,9 @@
     <Filter Include="头文件\middleware">
       <UniqueIdentifier>{41ff07b8-83b5-47b2-a15d-36c61374ec90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\http_server">
+      <UniqueIdentifier>{0b88575e-6b30-470f-8187-6cf88af80d85}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -29,50 +32,8 @@
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\connection.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\http_server.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\io_service_pool.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\request.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\response.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\request_parser.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\http_router.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\function_traits.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\string_utils.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\cinatra\token_parser.hpp">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\utils.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\timer.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\aop.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\noncopyable.hpp">
-      <Filter>头文件\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\cinatra\logging.hpp">
-      <Filter>头文件\utils</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\cinatra\body_parser.hpp">
       <Filter>头文件</Filter>
@@ -84,6 +45,45 @@
       <Filter>头文件\middleware</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\cinatra\context_container.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\utils\aop.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\utils\function_traits.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\utils\logging.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\utils\string_utils.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\utils\timer.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\utils\utils.hpp">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\http_server\connection.hpp">
+      <Filter>头文件\http_server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\http_server\http_server.hpp">
+      <Filter>头文件\http_server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\http_server\io_service_pool.hpp">
+      <Filter>头文件\http_server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\http_server\request.hpp">
+      <Filter>头文件\http_server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\http_server\request_parser.hpp">
+      <Filter>头文件\http_server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\http_server\response.hpp">
+      <Filter>头文件\http_server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\http_router.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,9 +5,9 @@
 #pragma warning(disable:4819)
 #endif // _MSC_VER
 
-#include <cinatra/io_service_pool.hpp>
-#include <cinatra/connection.hpp>
-#include <cinatra/logging.hpp>
+#include <cinatra/http_server/io_service_pool.hpp>
+#include <cinatra/http_server/connection.hpp>
+#include <cinatra/utils/logging.hpp>
 
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>

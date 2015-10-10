@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <cinatra/utils.hpp>
-#include <cinatra/request.hpp>
-#include <cinatra/logging.hpp>
+#include <cinatra/utils/utils.hpp>
+#include <cinatra/utils/logging.hpp>
+#include <cinatra/http_server/request.hpp>
 
 namespace cinatra
 {

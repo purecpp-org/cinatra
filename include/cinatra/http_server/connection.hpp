@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <cinatra/response.hpp>
-#include <cinatra/request_parser.hpp>
-#include <cinatra/logging.hpp>
+#include <cinatra/http_server/response.hpp>
+#include <cinatra/http_server/request_parser.hpp>
+#include <cinatra/utils/logging.hpp>
 #include <cinatra/http_router.hpp>
 
 #include <boost/asio.hpp>

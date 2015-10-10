@@ -236,26 +236,25 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\cinatra\aop.hpp" />
+    <ClInclude Include="..\..\include\cinatra\utils\aop.hpp" />
     <ClInclude Include="..\..\include\cinatra\body_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp" />
-    <ClInclude Include="..\..\include\cinatra\connection.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_server\connection.hpp" />
     <ClInclude Include="..\..\include\cinatra\context_container.hpp" />
-    <ClInclude Include="..\..\include\cinatra\function_traits.hpp" />
+    <ClInclude Include="..\..\include\cinatra\utils\function_traits.hpp" />
     <ClInclude Include="..\..\include\cinatra\http_router.hpp" />
-    <ClInclude Include="..\..\include\cinatra\http_server.hpp" />
-    <ClInclude Include="..\..\include\cinatra\io_service_pool.hpp" />
-    <ClInclude Include="..\..\include\cinatra\logging.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_server\http_server.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_server\io_service_pool.hpp" />
+    <ClInclude Include="..\..\include\cinatra\utils\logging.hpp" />
     <ClInclude Include="..\..\include\cinatra\middleware\cookie.hpp" />
     <ClInclude Include="..\..\include\cinatra\middleware\session.hpp" />
-    <ClInclude Include="..\..\include\cinatra\noncopyable.hpp" />
-    <ClInclude Include="..\..\include\cinatra\request.hpp" />
-    <ClInclude Include="..\..\include\cinatra\request_parser.hpp" />
-    <ClInclude Include="..\..\include\cinatra\response.hpp" />
-    <ClInclude Include="..\..\include\cinatra\string_utils.hpp" />
-    <ClInclude Include="..\..\include\cinatra\timer.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_server\request.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_server\request_parser.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_server\response.hpp" />
+    <ClInclude Include="..\..\include\cinatra\utils\string_utils.hpp" />
+    <ClInclude Include="..\..\include\cinatra\utils\timer.hpp" />
     <ClInclude Include="..\..\include\cinatra\token_parser.hpp" />
-    <ClInclude Include="..\..\include\cinatra\utils.hpp" />
+    <ClInclude Include="..\..\include\cinatra\utils\utils.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

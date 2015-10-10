@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cinatra/utils.hpp>
-#include <cinatra/request.hpp>
+#include <cinatra/utils/utils.hpp>
+#include <cinatra/http_server/request.hpp>
 
 #include <boost/algorithm/string/trim.hpp>
 
