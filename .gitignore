@@ -6,3 +6,6 @@ build
 *.opensdf
 *.suo
 .*.swp
+3rdparty/*
+*.user
+
