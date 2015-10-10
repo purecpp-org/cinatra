@@ -38,11 +38,31 @@ namespace cinatra
 			return ret;
 		}
 
-		//待修改，需要C++14
+		// 根据类型获取tuple中的实例
+		template<int Index, class Search, class First, class... Types>
+		struct get_internal
+		{
+			using type = typename get_internal<Index + 1, Search, Types...>::type;
+			enum { index = Index };
+		};
+
+		template<int Index, class Search, class... Types>
+		struct get_internal<Index, Search, Search, Types...>
+		{
+			using type = get_internal;
+			enum { index = Index };
+		};
+
+		template<class T, class... Types>
+		T& get_by_type(std::tuple<Types...>& tuple)
+		{
+			return std::get<get_internal<0, T, Types...>::type::index>(tuple);
+		}
+
 		template<typename T>
 		T& get_aspect()
 		{
-			return std::get<T>(aspects_);
+			return get_by_type<T>(aspects_);
 		}
 	private:
 		template<int N>
