@@ -34,8 +34,29 @@ namespace cinatra
 	class Session
 	{
 	public:
+		Session() = default;
+		Session(const Session&) = delete;
+		Session& operator=(const Session&) = delete;
+
+
 		void before(Request& /*req*/, Response& /*res*/,ContextContainer& ctx)
 		{
+			{
+				CINATRA_UNIQUE_LOCK(mutex_);
+				//检查所有session有没有超时的
+				for (auto it = sessions_.begin(); it != sessions_.end();)
+				{
+					if (std::time(nullptr) - it->second->last_used_time >= life_cycle_)
+					{
+						it = sessions_.erase(it);
+					}
+					else
+					{
+						++it;
+					}
+				}
+			}
+
 			// 如果这里抛异常请检查是否添加了RequestCookie和ResponseCookie中间件,并且在session中间件的前面
 			auto& req_cookie = ctx.get_req_ctx<RequestCookie>();
 
@@ -55,19 +76,11 @@ namespace cinatra
 
 		void after(Request& /*req*/, Response& /*res*/, ContextContainer& /*ctx*/)
 		{
-			CINATRA_UNIQUE_LOCK(mutex_);
-			//检查所有session有没有超时的
-			for (auto it = sessions_.begin(); it != sessions_.end();)
-			{
-				if (std::time(nullptr) - it->second->last_used_time >= 10*60)
-				{
-					it = sessions_.erase(it);
-				}
-				else
-				{
-					++it;
-				}
-			}
+		}
+
+		void set_session_life_circle(int seconds)
+		{
+			life_cycle_ = seconds;
 		}
 
 		struct SessionMap
@@ -154,5 +167,7 @@ namespace cinatra
 		}
 
 		std::unordered_map<std::string, std::shared_ptr<SessionMap>> sessions_;
+
+		int life_cycle_ = 10 * 60;
  	};
 }

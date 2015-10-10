@@ -47,6 +47,8 @@ int main()
 		cinatra::Session,
 		CheckLoginAspect
 	> app;
+
+	app.get_middleware<cinatra::Session>().set_session_life_circle(5 * 60);
 	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
 	{
 		res.end("Hello Cinatra");
