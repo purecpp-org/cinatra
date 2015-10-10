@@ -121,7 +121,7 @@ namespace cinatra
 #else
 			HTTPServer s;
 #endif
-			aop_.set_func(std::bind(&HTTPRouter::dispatch, router_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+			aop_.set_func(std::bind(&http_router::dispatch, router_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 			s.set_request_handler([this](Request& req, Response& res)
 			{
 				ContextContainer ctx(app_container_);
@@ -180,7 +180,7 @@ namespace cinatra
 
 		error_handler_t error_handler_;
 
-		HTTPRouter router_;
+		http_router router_;
 
 		app_ctx_container_t app_container_;
 	};

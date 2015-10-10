@@ -12,11 +12,11 @@
 
 namespace cinatra
 {
-	class HTTPRouter
+	class http_router
 	{
 		using invoker_function = std::function<bool(token_parser &)>;
 	public:
-		HTTPRouter()
+		http_router()
 		{}
 
 		template<typename Function>
@@ -238,7 +238,7 @@ namespace cinatra
 					parser.param_error_ = true;
 					return false;
 				}
-				return HTTPRouter::invoker<Function, Signature, N - 1>::call(func, parser, std::tuple_cat(std::make_tuple(param), args));
+				return http_router::invoker<Function, Signature, N - 1>::call(func, parser, std::tuple_cat(std::make_tuple(param), args));
 			}
 
 			template<typename Args, typename Self>
@@ -259,7 +259,7 @@ namespace cinatra
 					parser.param_error_ = true;
 					return false;
 				}
-				return HTTPRouter::invoker<Function, Signature, N - 1>::call_member(func, self, parser, std::tuple_cat(std::make_tuple(param), args));
+				return http_router::invoker<Function, Signature, N - 1>::call_member(func, self, parser, std::tuple_cat(std::make_tuple(param), args));
 			}
 		};
 
