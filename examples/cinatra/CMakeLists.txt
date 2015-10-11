@@ -1,12 +1,7 @@
 ADD_EXECUTABLE(cinatra main.cpp)
-FIND_PACKAGE(OpenSSL)
-TARGET_LINK_LIBRARIES(http_server ${OPENSSL_LIB})
-INCLUDE_DIRECTORIES(../../include)
-ADD_DEFINITIONS(-DCINATRA_ENABLE_HTTPS)
-IF(APPLE)
-	TARGET_LINK_LIBRARIES(cinatra boost_system-mt pthread boost_coroutine-mt boost_context-mt boost_thread-mt ssl crypto)
-ELSEIF(WIN32)
-	TARGET_LINK_LIBRARIES(cinatra boost_system pthread boost_coroutine boost_context boost_thread ssl crypto ws2_32 mswsock)
-ELSE()
-	TARGET_LINK_LIBRARIES(cinatra boost_system pthread boost_coroutine boost_context boost_thread ssl crypto)
-ENDIF()
+
+if (ENABLE_OPENSSL)
+	ADD_DEFINITIONS(-DCINATRA_ENABLE_HTTPS)
+endif()
+
+TARGET_LINK_LIBRARIES(cinatra ${EXTRA_LIBS})
