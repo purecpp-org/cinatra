@@ -136,7 +136,6 @@ namespace cinatra
 	private:
 		void do_accept(const boost::asio::yield_context& yield)
 		{
-			std::shared_ptr<ConnectionBase> conn;
 #ifdef CINATRA_ENABLE_HTTPS
 			std::unique_ptr<boost::asio::ssl::context> ctx;
 			if (config_.use_https)
@@ -184,27 +183,38 @@ namespace cinatra
 #ifdef CINATRA_ENABLE_HTTPS
 				if (ctx)
 				{
-					conn = std::make_shared<SSLConnection>(
+					auto conn(
+						std::make_shared<Connection<ssl_socket>>(
 						io_service_pool_.get_io_service(),
-						*ctx, request_handler_, error_handler_, static_dir_);
+						*ctx, request_handler_, error_handler_, static_dir_));
+					boost::system::error_code ec;
+					acceptor_.async_accept(conn->raw_socket(), yield[ec]);
+					if (ec)
+					{
+						LOG_DBG << "Accept new connection failed: " << ec.message();
+						continue;
+					}
+
+					conn->start();
 				}
 				else
 #endif // CINATRA_ENABLE_HTTPS
 				{
-					conn = std::make_shared<TCPConnection>(
+					auto conn(
+						std::make_shared<Connection<tcp_socket>>(
 						io_service_pool_.get_io_service(),
-						request_handler_, error_handler_, static_dir_);
-				}
+						request_handler_, error_handler_, static_dir_));
 
-				boost::system::error_code ec;
-				acceptor_.async_accept(conn->socket(), yield[ec]);
-				if (ec)
-				{
-					LOG_DBG << "Accept new connection failed: " << ec.message();
-					continue;
-				}
+					boost::system::error_code ec;
+					acceptor_.async_accept(conn->raw_socket(), yield[ec]);
+					if (ec)
+					{
+						LOG_DBG << "Accept new connection failed: " << ec.message();
+						continue;
+					}
 
-				conn->start();
+					conn->start();
+				}
 			}
 		}
 	private:

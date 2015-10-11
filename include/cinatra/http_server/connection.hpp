@@ -31,67 +31,115 @@ namespace cinatra
 	using request_handler_t = std::function<bool(Request&, Response&)>;
 	using error_handler_t = std::function<bool(int, const std::string&, Request&, Response&)>;
 
-	class ConnectionBase
-		: public std::enable_shared_from_this<ConnectionBase>
+	using tcp_socket = boost::asio::ip::tcp::socket;
+#ifdef CINATRA_ENABLE_HTTPS
+	using ssl_socket = boost::asio::ssl::stream<tcp_socket>;
+#endif // CINATRA_ENABLE_HTTPS
+
+
+	template<typename SocketT>
+	class Connection :
+		public std::enable_shared_from_this<Connection<SocketT>>
 	{
 	public:
-		ConnectionBase(boost::asio::io_service& service,
+		template<typename U = SocketT>
+		Connection(boost::asio::io_service& service,
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
-			const std::string& static_dir)
+			const std::string& static_dir,
+			typename std::enable_if<std::is_same<U,tcp_socket>::value>::type* = 0)
 			:service_(service), timer_(service),
+			error_handler_(error_handler), static_dir_(static_dir),
+			request_handler_(request_handler), socket_(service)
+		{
+			LOG_DBG << "New http connection";
+		}
+
+#ifdef CINATRA_ENABLE_HTTPS
+		template<typename U = SocketT>
+		Connection(boost::asio::io_service& service,
+			boost::asio::ssl::context& ctx,
+			const request_handler_t& request_handler,
+			const error_handler_t& error_handler,
+			const std::string& static_dir,
+			typename std::enable_if<std::is_same<U, ssl_socket>::value>::type* = 0)
+			:service_(service), socket_(service, ctx), timer_(service),
 			error_handler_(error_handler), static_dir_(static_dir),
 			request_handler_(request_handler)
 		{
+			LOG_DBG << "New https connection";
 		}
-		~ConnectionBase()
-		{
-			LOG_DBG << "Connection closed.";
-		}
+#endif // CINATRA_ENABLE_HTTPS
 
-		virtual boost::asio::ip::tcp::socket& socket() = 0;
+	private:
+		tcp_socket& raw_socket(tcp_socket& s)
+		{
+			return s;
+		}
+#ifdef CINATRA_ENABLE_HTTPS
+		tcp_socket& raw_socket(ssl_socket& s)
+		{
+			return s.next_layer();
+		}
+#endif // CINATRA_ENABLE_HTTPS
+
+	public:
+		tcp_socket& raw_socket()
+		{
+			return raw_socket(socket_);
+		}
 
 		void start()
 		{
 			boost::asio::spawn(service_,
-				std::bind(&ConnectionBase::do_work,
+				std::bind(&Connection<SocketT>::do_work,
 				shared_from_this(), std::placeholders::_1));
 		}
+	private:
+		using coro_t = boost::asio::yield_context;
+		using ec_t = boost::system::error_code;
 
-	protected:
-		virtual void do_work(boost::asio::yield_context yield) = 0;
+#ifdef CINATRA_ENABLE_HTTPS
+		//https需要handshake
+		void handshake(tcp_socket&, coro_t&){}
+		void handshake(ssl_socket& s, coro_t& yield)
+		{
+			s.async_handshake(boost::asio::ssl::stream_base::server, yield);
+		}
+#endif // CINATRA_ENABLE_HTTPS
 
-		virtual std::size_t async_write(
-			const boost::asio::const_buffers_1& buffer,
-			const boost::asio::yield_context& yield) = 0;
-		virtual std::size_t async_write(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) = 0;
-		virtual std::size_t async_write(
-			boost::asio::streambuf& buffer,
-			const boost::asio::yield_context& yield) = 0;
-		virtual std::size_t async_read(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) = 0;
-		virtual std::size_t async_read_some(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) = 0;
+		void reset_timer()
+		{
+			//2分钟超时.
+			timer_.expires_from_now(boost::posix_time::seconds(2 * 60));
+			timer_.async_wait([this](const boost::system::error_code& ec)
+			{
+				if (ec == boost::asio::error::operation_aborted)
+				{
+					return;
+				}
+				if (ec)
+				{
+					LOG_DBG << "Connection timer error: " << ec.message();
+				}
+
+				LOG_DBG << "Connection timeout.";
+				if (!raw_socket().is_open())
+				{
+					return;
+				}
+				close();
+			});
+		}
+
+		void cancel_timer()
+		{
+			timer_.cancel();
+		}
 
 		bool init_req_res(Request& req, Response& res,
 			const RequestParser& parser, boost::asio::yield_context& yield)
 		{
-// 			// 获取session id
-// 			std::string session_id = req.cookie().get_val("CSESSIONID");
-// 			if (session_id.empty())
-// 			{
-// 				// ID为空则新建一个session
-// 				session_id = session_container_.new_session();
-// 			}
-// 			// 设置session到req上
-// 			req.set_session(session_container_.get_container(session_id));
-// 
-// 			// 把session id写到cookie中
-// 			res.cookies().new_cookie().add("CSESSIONID", session_id);
 			init_response(res, yield);
 			bool has_error = check_request(parser, req, res);
 			add_version(parser, req, res);
@@ -106,7 +154,7 @@ namespace cinatra
 			res.direct_write_func_ = [&yield, this](const char* data, std::size_t len)
 			{
 				boost::system::error_code ec;
-				async_write(boost::asio::buffer(data, len), yield[ec]);
+				boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
 				if (ec)
 				{
 					LOG_WARN << "direct_write_func error" << ec.message();
@@ -114,6 +162,64 @@ namespace cinatra
 				}
 				return true;
 			};
+		}
+
+		bool response_file(Request& req, bool keep_alive, const boost::asio::yield_context& yield)
+		{
+			if (static_dir_.empty())
+			{
+				return false;
+			}
+			std::string path = static_dir_ + req.path();
+			std::fstream in(path, std::ios::binary | std::ios::in);
+			if (!in)
+			{
+				return false;
+			}
+
+			LOG_DBG << "Response a file";
+			in.seekg(0, std::ios::end);
+
+			std::string header =
+				"HTTP/1.1 200 OK\r\n"
+				"Server: cinatra/0.1\r\n"
+				"Date: " + header_date_str() + "\r\n"
+				"Content-Type: " + content_type(path) + "\r\n"
+				"Content-Length: " + boost::lexical_cast<std::string>(in.tellg()) + "\r\n";
+
+			if (keep_alive)
+			{
+				header += "Connection: Keep-Alive\r\n";
+			}
+
+			header += "\r\n";
+			in.seekg(0, std::ios::beg);
+
+			boost::asio::async_write(socket_, boost::asio::buffer(header), yield);
+			std::vector<char> data(1024 * 1024);
+			while (!in.eof())
+			{
+				in.read(&data[0], data.size());
+				boost::asio::async_write(socket_, boost::asio::buffer(data, size_t(in.gcount())), yield);
+			}
+
+			return true;
+		}
+
+		void response(Response& res, const boost::asio::yield_context& yield)
+		{
+			if (!res.is_complete())
+			{
+				res.end();
+			}
+
+			if (!res.is_chunked_encoding_)
+			{
+				// 如果是chunked编码数据应该都发完了.
+				std::string header_str = res.get_header_str();
+				boost::asio::async_write(socket_, boost::asio::buffer(header_str), yield);
+				boost::asio::async_write(socket_, res.buffer_, yield);
+			}
 		}
 
 		bool check_request(const RequestParser& parser, Request& req, Response& res)
@@ -188,176 +294,59 @@ namespace cinatra
 			}
 		}
 
-		void response(Response& res, const boost::asio::yield_context& yield)
-		{
-			if (!res.is_complete())
-			{
-				res.end();
-			}
-
-			if (!res.is_chunked_encoding_)
-			{
-				// 如果是chunked编码数据应该都发完了.
-				std::string header_str = res.get_header_str();
-				async_write(boost::asio::buffer(header_str), yield);
-				async_write(res.buffer_, yield);
-			}
-		}
-
-		bool response_file(Request& req, bool keep_alive, const boost::asio::yield_context& yield)
-		{
-			if (static_dir_.empty())
-			{
-				return false;
-			}
-			std::string path = static_dir_ + req.path();
-			std::fstream in(path, std::ios::binary | std::ios::in);
-			if (!in)
-			{
-				return false;
-			}
-
-			LOG_DBG << "Response a file";
-			in.seekg(0, std::ios::end);
-
-			std::string header =
-				"HTTP/1.1 200 OK\r\n"
-				"Server: cinatra/0.1\r\n"
-				"Date: " + header_date_str() + "\r\n"
-				"Content-Type: " + content_type(path) + "\r\n"
-				"Content-Length: " + boost::lexical_cast<std::string>(in.tellg()) + "\r\n";
-
-			if (keep_alive)
-			{
-				header += "Connection: Keep-Alive\r\n";
-			}
-
-			header += "\r\n";
-			in.seekg(0, std::ios::beg);
-
-			async_write(boost::asio::buffer(header), yield);
-			std::vector<char> data(1024 * 1024);
-			while (!in.eof())
-			{
-				in.read(&data[0], data.size());
-				async_write(boost::asio::buffer(data, size_t(in.gcount())), yield);
-			}
-
-			return true;
-		}
-
 		void response_5xx(const std::string& msg, const boost::asio::yield_context& yield)
 		{
 			Request req;
 			Response res;
 			error_handler_(500, msg, req, res);
 			boost::system::error_code ignored_ec;
-			async_write(boost::asio::buffer(res.get_header_str()), yield[ignored_ec]);
-			async_write(res.buffer_, yield[ignored_ec]);
+			boost::asio::async_write(socket_, boost::asio::buffer(res.get_header_str()), yield[ignored_ec]);
+			boost::asio::async_write(socket_, res.buffer_, yield[ignored_ec]);
 
 			close();
 		}
 
-		void reset_timer()
+		bool shutdown(tcp_socket& s, coro_t&)
 		{
-			//2分钟超时.
-			timer_.expires_from_now(boost::posix_time::seconds(2 * 60));
-			timer_.async_wait([this](const boost::system::error_code& ec)
-			{
-				if (ec == boost::asio::error::operation_aborted)
-				{
-					return;
-				}
-				if (ec)
-				{
-					LOG_DBG << "Connection timer error: " << ec.message();
-				}
+			LOG_DBG << "Shutdown Http connection";
+			boost::system::error_code ignored_ec;
+			s.shutdown(boost::asio::ip::tcp::socket::shutdown_send, ignored_ec);
 
-				LOG_DBG << "Connection timeout.";
-				if (!socket().is_open())
-				{
-					return;
-				}
-				close();
-			});
+			return false;
 		}
-
-		void cancel_timer()
+#ifdef CINATRA_ENABLE_HTTPS
+		bool shutdown(ssl_socket& s, coro_t& yield)
 		{
-			timer_.cancel();
+			LOG_DBG << "Shutdown Https connection";
+			boost::system::error_code ignored_ec;
+			s.async_shutdown(yield[ignored_ec]);
+
+			//ssl不需要等待读取到eof再close，返回true直接close&return
+			return true;
 		}
+#endif // CINATRA_ENABLE_HTTPS
 
 		void close()
 		{
 			LOG_DBG << "Close Http connection";
 
 			boost::system::error_code ignored_ec;
-			socket().close(ignored_ec);
+			raw_socket().close(ignored_ec);
 		}
 
-		boost::asio::io_service& service_;
-		boost::asio::deadline_timer timer_;	// 长连接超时使用的timer.
-		const error_handler_t& error_handler_;
-		const std::string& static_dir_;
-		const request_handler_t& request_handler_;
-	};
 
-	//HTTP链接.
-	class TCPConnection
-		: public ConnectionBase
-	{
-	public:
-		TCPConnection(boost::asio::io_service& service,
-			const request_handler_t& request_handler,
-			const error_handler_t& error_handler,
-			const std::string& static_dir)
-			:ConnectionBase(service,request_handler,
-			error_handler,static_dir),
-			socket_(service)
+		void do_work(coro_t yield)
 		{
-			LOG_DBG << "New http connection";
-		}
+			boost::system::error_code ec;
+#ifdef CINATRA_ENABLE_HTTPS
+			handshake(socket_, yield[ec]);
+#endif // CINATRA_ENABLE_HTTPS
+			if (ec)
+			{
+				LOG_ERR << "SSL handshake failed: " << ec.message();
+				return;
+			}
 
-		boost::asio::ip::tcp::socket& socket() override { return socket_; }
-
-	protected:
-		virtual std::size_t async_write(
-			const boost::asio::const_buffers_1& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return boost::asio::async_write(socket_, buffer, yield);
-		}
-
-		virtual std::size_t async_write(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return boost::asio::async_write(socket_, buffer, yield);
-		}
-
-		virtual std::size_t async_write(
-			boost::asio::streambuf& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return boost::asio::async_write(socket_, buffer,
-				boost::asio::transfer_exactly(buffer.size()), yield);
-		}
-
-		virtual std::size_t async_read(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return boost::asio::async_read(socket_, buffer, yield);
-		}
-
-		virtual std::size_t async_read_some(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return socket_.async_read_some(buffer, yield);
-		}
-		virtual void do_work(boost::asio::yield_context yield) override
-		{
 			for (;;)
 			{
 				try
@@ -370,8 +359,7 @@ namespace cinatra
 					std::size_t total_size = 0;
 					for (;;)
 					{
-						boost::system::error_code ec;
-						std::size_t n = async_read_some(boost::asio::buffer(buffer), yield[ec]);
+						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield[ec]);
 						if (ec)
 						{
 							if (ec == boost::asio::error::eof)
@@ -428,14 +416,22 @@ namespace cinatra
 					{
 						if (!req.header().val_ncase_equal("Connetion", "Keep-Alive"))
 						{
-							shutdown();
+							if (shutdown(socket_, yield))
+							{
+								close();
+								return;
+							}
 						}
 					}
 					else if (parser.is_version11())
 					{
 						if (req.header().val_ncase_equal("Connetion", "close"))
 						{
-							shutdown();
+							if (shutdown(socket_, yield))
+							{
+								close();
+								return;
+							}
 						}
 					}
 				}
@@ -450,224 +446,30 @@ namespace cinatra
 				{
 					LOG_ERR << "Error occurs,response 500: " << e.what();
 					response_5xx(e.what(), yield);
-					shutdown();
+					if (shutdown(socket_, yield))
+					{
+						close();
+						return;
+					}
 				}
 				catch (...)
 				{
 					response_5xx("", yield);
-					shutdown();
+					if (shutdown(socket_, yield))
+					{
+						close();
+						return;
+					}
 				}
 			}
 		}
-
-
-		void shutdown(bool both = false)
-		{
-			LOG_DBG << "Shutdown Http connection";
-
-			boost::asio::ip::tcp::socket::shutdown_type shutdown_type;
-			if (both)
-			{
-				shutdown_type = boost::asio::ip::tcp::socket::shutdown_both;
-			}
-			else
-			{
-				shutdown_type = boost::asio::ip::tcp::socket::shutdown_send;
-			}
-			boost::system::error_code ignored_ec;
-			socket_.shutdown(shutdown_type, ignored_ec);
-		}
-
 	private:
-		boost::asio::ip::tcp::socket socket_;
+		boost::asio::io_service& service_;
+		boost::asio::deadline_timer timer_;	// 长连接超时使用的timer.
+		const error_handler_t& error_handler_;
+		const std::string& static_dir_;
+		const request_handler_t& request_handler_;
+
+		SocketT socket_;
 	};
-
-#ifdef CINATRA_ENABLE_HTTPS
-	//HTTPS链接.
-	class SSLConnection
-		: public ConnectionBase
-	{
-	public:
-		SSLConnection(boost::asio::io_service& service,
-			boost::asio::ssl::context& ctx,
-			const request_handler_t& request_handler,
-			const error_handler_t& error_handler,
-			const std::string& static_dir)
-			:ConnectionBase(service, request_handler,
-			error_handler, static_dir),
-			socket_(service,ctx)
-		{
-			LOG_DBG << "New https connection";
-		}
-
-		boost::asio::ip::tcp::socket& socket() override { return socket_.next_layer(); }
-
-	protected:
-		virtual std::size_t async_write(
-			const boost::asio::const_buffers_1& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return boost::asio::async_write(socket_, buffer, yield);
-		}
-
-		virtual std::size_t async_write(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return boost::asio::async_write(socket_, buffer, yield);
-		}
-
-		virtual std::size_t async_write(
-			boost::asio::streambuf& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return boost::asio::async_write(socket_, buffer,
-				boost::asio::transfer_exactly(buffer.size()), yield);
-		}
-
-		virtual std::size_t async_read(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return boost::asio::async_read(socket_, buffer, yield);
-		}
-
-		virtual std::size_t async_read_some(
-			const boost::asio::mutable_buffers_1& buffer,
-			const boost::asio::yield_context& yield) override
-		{
-			return socket_.async_read_some(buffer, yield);
-		}
-		virtual void do_work(boost::asio::yield_context yield) override
-		{
-			boost::system::error_code ec;
-			socket_.async_handshake(boost::asio::ssl::stream_base::server, yield[ec]);
-			if (ec)
-			{
-				LOG_ERR << "SSL handshake failed: " << ec.message();
-				return;
-			}
-			for (;;)
-			{
-				try
-				{
-					reset_timer();
-
-					std::array<char, 8192> buffer;
-					RequestParser parser;
-
-					std::size_t total_size = 0;
-					for (;;)
-					{
-						std::size_t n = async_read_some(boost::asio::buffer(buffer), yield);
-						if (ec)
-						{
-							if (ec == boost::asio::error::eof)
-							{
-								LOG_DBG << "Socket shutdown";
-							}
-							else
-							{
-								LOG_DBG << "Network exception: " << ec.message();
-							}
-							close();
-							return;
-						}
-
-						cancel_timer();	//读取到了数据之后就取消关闭连接的timer
-						total_size += n;
-						if (total_size > CINATRA_REQ_MAX_SIZE)
-						{
-							throw std::runtime_error("Request toooooooo large");
-						}
-
-						auto ret = parser.parse(buffer.data(), buffer.data() + n);
-						if (ret == RequestParser::good)
-						{
-							break;
-						}
-						if (ret == RequestParser::bad)
-						{
-							throw std::runtime_error("HTTP Parser error");
-						}
-					}
-
-					Request req = parser.get_request();
-					LOG_DBG << "New request,path:" << req.path();
-					Response res;
-
-					if (init_req_res(req,res,parser,yield))
-					{
-						bool r = request_handler_(req, res);
-						if (!res.is_complete() && !r)
-						{
-							if (response_file(req, res.header.hasKeepalive(), yield))
-							{
-								continue;
-							}
-
-							error_handler_(404, "", req, res);
-						}
-					}
-
-					response(res, yield);
-
-					if (parser.is_version10())
-					{
-						if (!req.header().val_ncase_equal("Connetion", "Keep-Alive"))
-						{
-							shutdown(yield);
-							close();
-							return;
-						}
-					}
-					else if (parser.is_version11())
-					{
-						if (req.header().val_ncase_equal("Connetion", "close"))
-						{
-							shutdown(yield);
-							close();
-							return;
-						}
-					}
-				}
-				catch (boost::system::system_error& e)
-				{
-					//网络通信异常，关socket.
-					LOG_DBG << "Network exception: " << e.code().message();
-					close();
-					return;
-				}
-				catch (std::exception& e)
-				{
-					LOG_ERR << "Error occurs,response 500: " << e.what();
-					response_5xx(e.what(), yield);
-					shutdown(yield);
-					close();
-					return;
-				}
-				catch (...)
-				{
-					response_5xx("", yield);
-					shutdown(yield);
-					close();
-					return;
-				}
-			}
-		}
-
-
-		void shutdown(boost::asio::yield_context& yield)
-		{
-			LOG_DBG << "Shutdown Https connection";
-			boost::system::error_code ignored_ec;
-			socket_.async_shutdown(yield[ignored_ec]);
-		}
-
-	private:
-		boost::asio::ssl::stream<
-			boost::asio::ip::tcp::socket
-		> socket_;
-	};
-#endif // CINATRA_ENABLE_HTTPS
 }
