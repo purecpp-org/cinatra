@@ -43,7 +43,7 @@ namespace cinatra
 			CaseMap cookie_;
 		};
 
-		void before(Request& req, Response& res, ContextContainer& ctx)
+		void before(Request& req, Response& /*res*/, ContextContainer& ctx)
 		{
 			ctx.add_req_ctx(Context(req.header().get_val("Cookie")));
 		}

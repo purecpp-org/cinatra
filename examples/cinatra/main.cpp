@@ -100,7 +100,7 @@ int main()
 	});
 
 	//设置cookie
-	app.route("/set_cookies", [](cinatra::ContextContainer& ctx, cinatra::Request& req, cinatra::Response& res)
+	app.route("/set_cookies", [](cinatra::ContextContainer& ctx, cinatra::Response& res)
 	{
 		auto& cookie = ctx.get_req_ctx<cinatra::ResponseCookie>();
 		cookie.new_cookie() // 会话cookie
@@ -112,7 +112,7 @@ int main()
 		res.end("</body></html>");
 	});
 	//列出所有的cookie
-	app.route("/show_cookies", [](cinatra::Request& req, cinatra::Response& res, cinatra::ContextContainer& ctx)
+	app.route("/show_cookies", [](cinatra::Response& res, cinatra::ContextContainer& ctx)
 	{
 		auto& cookie = ctx.get_req_ctx<cinatra::RequestCookie>();
 		res.write("<html><head><title>Show cookies</title ></head><body>");
