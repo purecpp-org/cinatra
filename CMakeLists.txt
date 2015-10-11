@@ -6,27 +6,29 @@ OPTION(ENABLE_OPENSSL "Enable use of OpenSSL for https" ON)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 
-find_package(Boost 1.57 COMPONENTS coroutine context system  REQUIRED)
+FIND_PACKAGE(Boost 1.55 COMPONENTS coroutine context system  REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(include)
-set(EXTRA_LIBS ${Boost_LIBRARIES})
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+FIND_PACKAGE (Threads)
+INCLUDE_DIRECTORIES(include)
+SET(EXTRA_LIBS ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-if (ENABLE_OPENSSL)
-	find_package(OpenSSL)
-	include_directories(${OPENSSL_INCLUDE_DIR})
-	set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSSL_LIBRARIES})
+
+IF (ENABLE_OPENSSL)
+	FIND_PACKAGE(OpenSSL)
+	INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
+	SET(EXTRA_LIBS ${EXTRA_LIBS} ${OPENSSL_LIBRARIES})
 	MESSAGE(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
-endif()
+ENDIF()
 
 
 ADD_COMPILE_OPTIONS("-std=c++11")
 ADD_COMPILE_OPTIONS("-Wall")
 ADD_COMPILE_OPTIONS("-Wextra")
 
-if (WIN32)
-	set(EXTRA_LIBS ${EXTRA_LIBS} ws2_32 mswsock)
-endif()
+IF (WIN32)
+	SET(EXTRA_LIBS ${EXTRA_LIBS} ws2_32 mswsock)
+ENDIF()
 
 SUBDIRS(
 	examples
