@@ -75,24 +75,38 @@ namespace cinatra
 
 		Cinatra& listen(const std::string& address, const std::string& port)
 		{
-			listen_addr_ = address;
-			listen_port_ = port;
+			http_listen_infos_.push_back(HttpListenInfo{ address, port });
 			return *this;
 		}
 
 		Cinatra& listen(const std::string& port)
 		{
-			listen_addr_ = "0.0.0.0";
-			listen_port_ = port;
-			return *this;
+			return listen("0.0.0.0", port);
 		}
 
 		Cinatra& listen(const std::string& address, unsigned short port)
 		{
-			listen_addr_ = address;
-			listen_port_ = boost::lexical_cast<std::string>(port);
+			return listen(address, boost::lexical_cast<std::string>(port));
+		}
+
+#ifdef CINATRA_ENABLE_HTTPS
+		Cinatra& listen(const std::string& address, const std::string& port, const HttpsConfig& cfg)
+		{
+			https_listen_infos_.push_back(HttpsListenInfo{ address, port, cfg });
 			return *this;
 		}
+
+		Cinatra& listen(const std::string& port, const HttpsConfig& cfg)
+		{
+			return listen("0.0.0.0", port, cfg);
+		}
+
+		Cinatra& listen(const std::string& address, unsigned short port, const HttpsConfig& cfg)
+		{
+			return listen(address, boost::lexical_cast<std::string>(port), cfg);
+		}
+#endif // CINATRA_ENABLE_HTTPS
+
 
 		Cinatra& static_dir(const std::string& dir)
 		{
@@ -106,13 +120,6 @@ namespace cinatra
 			return aop_.template get_aspect<T>();
 		}
 
-#ifdef CINATRA_ENABLE_HTTPS
-		Cinatra& https_config(const HttpsConfig& cfg)
-		{
-			config_ = cfg;
-			return *this;
-		}
-#endif // CINATRA_ENABLE_HTTPS
 
 		void run()
 		{
@@ -154,12 +161,20 @@ namespace cinatra
 
 				return true;
 			})
-				.static_dir(static_dir_)
+				.static_dir(static_dir_);
+
+			for (auto const & info : http_listen_infos_)
+			{
+				s.listen(info.address, info.port);
+			}
 #ifdef CINATRA_ENABLE_HTTPS
-				.https_config(config_)
+			for (auto const & info : https_listen_infos_)
+			{
+				s.listen(info.address, info.port, info.cfg);
+			}
 #endif // CINATRA_ENABLE_HTTPS
-				.listen(listen_addr_, listen_port_)
-				.run();
+			
+			s.run();
 		}
 
 	private:
@@ -171,12 +186,24 @@ namespace cinatra
 		int num_threads_ = std::thread::hardware_concurrency();
 #endif // CINATRA_SINGLE_THREAD
 
-		std::string listen_addr_;
-		std::string listen_port_;
-		std::string static_dir_;
+		struct HttpListenInfo
+		{
+			std::string address;
+			std::string port;
+		};
+		std::vector<HttpListenInfo> http_listen_infos_;
+		
 #ifdef CINATRA_ENABLE_HTTPS
-		HttpsConfig config_;
+		struct HttpsListenInfo
+		{
+			std::string address;
+			std::string port;
+			HttpsConfig cfg;
+		};
+		std::vector<HttpsListenInfo> https_listen_infos_;
 #endif // CINATRA_ENABLE_HTTPS
+
+		std::string static_dir_;
 
 		error_handler_t error_handler_;
 

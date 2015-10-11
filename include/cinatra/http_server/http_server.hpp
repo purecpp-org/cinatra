@@ -38,8 +38,7 @@ namespace cinatra
 			const std::string& private_key_file,
 			const std::string& tmp_dh_file,
 			const std::string& verify_file)
-			:use_https(true),
-			ssl_enable_v3(ssl_enable_v3),
+			:ssl_enable_v3(ssl_enable_v3),
 			verify_mode(verify_mode),
 			pwd_callback(pwd_callback),
 			certificate_chain_file(certificate_chain_file),
@@ -48,9 +47,7 @@ namespace cinatra
 			verify_file(verify_file)
 		{}
 		HttpsConfig()
-			:use_https(false)
 		{}
-		bool use_https;
 		bool ssl_enable_v3;
 		verify_mode_t verify_mode;
 
@@ -66,12 +63,11 @@ namespace cinatra
 	public:
 #ifndef CINATRA_SINGLE_THREAD
 		HTTPServer(std::size_t io_service_pool_size)
-			:io_service_pool_(io_service_pool_size),
+			:io_service_pool_(io_service_pool_size)
 #else
 		HTTPServer()
-			: io_service_pool_(1),
+			: io_service_pool_(1)
 #endif // CINATRA_SINGLE_THREAD
-			acceptor_(io_service_pool_.get_io_service())
 		{
 
 		}
@@ -93,20 +89,29 @@ namespace cinatra
 
 		HTTPServer& listen(const std::string& address, const std::string& port)
 		{
-			LOG_DBG << "Listen on " << address << ":" << port;
-			boost::asio::ip::tcp::resolver resolver(acceptor_.get_io_service());
-			boost::asio::ip::tcp::resolver::query query(address, port);
-			boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
-			acceptor_.open(endpoint.protocol());
-			acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
-			acceptor_.bind(endpoint);
-			acceptor_.listen();
+			boost::asio::spawn(
+				io_service_pool_.get_io_service(),
+				[this, address, port](boost::asio::yield_context yield)
+			{
+				do_accept(address, port, yield);
+			});
 
-			boost::asio::spawn(acceptor_.get_io_service(),
-				std::bind(&HTTPServer::do_accept,
-				this, std::placeholders::_1));
 			return *this;
 		}
+
+#ifdef CINATRA_ENABLE_HTTPS
+		HTTPServer& listen(const std::string& address, const std::string& port, HttpsConfig cfg)
+		{
+			boost::asio::spawn(
+				io_service_pool_.get_io_service(),
+				[this, address, port, cfg](boost::asio::yield_context yield)
+			{
+				do_accept(address, port, cfg, yield);
+			});
+
+			return *this;
+		}
+#endif //CINATRA_ENABLE_HTTPS
 
 		HTTPServer& listen(const std::string& address, unsigned short port)
 		{
@@ -119,14 +124,6 @@ namespace cinatra
 			return *this;
 		}
 
-#ifdef CINATRA_ENABLE_HTTPS
-		HTTPServer& https_config(const HttpsConfig& cfg)
-		{
-			config_ = cfg;
-			return *this;
-		}
-#endif // CINATRA_ENABLE_HTTPS
-
 		void run()
 		{
 			LOG_DBG << "Starting HTTP Server";
@@ -134,96 +131,116 @@ namespace cinatra
 		}
 
 	private:
-		void do_accept(const boost::asio::yield_context& yield)
+		void do_accept(
+			const std::string address,
+			const std::string port,
+			const boost::asio::yield_context& yield)
 		{
-#ifdef CINATRA_ENABLE_HTTPS
-			std::unique_ptr<boost::asio::ssl::context> ctx;
-			if (config_.use_https)
-			{
-				ctx.reset(new boost::asio::ssl::context(boost::asio::ssl::context::sslv23));
-				unsigned long ssl_options = boost::asio::ssl::context::default_workarounds
-					| boost::asio::ssl::context::no_sslv2
-					| boost::asio::ssl::context::single_dh_use;
-
-				if (!config_.ssl_enable_v3)
-					ssl_options |= boost::asio::ssl::context::no_sslv3;
-				ctx->set_options(ssl_options);
-
-				if (config_.pwd_callback)
-				{
-					ctx->set_password_callback(config_.pwd_callback);
-				}
-
-				if (config_.verify_mode == HttpsConfig::none)
-				{
-					ctx->set_verify_mode(boost::asio::ssl::context::verify_none);
-				}
-				else if (config_.verify_mode == HttpsConfig::optional)
-				{
-					ctx->set_verify_mode(boost::asio::ssl::context::verify_peer);
-					ctx->load_verify_file(config_.verify_file);
-				}
-				else
-				{
-					// required
-					ctx->set_verify_mode(boost::asio::ssl::context::verify_peer |
-						boost::asio::ssl::context::verify_fail_if_no_peer_cert);
-					ctx->load_verify_file(config_.verify_file);
-				}
-
-				ctx->use_certificate_chain_file(config_.certificate_chain_file);
-				ctx->use_private_key_file(config_.private_key_file,
-					boost::asio::ssl::context::pem);
-				ctx->use_tmp_dh_file(config_.tmp_dh_file);
-			}
-#endif // CINATRA_ENABLE_HTTPS
+			LOG_DBG << "Listen on " << address << ":" << port;
+			boost::asio::ip::tcp::acceptor acceptor(io_service_pool_.get_io_service());
+			boost::asio::ip::tcp::resolver resolver(acceptor.get_io_service());
+			boost::asio::ip::tcp::resolver::query query(address, port);
+			boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
+			acceptor.open(endpoint.protocol());
+			acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+			acceptor.bind(endpoint);
+			acceptor.listen();
 
 			for (;;)
 			{
-#ifdef CINATRA_ENABLE_HTTPS
-				if (ctx)
+				auto conn(
+					std::make_shared<Connection<tcp_socket>>(
+					io_service_pool_.get_io_service(),
+					request_handler_, error_handler_, static_dir_));
+
+				boost::system::error_code ec;
+				acceptor.async_accept(conn->raw_socket(), yield[ec]);
+				if (ec)
 				{
-					auto conn(
-						std::make_shared<Connection<ssl_socket>>(
-						io_service_pool_.get_io_service(),
-						*ctx, request_handler_, error_handler_, static_dir_));
-					boost::system::error_code ec;
-					acceptor_.async_accept(conn->raw_socket(), yield[ec]);
-					if (ec)
-					{
-						LOG_DBG << "Accept new connection failed: " << ec.message();
-						continue;
-					}
-
-					conn->start();
+					LOG_DBG << "Accept new connection failed: " << ec.message();
+					continue;
 				}
-				else
-#endif // CINATRA_ENABLE_HTTPS
-				{
-					auto conn(
-						std::make_shared<Connection<tcp_socket>>(
-						io_service_pool_.get_io_service(),
-						request_handler_, error_handler_, static_dir_));
 
-					boost::system::error_code ec;
-					acceptor_.async_accept(conn->raw_socket(), yield[ec]);
-					if (ec)
-					{
-						LOG_DBG << "Accept new connection failed: " << ec.message();
-						continue;
-					}
-
-					conn->start();
-				}
+				conn->start();
 			}
 		}
+
+#ifdef CINATRA_ENABLE_HTTPS
+		void do_accept(
+			const std::string address,
+			const std::string port,
+			HttpsConfig config,
+			const boost::asio::yield_context& yield)
+		{
+			LOG_DBG << "Listen on " << address << ":" << port;
+			boost::asio::ip::tcp::acceptor acceptor(io_service_pool_.get_io_service());
+			boost::asio::ip::tcp::resolver resolver(acceptor.get_io_service());
+			boost::asio::ip::tcp::resolver::query query(address, port);
+			boost::asio::ip::tcp::endpoint endpoint = *resolver.resolve(query);
+			acceptor.open(endpoint.protocol());
+			acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
+			acceptor.bind(endpoint);
+			acceptor.listen();
+
+			std::unique_ptr<boost::asio::ssl::context> ctx;
+
+			ctx.reset(new boost::asio::ssl::context(boost::asio::ssl::context::sslv23));
+			unsigned long ssl_options = boost::asio::ssl::context::default_workarounds
+				| boost::asio::ssl::context::no_sslv2
+				| boost::asio::ssl::context::single_dh_use;
+
+			if (!config.ssl_enable_v3)
+				ssl_options |= boost::asio::ssl::context::no_sslv3;
+			ctx->set_options(ssl_options);
+
+			if (config.pwd_callback)
+			{
+				ctx->set_password_callback(config.pwd_callback);
+			}
+
+			if (config.verify_mode == HttpsConfig::none)
+			{
+				ctx->set_verify_mode(boost::asio::ssl::context::verify_none);
+			}
+			else if (config.verify_mode == HttpsConfig::optional)
+			{
+				ctx->set_verify_mode(boost::asio::ssl::context::verify_peer);
+				ctx->load_verify_file(config.verify_file);
+			}
+			else
+			{
+				// required
+				ctx->set_verify_mode(boost::asio::ssl::context::verify_peer |
+					boost::asio::ssl::context::verify_fail_if_no_peer_cert);
+				ctx->load_verify_file(config.verify_file);
+			}
+
+			ctx->use_certificate_chain_file(config.certificate_chain_file);
+			ctx->use_private_key_file(config.private_key_file,
+				boost::asio::ssl::context::pem);
+			ctx->use_tmp_dh_file(config.tmp_dh_file);
+
+			for (;;)
+			{
+
+				auto conn(
+					std::make_shared<Connection<ssl_socket>>(
+					io_service_pool_.get_io_service(),
+					*ctx, request_handler_, error_handler_, static_dir_));
+				boost::system::error_code ec;
+				acceptor.async_accept(conn->raw_socket(), yield[ec]);
+				if (ec)
+				{
+					LOG_DBG << "Accept new connection failed: " << ec.message();
+					continue;
+				}
+
+				conn->start();
+			}
+		}
+#endif // CINATRA_ENABLE_HTTPS
 	private:
 		IOServicePool io_service_pool_;
-		boost::asio::ip::tcp::acceptor acceptor_;
-#ifdef CINATRA_ENABLE_HTTPS
-		HttpsConfig config_;
-#endif // CINATRA_ENABLE_HTTPS
-
 
 		request_handler_t request_handler_;
 		error_handler_t error_handler_;

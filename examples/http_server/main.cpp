@@ -34,8 +34,7 @@ int main()
 		res.write("Error: " + boost::lexical_cast<std::string>(code));
 		return true;
 	})
-		.https_config(
-		cinatra::HttpsConfig(
+		.listen("0.0.0.0", "https", cinatra::HttpsConfig(
 		true,
 		cinatra::HttpsConfig::none,
 		[](std::size_t, int)->std::string{ return "123456"; },
@@ -44,7 +43,8 @@ int main()
 		"dh2048.pem",
 		""
 		))
-	.listen("0.0.0.0", "https").run();
+		.listen("0.0.0.0", "http")
+		.run();
 
 	return 0;
 }
