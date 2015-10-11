@@ -62,7 +62,7 @@ namespace cinatra
 
   			// 获取session id
 			std::string session_id = req_cookie.get("CSESSIONID");
- 			if (session_id.empty())
+			if (session_id.empty() || sessions_.find(session_id) == sessions_.end())
  			{
  			 	// ID为空则新建一个session
 				session_id = new_sessionid();
