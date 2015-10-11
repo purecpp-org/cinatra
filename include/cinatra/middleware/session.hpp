@@ -43,7 +43,7 @@ namespace cinatra
 		{
 			{
 				CINATRA_UNIQUE_LOCK(mutex_);
-				//¼ì²éËùÓĞsessionÓĞÃ»ÓĞ³¬Ê±µÄ
+				//æ£€æŸ¥æ‰€æœ‰sessionæœ‰æ²¡æœ‰è¶…æ—¶çš„
 				for (auto it = sessions_.begin(); it != sessions_.end();)
 				{
 					if (std::time(nullptr) - it->second->last_used_time >= life_cycle_)
@@ -57,14 +57,14 @@ namespace cinatra
 				}
 			}
 
-			// Èç¹ûÕâÀïÅ×Òì³£Çë¼ì²éÊÇ·ñÌí¼ÓÁËRequestCookieºÍResponseCookieÖĞ¼ä¼ş,²¢ÇÒÔÚsessionÖĞ¼ä¼şµÄÇ°Ãæ
+			// å¦‚æœè¿™é‡ŒæŠ›å¼‚å¸¸è¯·æ£€æŸ¥æ˜¯å¦æ·»åŠ äº†RequestCookieå’ŒResponseCookieä¸­é—´ä»¶,å¹¶ä¸”åœ¨sessionä¸­é—´ä»¶çš„å‰é¢
 			auto& req_cookie = ctx.get_req_ctx<RequestCookie>();
 
-  			// »ñÈ¡session id
+  			// è·å–session id
 			std::string session_id = req_cookie.get("CSESSIONID");
 			if (session_id.empty() || sessions_.find(session_id) == sessions_.end())
  			{
- 			 	// IDÎª¿ÕÔòĞÂ½¨Ò»¸ösession
+ 			 	// IDä¸ºç©ºåˆ™æ–°å»ºä¸€ä¸ªsession
 				session_id = new_sessionid();
 				auto& res_cookie = ctx.get_req_ctx<ResponseCookie>();
 				res_cookie.new_cookie().add("CSESSIONID", session_id);

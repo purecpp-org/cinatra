@@ -17,10 +17,10 @@ namespace cinatra
 		bool is_file;
 
 		NcaseMultiMap content_disposition;
-		// ֻ����is_fileΪtrueʱ��Ч.
+		// 只有在is_file为true时有效.
 		std::string content_type;
-		// is_fileΪfalseʱΪ�ֶε�ֵ,
-		// ΪtrueʱΪ�ļ�����
+		// is_file为false时为字段的值,
+		// 为true时为文件内容
 		std::string data;
 	};
 
@@ -90,7 +90,7 @@ namespace cinatra
 		}
 		std::string headers = part.substr(0, pos + 2);
 		const auto body_start = pos + 4/*"\r\n\r\n".size*/;
-		const auto body_size = part.size() - body_start - 2/*bodyĩβ�������ֽڵ�\r\n*/;
+		const auto body_size = part.size() - body_start - 2/*body末尾有两个字节的\r\n*/;
 		item.data = part.substr(body_start, body_size);
 
 // 		std::cout << "+++++++++++++++++++++++++++++" << std::endl;
