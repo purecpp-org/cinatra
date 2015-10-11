@@ -48,9 +48,9 @@ namespace cinatra
 			const error_handler_t& error_handler,
 			const std::string& static_dir,
 			typename std::enable_if<std::is_same<U,tcp_socket>::value>::type* = 0)
-			:service_(service), timer_(service),
+			:service_(service),socket_(service), timer_(service),
 			error_handler_(error_handler), static_dir_(static_dir),
-			request_handler_(request_handler), socket_(service)
+			request_handler_(request_handler)
 		{
 			LOG_DBG << "New http connection";
 		}
@@ -93,7 +93,7 @@ namespace cinatra
 		{
 			boost::asio::spawn(service_,
 				std::bind(&Connection<SocketT>::do_work,
-				shared_from_this(), std::placeholders::_1));
+				this->shared_from_this(), std::placeholders::_1));
 		}
 	private:
 		using coro_t = boost::asio::yield_context;
@@ -101,8 +101,8 @@ namespace cinatra
 
 #ifdef CINATRA_ENABLE_HTTPS
 		//https需要handshake
-		void handshake(tcp_socket&, coro_t&){}
-		void handshake(ssl_socket& s, coro_t& yield)
+		void handshake(tcp_socket&, coro_t){}
+		void handshake(ssl_socket& s, coro_t yield)
 		{
 			s.async_handshake(boost::asio::ssl::stream_base::server, yield);
 		}
@@ -465,11 +465,12 @@ namespace cinatra
 		}
 	private:
 		boost::asio::io_service& service_;
+		SocketT socket_;
+
 		boost::asio::deadline_timer timer_;	// 长连接超时使用的timer.
 		const error_handler_t& error_handler_;
 		const std::string& static_dir_;
 		const request_handler_t& request_handler_;
 
-		SocketT socket_;
 	};
 }

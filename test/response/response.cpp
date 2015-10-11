@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <cinatra/response.hpp>
+#include <cinatra/http_server/response.hpp>
 #include <iostream>
 #include <cstring>
 

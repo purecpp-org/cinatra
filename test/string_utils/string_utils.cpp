@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <cinatra/string_utils.hpp>
+#include <cinatra/utils/string_utils.hpp>
 
 #include <iostream>
 
