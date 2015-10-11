@@ -36,6 +36,11 @@ namespace cinatra
 			return iter->second;
 		}
 
+        const std::string& operator[](const std::string& key) const
+        {
+            return get_val(key);
+        }
+
 		bool has_key(const std::string& key) const
 		{
 			return map_.find(key) != map_.end();
