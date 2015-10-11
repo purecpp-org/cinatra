@@ -1,0 +1,7 @@
+ADD_EXECUTABLE(multi_compile_uint main.cpp)
+INCLUDE_DIRECTORIES(../../include)
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	TARGET_LINK_LIBRARIES(multi_compile_uint boost_system-mt pthread boost_coroutine-mt boost_context-mt boost_thread-mt)
+ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	TARGET_LINK_LIBRARIES(multi_compile_uint boost_system pthread boost_coroutine boost_context boost_thread)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

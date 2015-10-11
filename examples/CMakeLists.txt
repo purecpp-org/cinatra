@@ -4,4 +4,6 @@ SUBDIRS(
 	hello_world
 	echo
 	session_control
+    file_upload
+    multi_compile_uint
 )
