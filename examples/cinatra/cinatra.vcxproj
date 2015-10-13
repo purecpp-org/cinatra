@@ -236,6 +236,32 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\cinatra\html_template\common.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\context\context.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\exception.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\io\file_reader.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\io\file_writer.h" />
+    <ClInclude Include="..\..\include\cinatra\html_template\io\reader.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\io\string_reader.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\io\string_writer.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\io\writer.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\block_node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\cache_node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\each_node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\else_node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\extends_node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\if_node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\include_node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\root.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\text_node.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\node\variable.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\parser\expression_parser.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\parser\fragment.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\parser\parser.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\template\file_template.hpp" />
+    <ClInclude Include="..\..\include\cinatra\html_template\template\template.hpp" />
+    <ClInclude Include="..\..\include\cinatra\json\json.hpp" />
     <ClInclude Include="..\..\include\cinatra\utils\aop.hpp" />
     <ClInclude Include="..\..\include\cinatra\body_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\cinatra.hpp" />
@@ -255,6 +281,10 @@
     <ClInclude Include="..\..\include\cinatra\utils\timer.hpp" />
     <ClInclude Include="..\..\include\cinatra\token_parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\utils\utils.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\include\cinatra\html_template\parser\parser.ipp" />
+    <None Include="..\..\include\cinatra\json\json.ipp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
