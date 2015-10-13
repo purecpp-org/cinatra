@@ -7,6 +7,7 @@ SET(TEST_SOURCES
 	router/router.cpp
 	string_utils/string_utils.cpp
     body_parser/body_parser.cpp
+    context_container/context_container.cpp
 )
 
 ADD_EXECUTABLE(cinatra_test ${TEST_SOURCES})
