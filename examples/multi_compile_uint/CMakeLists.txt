@@ -1,9 +1,7 @@
-ADD_EXECUTABLE(multi_compile_uint main.cpp)
-INCLUDE_DIRECTORIES(../../include)
-IF(APPLE)
-    TARGET_LINK_LIBRARIES(multi_compile_uint boost_system-mt pthread boost_coroutine-mt boost_context-mt boost_thread-mt)
-ELSEIF(WIN32)
-    TARGET_LINK_LIBRARIES(multi_compile_uint boost_system pthread boost_coroutine boost_context boost_thread ws2_32 mswsock)
-ELSE()
-    TARGET_LINK_LIBRARIES(multi_compile_uint boost_system pthread boost_coroutine boost_context boost_thread)
+ADD_EXECUTABLE(multi_compile_uint main.cpp dummy.cpp)
+
+IF (ENABLE_OPENSSL)
+	ADD_DEFINITIONS(-DCINATRA_ENABLE_HTTPS)
 ENDIF()
+
+TARGET_LINK_LIBRARIES(multi_compile_uint ${EXTRA_LIBS})
