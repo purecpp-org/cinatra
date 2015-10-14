@@ -9,8 +9,7 @@
 #include <cinatra/middleware/cookie.hpp>
 #include <cinatra/middleware/session.hpp>
 
-#include <cinatra/html_template/context/context.hpp>
-#include <cinatra/html_template/template/file_template.hpp>
+#include <cinatra/html_template.hpp>
 
 #include <fstream>
 
@@ -131,15 +130,11 @@ int main()
 	//测试html template engine和json
 	app.route("/template", [](cinatra::Response& res)
 	{
-		cinatra::FileTemplate tpl("./view/test.tpl");
-
-		cinatra::Context ctx(cinatra::Json::object{
+		cinatra::render(res, "./view/test.tpl", cinatra::Json::object{
 			{ "title", "hello" },
 			{ "foo", "bar" },
 			{ "test_loop", cinatra::Json::array{"aaa", "sssssssssss", "ddddddd"} },
 		});
-
-		res.end(tpl.render(&ctx));
 	});
 
 	app.static_dir("./static")

@@ -236,6 +236,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\cinatra\html_template.hpp" />
     <ClInclude Include="..\..\include\cinatra\html_template\common.hpp" />
     <ClInclude Include="..\..\include\cinatra\html_template\context\context.hpp" />
     <ClInclude Include="..\..\include\cinatra\html_template\exception.hpp" />

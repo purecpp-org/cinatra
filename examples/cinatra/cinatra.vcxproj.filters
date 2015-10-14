@@ -185,6 +185,9 @@
     <ClInclude Include="..\..\include\cinatra\html_template\template\template.hpp">
       <Filter>头文件\html_template\template</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\html_template.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\include\cinatra\json\json.ipp">
