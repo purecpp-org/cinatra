@@ -24,7 +24,7 @@ namespace cinatra
 	class Node
 	{
 	public:
-		virtual void render(Writer * stream, Context * context) const
+		virtual void render(Writer * stream, Context * /*context*/) const
 		{
 			stream->write("*** NOT IMPLEMENTED ***");
 		}
@@ -38,7 +38,7 @@ namespace cinatra
 				std::bind(&Node::render, std::placeholders::_1, stream, context));
 		}
 
-		virtual void processFragment(Fragment const * fragment){}
+		virtual void processFragment(Fragment const * /*fragment*/){}
 		void addChild(Node * child)
 		{
 			m_children.push_back(std::shared_ptr< Node >(child));
@@ -47,7 +47,7 @@ namespace cinatra
 		bool createsScope() const{ return m_createsScope; }
 
 		virtual void enterScope(){}
-		virtual void exitScope(std::string const & endTag){}
+		virtual void exitScope(std::string const & /*endTag*/){}
 
 		virtual std::string name() const{ return "Node"; }
 

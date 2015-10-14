@@ -18,9 +18,7 @@ namespace cinatra
 	class ElseNode : public Node
 	{
 	public:
-		virtual void render(Writer * stream, Context * context) const
-		{
-		}
+		virtual void render(Writer * /*stream*/, Context * /*context*/) const{}
 
 		virtual std::string name() const { return "Else"; }
 
