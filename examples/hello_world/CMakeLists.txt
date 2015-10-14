@@ -1,9 +1,3 @@
 ADD_EXECUTABLE(hello_world main.cpp)
-INCLUDE_DIRECTORIES(../../include)
-IF(APPLE)
-    TARGET_LINK_LIBRARIES(hello_world boost_system-mt pthread boost_coroutine-mt boost_context-mt boost_thread-mt)
-ELSEIF(WIN32)
-    TARGET_LINK_LIBRARIES(hello_world boost_system pthread boost_coroutine boost_context boost_thread ws2_32 mswsock)
-ELSE()
-    TARGET_LINK_LIBRARIES(hello_world boost_system pthread boost_coroutine boost_context boost_thread)
-ENDIF()
+
+TARGET_LINK_LIBRARIES(hello_world ${EXTRA_LIBS})

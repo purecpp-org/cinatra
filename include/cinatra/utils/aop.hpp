@@ -38,7 +38,7 @@ namespace cinatra
 			return ret;
 		}
 
-		// 根据类型获取tuple中的实例
+		// 鏍规嵁绫诲瀷鑾峰彇tuple涓殑瀹炰緥
 		template<int Index, class Search, class First, class... Types>
 		struct get_internal
 		{
