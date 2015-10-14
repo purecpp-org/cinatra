@@ -149,7 +149,7 @@ namespace cinatra
 
 		std::string new_sessionid()
 		{
-			boost::uuids::uuid u = boost::uuids::string_generator()("{0123456789abcdef0123456789abcdef}");
+			boost::uuids::uuid u = boost::uuids::random_generator()();
 
 			std::string u_str;
 			for (auto c : u)
