@@ -27,6 +27,6 @@ BOOST_AUTO_TEST_CASE(context_container_app_ctx_test)
     BOOST_REQUIRE(cc.has_app_ctx("char"));
     BOOST_REQUIRE(cc.has_app_ctx("string"));
     std::string ch = "char";
-//    BOOST_CHECK(cc.get_app_ctx<char>(ch));
+    BOOST_CHECK(cc.get_app_ctx<char>(ch));
     BOOST_CHECK(cc.get_app_ctx<std::string>("string") == "string");
 }
