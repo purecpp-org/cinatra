@@ -55,7 +55,7 @@ namespace cinatra
 				throw std::runtime_error("No such key.");
 			}
 
-			return boost::any_cast<T>(it->second);
+			return boost::any_cast<T&>(it->second);
 		}
 
 		bool has_app_ctx(const std::string& key)
