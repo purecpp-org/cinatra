@@ -130,6 +130,10 @@ int main()
 	//测试html template engine和json
 	app.route("/template", [](cinatra::Response& res)
 	{
+		//html模板修改自RedZone
+		//具体使用方式和模板语法请参考官方文档
+		//https://github.com/jcfromsiberia/RedZone
+		//Thanks Ivan Il'in!
 		cinatra::render(res, "./view/test.tpl", cinatra::Json::object{
 			{ "title", "hello" },
 			{ "foo", "bar" },
