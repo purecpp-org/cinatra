@@ -13,9 +13,11 @@
 
 #ifdef _MSC_VER
 #define snprintf _snprintf
+#include <io.h>
+#else
+#include <unistd.h>
 #endif
 
-#include <io.h>
 
 namespace cinatra
 {
