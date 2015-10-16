@@ -3,6 +3,7 @@ SET(TEST_SOURCES
 	request_parser/request_parser.cpp
 	utils/case_map.cpp
 	utils/ncase_multi_map.cpp
+	utils/funtion_traits.cpp
 	response/response.cpp
 	router/router.cpp
 	string_utils/string_utils.cpp

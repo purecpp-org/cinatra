@@ -71,6 +71,7 @@ namespace cinatra
 			std::get<N>(aspects_).before(req, res, ctx);
 			invoke_before(req, res, ctx, Identity<N+1>());
 		}
+
 		void invoke_before(Request&, Response&, ContextContainer&, Identity<sizeof...(Aspect)>)
 		{
 		}
