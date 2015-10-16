@@ -42,5 +42,8 @@
     <ClCompile Include="utils\ncase_multi_map.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="utils\funtion_traits.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

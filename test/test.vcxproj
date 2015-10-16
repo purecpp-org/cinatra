@@ -92,6 +92,7 @@
     <ClCompile Include="string_utils\string_utils.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="utils\case_map.cpp" />
+    <ClCompile Include="utils\funtion_traits.cpp" />
     <ClCompile Include="utils\ncase_multi_map.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
