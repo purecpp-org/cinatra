@@ -2,7 +2,7 @@
 
 #include <cinatra/utils/function_traits.hpp>
 #include <cinatra/utils/string_utils.hpp>
-#include <cinatra/utils/timer.hpp>
+//#include <cinatra/utils/timer.hpp>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/functional/hash.hpp>
