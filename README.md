@@ -29,7 +29,14 @@ cmake ..
 make
 ```
 ##### Done!
+
 ##### chinese wiki:https://github.com/topcpporg/cinatra/wiki
 ##### english wiki:https://github.com/topcpporg/cinatra/wiki/Introduction
+
+# Used open source library:
+### boost: http://www.boost.org/
+### json11: https://github.com/dropbox/json11
+### RedZone: https://github.com/jcfromsiberia/RedZone
+
 
 QQ group：340713904

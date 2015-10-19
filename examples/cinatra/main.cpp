@@ -9,6 +9,8 @@
 #include <cinatra/middleware/cookie.hpp>
 #include <cinatra/middleware/session.hpp>
 
+#include <cinatra/html_template.hpp>
+
 #include <fstream>
 
 struct CheckLoginAspect
@@ -123,6 +125,20 @@ int main()
 		}
 
 		res.end("</body></html>");
+	});
+
+	//测试html template engine和json
+	app.route("/template", [](cinatra::Response& res)
+	{
+		//html模板修改自RedZone
+		//具体使用方式和模板语法请参考官方文档
+		//https://github.com/jcfromsiberia/RedZone
+		//Thanks Ivan Il'in!
+		cinatra::render(res, "./view/test.tpl", cinatra::Json::object{
+			{ "title", "hello" },
+			{ "foo", "bar" },
+			{ "test_loop", cinatra::Json::array{"aaa", "sssssssssss", "ddddddd"} },
+		});
 	});
 
 	app.static_dir("./static")
