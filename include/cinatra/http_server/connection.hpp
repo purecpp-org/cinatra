@@ -143,8 +143,6 @@ namespace cinatra
 			init_response(res, yield);
 			bool has_error = check_request(parser, req, res);
 			add_version(parser, req, res);
-			add_keepalive(parser, req, res);
-			add_conten_type(res);
 
 			return !has_error;
 		}
@@ -191,8 +189,8 @@ namespace cinatra
 			{
 				header += "Connection: Keep-Alive\r\n";
 			}
-
 			header += "\r\n";
+
 			in.seekg(0, std::ios::beg);
 
 			boost::asio::async_write(socket_, boost::asio::buffer(header), yield);
@@ -208,6 +206,11 @@ namespace cinatra
 
 		void response(Response& res, const boost::asio::yield_context& yield)
 		{
+			if (res.header.get_count("Content-Type") == 0)
+			{
+				res.header.add("Content-Type", "text/html");
+			}
+
 			if (!res.is_complete())
 			{
 				res.end();
@@ -254,43 +257,6 @@ namespace cinatra
 			else if (parser.is_version11())
 			{
 				res.set_version(1, 1);
-			}
-		}
-
-		/*
-		如果是http1.0，规则是这样的：
-		如果request里面的connection是keep-alive，那就说明浏览器想要长连接，服务器如果也同意长连接，
-		那么返回的response的connection也应该有keep-alive通知浏览器，如果不想长链接，response里面就不应该有keep-alive;
-		如果是1.1的，规则是这样的：
-		如果request里面的connection是close，那就说明浏览器不希望长连接，如果没有close，就是默认保持长链接，
-		本来是跟keep-alive没关系，但是如果浏览器发了keep-alive，那你返回的时候也应该返回keep-alive;
-		惯例是根据有没有close判断是否长链接，但是如果没有close但是有keep-alive，你response也得加keep-alive;
-		如果没有close也没有keep-alive
-		那就是长链接但是不用返回keep-alive
-		*/
-		void add_keepalive(const RequestParser& parser, Request& req, Response& res)
-		{
-			if (parser.is_version10())
-			{
-				if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
-				{
-					res.header.add("Connetion", "Keep-Alive");
-				}
-			}
-			else if (parser.is_version11())
-			{
-				if (req.header().val_ncase_equal("Connetion", "Keep-Alive"))
-				{
-					res.header.add("Connetion", "Keep-Alive");
-				}
-			}
-		}
-
-		void add_conten_type(Response& res)
-		{
-			if (res.header.get_count("Content-Type") == 0)
-			{
-				res.header.add("Content-Type", "text/html");
 			}
 		}
 
@@ -396,15 +362,63 @@ namespace cinatra
 					LOG_DBG << "New request,path:" << req.path();
 					Response res;
 
+					/*
+					如果是http1.0，规则是这样的：
+					如果request里面的connection是keep-alive，那就说明浏览器想要长连接，服务器如果也同意长连接，
+					那么返回的response的connection也应该有keep-alive通知浏览器，如果不想长链接，response里面就不应该有keep-alive;
+					如果是1.1的，规则是这样的：
+					如果request里面的connection是close，那就说明浏览器不希望长连接，如果没有close，就是默认保持长链接，
+					本来是跟keep-alive没关系，但是如果浏览器发了keep-alive，那你返回的时候也应该返回keep-alive;
+					惯例是根据有没有close判断是否长链接，但是如果没有close但是有keep-alive，你response也得加keep-alive;
+					如果没有close也没有keep-alive
+					那就是长链接但是不用返回keep-alive
+					*/
+					bool persistent_connection = true;
+					bool add_keep_alive = false;
+					if (parser.is_version10())
+					{
+						if (req.header().val_ncase_equal("Connection", "Keep-Alive"))
+						{
+							persistent_connection = true;
+							add_keep_alive = true;
+						}
+						else
+						{
+							persistent_connection = false;
+						}
+					}
+					else if (parser.is_version11())
+					{
+						if (req.header().val_ncase_equal("Connection", "Keep-Alive"))
+						{
+							add_keep_alive = true;
+						}
+						else if (req.header().val_ncase_equal("Connection", "Close"))
+						{
+							persistent_connection = false;
+						}
+					}
+
+					if (add_keep_alive)
+					{
+						res.header.add("Connection", "Keep-Alive");
+					}
+
 					if (init_req_res(req, res, parser, yield))
 					{
 						bool r = request_handler_(req, res);
 						if (!res.is_complete() && !r)
 						{
-							if (response_file(req, res.header.hasKeepalive(), yield))
+							if (response_file(req, add_keep_alive, yield))
 							{
+								if (!persistent_connection && shutdown(socket_, yield))
+								{
+									close();
+									return;
+								}
 								continue;
 							}
+
 
 							error_handler_(404, "", req, res);
 						}
@@ -412,28 +426,15 @@ namespace cinatra
 
 					response(res, yield);
 
-					if (parser.is_version10())
+					if (!persistent_connection)
 					{
-						if (!req.header().val_ncase_equal("Connetion", "Keep-Alive"))
+						if (shutdown(socket_, yield))
 						{
-							if (shutdown(socket_, yield))
-							{
-								close();
-								return;
-							}
+							close();
+							return;
 						}
 					}
-					else if (parser.is_version11())
-					{
-						if (req.header().val_ncase_equal("Connetion", "close"))
-						{
-							if (shutdown(socket_, yield))
-							{
-								close();
-								return;
-							}
-						}
-					}
+
 				}
 				catch (boost::system::system_error& e)
 				{
