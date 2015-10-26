@@ -378,6 +378,11 @@ namespace cinatra
 
 					req = parser.get_request();
 					LOG_DBG << "New request,path:" << req.path();
+					if (req.path().find("../") != std::string::npos
+						|| req.path().find("..\\") != std::string::npos)
+					{
+						throw HttpError(400, "Bad request path");
+					}
 
 					/*
 					如果是http1.0，规则是这样的：
