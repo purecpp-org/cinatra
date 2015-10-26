@@ -328,13 +328,15 @@ namespace cinatra
 						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield[ec]);
 						if (ec)
 						{
-							if (ec == boost::asio::error::eof)
+							if (ec == boost::asio::error::eof
+								|| ec == boost::asio::error::connection_reset
+								|| ec == boost::asio::error::connection_aborted)
 							{
 								LOG_DBG << "Socket shutdown";
 							}
 							else
 							{
-								LOG_DBG << "Network exception: " << ec.message();
+								LOG_DBG << "Network exception: " << ec.value() << " " << ec.message();
 							}
 							close();
 							return;
