@@ -6,6 +6,12 @@
 #include <exception>
 #include <string>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define CINATRA_NOEXCEPT
+#else
+#define CINATRA_NOEXCEPT noexcept
+#endif
+
 namespace cinatra
 {
 	class HttpError : public std::exception
@@ -28,7 +34,7 @@ namespace cinatra
 			:code_(code),description_(description), msg_(msg)
 		{}
 
-		virtual const char * what() const override
+		virtual const char * what() const CINATRA_NOEXCEPT override
 		{
 			std::string str = "HttpError, status code: " + boost::lexical_cast<std::string>(code_)+";";
 			if (!description_.empty())
@@ -47,8 +53,8 @@ namespace cinatra
 		std::string get_msg() const { return msg_; }
 	private:
 		int code_;
-		std::string msg_;
 		std::string description_;
+		std::string msg_;
 	};
 
 }
