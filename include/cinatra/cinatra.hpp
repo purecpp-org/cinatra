@@ -134,33 +134,7 @@ namespace cinatra
 				ContextContainer ctx(app_container_);
 				return aop_.invoke(req, res, ctx);
 			})
-				.set_error_handler([this](int code, const std::string& msg, Request& req, Response& res)
-			{
-				LOG_DBG << "Handle error:" << code << " " << msg << " with path " << req.path();
-				if (error_handler_
-					&& error_handler_(code,msg,req,res))
-				{
-					return true;
-				}
-
-				LOG_DBG << "In defaule error handler";
-				std::string html;
-				auto s = status_header(code);
-				html = "<html><head><title>" + s.second + "</title></head>";
-				html += "<body>";
-				html += "<h1>" + boost::lexical_cast<std::string>(s.first) + " " + s.second + " " + "</h1>";
-				if (!msg.empty())
-				{
-					html += "<br> <h2>Message: " + msg + "</h2>";
-				}
-				html += "</body></html>";
-
-				res.set_status_code(s.first);
-
-				res.write(html);
-
-				return true;
-			})
+				.set_error_handler(error_handler_)
 				.static_dir(static_dir_);
 
 			for (auto const & info : http_listen_infos_)

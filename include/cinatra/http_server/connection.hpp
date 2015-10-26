@@ -5,6 +5,7 @@
 #include <cinatra/http_server/request_parser.hpp>
 #include <cinatra/utils/logging.hpp>
 #include <cinatra/http_router.hpp>
+#include <cinatra/http_server/http_exception.hpp>
 
 #include <boost/asio.hpp>
 #include <boost/asio/spawn.hpp>
@@ -29,7 +30,7 @@
 namespace cinatra
 {
 	using request_handler_t = std::function<bool(Request&, Response&)>;
-	using error_handler_t = std::function<bool(int, const std::string&, Request&, Response&)>;
+	using error_handler_t = std::function<bool(const HttpError&, Request&, Response&)>;
 
 	using tcp_socket = boost::asio::ip::tcp::socket;
 #ifdef CINATRA_ENABLE_HTTPS
@@ -227,7 +228,7 @@ namespace cinatra
 
 		bool check_request(const RequestParser& parser, Request& req, Response& res)
 		{
-			bool hasError = false;
+			bool has_error = false;
 			//check request
 			if (parser.is_version10())
 			{
@@ -237,15 +238,15 @@ namespace cinatra
 			{
 				if (req.header().get_count("host") == 0)
 				{
-					hasError = error_handler_(400, "Bad Request", req, res);
+					has_error = error_handler_(HttpError(400), req, res);
 				}
 			}
 			else
 			{
-				hasError = error_handler_(400, "Unsupported HTTP version.", req, res);
+				has_error = error_handler_(HttpError(400, "Unsupported HTTP version."), req, res);
 			}
 
-			return hasError;
+			return has_error;
 		}
 
 		void add_version(const RequestParser& parser, Request& /* req */, Response& res)
@@ -260,16 +261,29 @@ namespace cinatra
 			}
 		}
 
-		void response_5xx(const std::string& msg, const boost::asio::yield_context& yield)
+		void response_error(const HttpError& e, Request& req, Response& res, const boost::asio::yield_context& yield)
 		{
-			Request req;
-			Response res;
-			error_handler_(500, msg, req, res);
+			res.set_status_code(e.get_code(), e.get_description());
+			if (!error_handler_ || !error_handler_(e, req, res))
+			{
+				LOG_DBG << "In defaule error handler";
+				std::string html;
+				html = "<html><head><title>" + e.get_description() + "</title></head>";
+				html += "<body>";
+				html += "<h1>" + boost::lexical_cast<std::string>(e.get_code()) + " " + e.get_description() + " " + "</h1>";
+				if (!e.get_msg().empty())
+				{
+					html += "<br> <h2>Message: " + e.get_msg() + "</h2>";
+				}
+				html += "</body></html>";
+
+				res.set_status_code(e.get_code(),e.get_description());
+
+				res.write(html);
+			}
 			boost::system::error_code ignored_ec;
 			boost::asio::async_write(socket_, boost::asio::buffer(res.get_header_str()), yield[ignored_ec]);
 			boost::asio::async_write(socket_, res.buffer_, yield[ignored_ec]);
-
-			close();
 		}
 
 		bool shutdown(tcp_socket& s, coro_t&)
@@ -315,6 +329,8 @@ namespace cinatra
 
 			for (;;)
 			{
+				Request req;
+				Response res;
 				try
 				{
 					reset_timer();
@@ -346,7 +362,7 @@ namespace cinatra
 						total_size += n;
 						if (total_size > CINATRA_REQ_MAX_SIZE)
 						{
-							throw std::runtime_error("Request toooooooo large");
+							throw HttpError(400,"Request tooooooooo large");
 						}
 
 						auto ret = parser.parse(buffer.data(), buffer.data() + n);
@@ -356,13 +372,12 @@ namespace cinatra
 						}
 						if (ret == RequestParser::bad)
 						{
-							throw std::runtime_error("HTTP Parser error");
+							throw HttpError(400,"HTTP Parser error");
 						}
 					}
 
-					Request req = parser.get_request();
+					req = parser.get_request();
 					LOG_DBG << "New request,path:" << req.path();
-					Response res;
 
 					/*
 					如果是http1.0，规则是这样的：
@@ -421,8 +436,8 @@ namespace cinatra
 								continue;
 							}
 
-
-							error_handler_(404, "", req, res);
+							response_error(HttpError(404), req, res, yield);
+							continue;
 						}
 					}
 
@@ -440,15 +455,24 @@ namespace cinatra
 				}
 				catch (boost::system::system_error& e)
 				{
-					//网络通信异常，关socket.
+					//网络通信异常，关socket，通常是浏览器端前置关闭连接会导致此异常.
 					LOG_DBG << "Network exception: " << e.code().message();
 					close();
 					return;
 				}
+				catch (HttpError& e)
+				{
+					response_error(e, req, res, yield);
+					if (shutdown(socket_, yield))
+					{
+						close();
+						return;
+					}
+				}
 				catch (std::exception& e)
 				{
 					LOG_ERR << "Error occurs,response 500: " << e.what();
-					response_5xx(e.what(), yield);
+					response_error(HttpError(500, e.what()), req, res, yield);
 					if (shutdown(socket_, yield))
 					{
 						close();
@@ -457,7 +481,7 @@ namespace cinatra
 				}
 				catch (...)
 				{
-					response_5xx("", yield);
+					response_error(HttpError(500), req, res, yield);
 					if (shutdown(socket_, yield))
 					{
 						close();

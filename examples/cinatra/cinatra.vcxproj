@@ -262,6 +262,7 @@
     <ClInclude Include="..\..\include\cinatra\html_template\parser\parser.hpp" />
     <ClInclude Include="..\..\include\cinatra\html_template\template\file_template.hpp" />
     <ClInclude Include="..\..\include\cinatra\html_template\template\template.hpp" />
+    <ClInclude Include="..\..\include\cinatra\http_server\http_exception.hpp" />
     <ClInclude Include="..\..\include\cinatra\json\json.hpp" />
     <ClInclude Include="..\..\include\cinatra\utils\aop.hpp" />
     <ClInclude Include="..\..\include\cinatra\body_parser.hpp" />
