@@ -4,6 +4,7 @@
 #include <cinatra/http_server/request.hpp>
 
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/asio/streambuf.hpp>
 
 #include <algorithm>
 #include <tuple>
@@ -29,12 +30,12 @@ namespace cinatra
 		/// been parsed, bad if the data is invalid, indeterminate when more data is
 		/// required. The InputIterator return value indicates how much of the input
 		/// has been consumed.
-		template <typename InputIterator>
-		result_type parse(InputIterator begin, InputIterator end)
+		result_type parse(boost::asio::streambuf& buf)
 		{
-			while (begin != end)
+			int c = EOF;
+			while ((c = buf.sbumpc()) != EOF)
 			{
-				result_type result = consume(*begin++);
+				result_type result = consume(c);
 				if (result == good || result == bad)
 				{
 					std::string url = urldecode(url_);

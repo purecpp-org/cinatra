@@ -7,9 +7,12 @@ BOOST_AUTO_TEST_CASE(http_parser_simple_test)
 {
 	RequestParser parser;
 	std::string content = "GET /test HTTP/1.1\r\n";
-	BOOST_REQUIRE(parser.parse(content.begin(), content.end()) != RequestParser::bad);
+	boost::asio::streambuf buf;
+	buf.sputn(content.c_str(), content.size());
+	BOOST_REQUIRE(parser.parse(buf) != RequestParser::bad);
 	content = "\r\n";
-	BOOST_REQUIRE(parser.parse(content.begin(), content.end()) == RequestParser::good);
+	buf.sputn(content.c_str(), content.size());
+	BOOST_REQUIRE(parser.parse(buf) == RequestParser::good);
 	auto req = parser.get_request();
 	BOOST_CHECK(req.url() == "/test");
 	BOOST_CHECK(req.body().size() == 0);
@@ -21,10 +24,13 @@ BOOST_AUTO_TEST_CASE(http_parser_header_test)
 {
 	RequestParser parser;
 	std::string content = "POST /test HTTP/1.1\r\n";
-	BOOST_REQUIRE(parser.parse(content.begin(), content.end()) != RequestParser::bad);
+	boost::asio::streambuf buf;
+	buf.sputn(content.c_str(), content.size());
+	BOOST_REQUIRE(parser.parse(buf) != RequestParser::bad);
 	
 	content = "key1:val1\r\nkey1: val11\r\nkey2: val2\r\n\r\n";
-	BOOST_REQUIRE(parser.parse(content.begin(), content.end()) == RequestParser::good);
+	buf.sputn(content.c_str(), content.size());
+	BOOST_REQUIRE(parser.parse(buf) == RequestParser::good);
 	auto req = parser.get_request();
 	BOOST_CHECK(req.url() == "/test");
 	BOOST_CHECK(req.body().size() == 0);
@@ -44,9 +50,12 @@ BOOST_AUTO_TEST_CASE(http_parser_body_test)
 {
 	RequestParser parser;
 	std::string content = "PUT /test HTTP/1.1\r\n";
-	BOOST_REQUIRE(parser.parse(content.begin(), content.end()) != RequestParser::bad);
+	boost::asio::streambuf buf;
+	buf.sputn(content.c_str(), content.size());
+	BOOST_REQUIRE(parser.parse(buf) != RequestParser::bad);
 	content = "Content-Length: 4\r\n\r\nbody";
-	BOOST_REQUIRE(parser.parse(content.begin(), content.end()) == RequestParser::good);
+	buf.sputn(content.c_str(), content.size());
+	BOOST_REQUIRE(parser.parse(buf) == RequestParser::good);
 	auto req = parser.get_request();
 	auto body = req.body();
 	BOOST_CHECK(std::string(body.begin(), body.end()) == "body");
@@ -56,13 +65,17 @@ BOOST_AUTO_TEST_CASE(http_parser_map_test)
 {
 	RequestParser p;
 	std::string content = "GET /test?k1=v1&k2=v2&k3=v3 HTTP/1.1\r\nke1: va1\r\nke2: va2\r\n"
-		"Content-Length: 9\r\n\r\nI am body";
-	const size_t size = content.size();
+		"Content-Length: 9\r\n\r\nI am bod";
+	for (auto c : content)
+	{
+		boost::asio::streambuf buf;
+		buf.sputc(c);
+		BOOST_CHECK(p.parse(buf) == RequestParser::indeterminate);
+	}
 
-	size_t pos = 0;
-	for(; pos < size - 1; ++pos)
-		BOOST_CHECK(p.parse(content.begin() + pos, content.begin() + pos + 1) == RequestParser::indeterminate);
-	BOOST_CHECK(p.parse(content.begin() + pos, content.begin() + pos + 1) == RequestParser::good);
+	boost::asio::streambuf buf;
+	buf.sputc('y');
+	BOOST_CHECK(p.parse(buf) == RequestParser::good);
 
 	auto req = p.get_request();
 	BOOST_CHECK(req.method() == Request::method_t::GET);
@@ -85,8 +98,10 @@ BOOST_AUTO_TEST_CASE(http_parser_header_blank_test)
 	RequestParser p;
 	std::string content = "GET /test HTTP/1.1\r\nkey1:val1\r\nkey2: val2\r\nkey3:  val3\r\n"
 		"key4: val4 \r\nkey5:     val5    \r\nContent-Length: 9\r\n\r\nI am body";
+	boost::asio::streambuf buf;
+	buf.sputn(content.c_str(), content.size());
 
-	BOOST_CHECK(p.parse(content.begin(), content.end()) == RequestParser::good);
+	BOOST_CHECK(p.parse(buf) == RequestParser::good);
 
 	auto req = p.get_request();
 	BOOST_CHECK(req.header().get_val("key1") == "val1");

@@ -358,6 +358,8 @@ namespace cinatra
 							return;
 						}
 
+						req_buf_.sputn(buffer.data(), n);
+
 						cancel_timer();	//读取到了数据之后就取消关闭连接的timer
 						total_size += n;
 						if (total_size > CINATRA_REQ_MAX_SIZE)
@@ -365,7 +367,7 @@ namespace cinatra
 							throw HttpError(400,"Request tooooooooo large");
 						}
 
-						auto ret = parser.parse(buffer.data(), buffer.data() + n);
+						auto ret = parser.parse(req_buf_);
 						if (ret == RequestParser::good)
 						{
 							break;
@@ -498,6 +500,7 @@ namespace cinatra
 	private:
 		boost::asio::io_service& service_;
 		SocketT socket_;
+		boost::asio::streambuf req_buf_;
 
 		boost::asio::deadline_timer timer_;	// 长连接超时使用的timer.
 		const error_handler_t& error_handler_;
