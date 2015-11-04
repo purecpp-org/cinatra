@@ -154,7 +154,7 @@ namespace cinatra
 	private:
 		AOP<Aspect...> aop_;
 
-#ifndef CINATRA_SINGLE_THREAD
+#ifdef CINATRA_SINGLE_THREAD
 		int num_threads_ = 1;
 #else
 		int num_threads_ = std::thread::hardware_concurrency();
