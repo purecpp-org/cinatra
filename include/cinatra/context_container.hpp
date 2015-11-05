@@ -14,7 +14,7 @@ namespace cinatra
 	using app_ctx_container_t = std::unordered_map<std::string, boost::any>;
 
 	class ContextContainer : boost::noncopyable
-	{
+    {
 	public:
 		ContextContainer(app_ctx_container_t& app_container)
 			:app_container_(app_container)
