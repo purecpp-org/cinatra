@@ -28,22 +28,12 @@ int main()
 
 		return false;
 	})
-		.set_error_handler([](int code, const std::string&, cinatra::Request&, cinatra::Response& res)
+		.set_error_handler([](const cinatra::HttpError& e, cinatra::Request&, cinatra::Response& res)
 	{
-		res.set_status_code(code);
-		res.write("Error: " + boost::lexical_cast<std::string>(code));
+		res.write("Error: " + boost::lexical_cast<std::string>(e.get_code()));
 		return true;
 	})
-		.listen("0.0.0.0", "https", cinatra::HttpsConfig(
-		true,
-		cinatra::HttpsConfig::none,
-		[](std::size_t, int)->std::string{ return "123456"; },
-		"server.crt",
-		"server.key",
-		"dh2048.pem",
-		""
-		))
-		.listen("0.0.0.0", "http")
+		.listen("0.0.0.0", "8096")
 		.run();
 
 	return 0;

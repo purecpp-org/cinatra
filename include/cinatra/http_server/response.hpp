@@ -23,13 +23,14 @@ namespace cinatra
 		friend class ConnectionBase;
 	public:
 		Response()
-			:status_code_(200),
-			version_major_(1),
+			:version_major_(1),
 			version_minor_(0),
 			is_complete_(false),
 			is_chunked_encoding_(false),
 			has_chunked_encoding_header_(false)
-		{}
+		{
+			set_status_code(200);
+		}
 
 		NcaseMultiMap header;
 
@@ -121,8 +122,16 @@ namespace cinatra
 
 		void set_status_code(int code)
 		{
-			status_code_ = code;
+			auto s = status_header(code);
+			status_code_ = s.first;
+			status_description_ = s.second;
 		}
+		void set_status_code(int code, const std::string& desc)
+		{
+			status_code_ = code;
+			status_description_ = desc;
+		}
+
 
 		void set_version(int major, int minor)
 		{
@@ -133,7 +142,6 @@ namespace cinatra
 		std::string get_header_str()
 		{
 			header_str.clear();
-			auto s = status_header(status_code_);
 			std::string shttp = "";
 			if (version_minor_ == 1)
 				shttp = "HTTP/1.1 ";
@@ -142,8 +150,8 @@ namespace cinatra
 			
 			header_str =
 				shttp
-				+ boost::lexical_cast<std::string>(s.first)
-				+ " " + s.second
+				+ boost::lexical_cast<std::string>(status_code_)
+				+ " " + status_description_
 				+ "\r\nServer: cinatra/0.1\r\n"
 				"Date: " + header_date_str() + "\r\n";
 
@@ -179,6 +187,7 @@ namespace cinatra
 		}
 		
 		int status_code_;
+		std::string status_description_;
 		int version_major_;
 		int version_minor_;
 		std::function < bool(const char*, std::size_t) >

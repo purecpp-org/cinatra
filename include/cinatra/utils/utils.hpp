@@ -216,11 +216,6 @@ namespace cinatra
 		{
 			return map_.size();
 		}
-
-		bool hasKeepalive() const
-		{
-			return map_.find("Connection") != map_.end();
-		}
 	private:
 		
 		boost::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu> map_;

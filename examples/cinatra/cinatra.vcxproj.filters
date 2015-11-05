@@ -188,6 +188,9 @@
     <ClInclude Include="..\..\include\cinatra\html_template.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\cinatra\http_server\http_exception.hpp">
+      <Filter>头文件\http_server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\include\cinatra\json\json.ipp">

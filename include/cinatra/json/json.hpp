@@ -56,7 +56,7 @@
 #include <memory>
 #include <initializer_list>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
 #define JSON11_NOEXCEPT
 #else
 #define JSON11_NOEXCEPT noexcept

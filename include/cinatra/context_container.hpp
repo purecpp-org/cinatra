@@ -2,6 +2,7 @@
 #pragma once
 
 #include <boost/any.hpp>
+#include <boost/noncopyable.hpp>	// For boost::noncopyable or Use #include <boost/utility.hpp>
 
 #include <unordered_map>
 #include <string>
