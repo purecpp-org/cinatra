@@ -9,7 +9,7 @@ namespace cinatra
 {
 	inline CaseMap urlencoded_body_parser(const std::string& data)
 	{
-		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
+		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), true);
 	}
 
 	struct item_t
