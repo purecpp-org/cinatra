@@ -130,6 +130,12 @@ namespace cinatra
 			io_service_pool_.run();
 		}
 
+		void stop()
+		{
+			LOG_DBG << "Stop HTTP server";
+			io_service_pool_.stop();
+		}
+
 	private:
 		void do_accept(
 			const std::string address,

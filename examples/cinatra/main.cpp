@@ -12,6 +12,8 @@
 #include <cinatra/html_template.hpp>
 
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 struct CheckLoginAspect
 {
@@ -140,6 +142,12 @@ int main()
 			{ "test_loop", cinatra::Json::array{"aaa", "sssssssssss", "ddddddd"} },
 		});
 	});
+
+	std::thread([&app]
+	{
+		std::this_thread::sleep_for(std::chrono::seconds(10));
+		app.stop();
+	}).detach();
 
 	app.static_dir("./static")
 		.listen("0.0.0.0", "https", cinatra::HttpsConfig(

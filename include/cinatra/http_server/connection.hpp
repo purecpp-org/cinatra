@@ -486,6 +486,12 @@ namespace cinatra
 						return;
 					}
 				}
+				catch (boost::coroutines::detail::forced_unwind& e)
+				{
+					//强制stop
+					close();
+					return;
+				}
 				catch (...)
 				{
 					response_error(HttpError(500), req, res, yield);

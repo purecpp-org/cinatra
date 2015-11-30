@@ -124,12 +124,12 @@ namespace cinatra
 		void run()
 		{
 #ifndef CINATRA_SINGLE_THREAD
-			HTTPServer s(num_threads_);
+			http_server_.reset(new HTTPServer(num_threads_));
 #else
-			HTTPServer s;
+			http_server_.reset(new HTTPServer);
 #endif
 			aop_.set_func(std::bind(&HTTPRouter::dispatch, router_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-			s.set_request_handler([this](Request& req, Response& res)
+			http_server_->set_request_handler([this](Request& req, Response& res)
 			{
 				ContextContainer ctx(app_container_);
 				return aop_.invoke(req, res, ctx);
@@ -139,18 +139,28 @@ namespace cinatra
 
 			for (auto const & info : http_listen_infos_)
 			{
-				s.listen(info.address, info.port);
+				http_server_->listen(info.address, info.port);
 			}
 #ifdef CINATRA_ENABLE_HTTPS
 			for (auto const & info : https_listen_infos_)
 			{
-				s.listen(info.address, info.port, info.cfg);
+				http_server_->listen(info.address, info.port, info.cfg);
 			}
 #endif // CINATRA_ENABLE_HTTPS
 			
-			s.run();
+			http_server_->run();
 		}
 
+		bool stop()
+		{
+			if (http_server_)
+			{
+				http_server_->stop();
+				return true;
+			}
+
+			return false;
+		}
 	private:
 		AOP<Aspect...> aop_;
 
@@ -184,6 +194,8 @@ namespace cinatra
 		HTTPRouter router_;
 
 		app_ctx_container_t app_container_;
+
+		std::unique_ptr<HTTPServer> http_server_;
 	};
 
 	using SimpleApp = Cinatra<>;
