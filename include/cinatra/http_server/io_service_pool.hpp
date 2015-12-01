@@ -43,6 +43,11 @@ namespace cinatra
 			}
 		}
 
+		~IOServicePool()
+		{
+			stop();
+		}
+
 		/// Run all io_service objects in the pool.
 		void run()
 		{
