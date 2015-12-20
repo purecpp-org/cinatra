@@ -1,11 +1,11 @@
-#include <boost/test/unit_test.hpp>
+#include "UnitTest.hpp"
 #include <cinatra/http_router.hpp>
 
 #include <iostream>
 
 using namespace cinatra;
 
-BOOST_AUTO_TEST_CASE(router_dispatch_test_0)
+TEST_CASE(router_dispatch_test_0)
 {
 	bool flag = false;
 	HTTPRouter r;
@@ -17,26 +17,26 @@ BOOST_AUTO_TEST_CASE(router_dispatch_test_0)
 	app_ctx_container_t container;
 	ContextContainer ctx(container);
 	r.dispatch(req, res, ctx);
-	BOOST_CHECK(flag);
+	TEST_CHECK(flag);
 }
 
-BOOST_AUTO_TEST_CASE(router_dispatch_test_1)
+TEST_CASE(router_dispatch_test_1)
 {
 	bool flag = false;
 	HTTPRouter r;
 	r.route("/:id", [&](Request&, Response&, int a) {
 		flag = true;
-		BOOST_CHECK(a == 1);
+		TEST_CHECK(a == 1);
 	});
 	Request req{ "/1", {}, "GET", "/1", {}, {}};
 	Response res;
 	app_ctx_container_t container;
 	ContextContainer ctx(container);
 	r.dispatch(req, res, ctx);
-	BOOST_CHECK(flag);
+	TEST_CHECK(flag);
 }
 
-BOOST_AUTO_TEST_CASE(router_dispatch_test_2)
+TEST_CASE(router_dispatch_test_2)
 {
 	bool flag = false;
 	HTTPRouter r;
@@ -44,18 +44,18 @@ BOOST_AUTO_TEST_CASE(router_dispatch_test_2)
 		flag = true;
 	});
 	r.route("/1", [](Request&, Response&) {
-		BOOST_CHECK(false);
+		TEST_CHECK(false);
 	});
 	Request req{ "/1/2", {}, "GET", "/1/2", {}, {}};
 	Response res;
 	app_ctx_container_t container;
 	ContextContainer ctx(container);
 	r.dispatch(req, res, ctx);
-	BOOST_CHECK(flag);
+	TEST_CHECK(flag);
 }
 
-BOOST_AUTO_TEST_CASE(router_funcname_test)
+TEST_CASE(router_funcname_test)
 {
 	HTTPRouter r;
-	BOOST_CHECK(r.getFuncName("/hello/world/:name/:age") == "/hello/world");
+	TEST_CHECK(r.getFuncName("/hello/world/:name/:age") == "/hello/world");
 }

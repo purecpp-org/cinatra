@@ -12,7 +12,7 @@ IF (ENABLE_STATIC_BOOST)
 	set(Boost_USE_STATIC_RUNTIME    OFF)
 ENDIF()
 
-FIND_PACKAGE(Boost 1.55 COMPONENTS coroutine context system thread chrono date_time regex filesystem unit_test_framework REQUIRED)
+FIND_PACKAGE(Boost 1.55 COMPONENTS coroutine context system thread chrono date_time regex filesystem REQUIRED)
 
 IF(Boost_FOUND)
 	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})

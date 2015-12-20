@@ -1,4 +1,4 @@
-#include <boost/test/unit_test.hpp>
+#include "UnitTest.hpp"
 #include <cinatra/http_server/response.hpp>
 #include <iostream>
 #include <cstring>
@@ -13,7 +13,7 @@ public:
 		Response res;
 		res.write("basic test");
 		ss << &res.buffer_;
-		BOOST_CHECK(ss.str() == "basic test");	
+		TEST_CHECK(ss.str() == "basic test");	
 	}
 
 	static void chunked_test() {
@@ -26,23 +26,23 @@ public:
 					++step;
 					break;
 				case 1:
-					BOOST_CHECK(strncmp(data, "5\r\nfirst\r\n", len) == 0);
+					TEST_CHECK(strncmp(data, "5\r\nfirst\r\n", len) == 0);
 					++step;
 					break;
 				case 2:
-					BOOST_CHECK(strncmp(data, "6\r\nsecond\r\n", len) == 0);
+					TEST_CHECK(strncmp(data, "6\r\nsecond\r\n", len) == 0);
 					++step;
 					break;
 				case 3:
-					BOOST_CHECK(strncmp(data, "5\r\nthird\r\n", len) == 0);
+					TEST_CHECK(strncmp(data, "5\r\nthird\r\n", len) == 0);
 					++step;
 					break;
 				case 4:
-					BOOST_CHECK(strncmp(data, "5\r\nfouth\r\n", len) == 0);
+					TEST_CHECK(strncmp(data, "5\r\nfouth\r\n", len) == 0);
 					++step;
 					break;
 				default:
-					BOOST_CHECK(false);
+					TEST_CHECK(false);
 			}
 			return true;
 		};
@@ -60,22 +60,22 @@ public:
 		res.set_status_code(404);
 		ss << res.get_header_str();
 		getline(ss, first_line);
-		BOOST_CHECK(first_line == "HTTP/1.0 404 Not Found\r");
+		TEST_CHECK(first_line == "HTTP/1.0 404 Not Found\r");
 	}
 };
 }
 
-BOOST_AUTO_TEST_CASE(response_basic_test)
+TEST_CASE(response_basic_test)
 {
 	Connection::basic_test();
 }
 
-BOOST_AUTO_TEST_CASE(response_chunked_test)
+TEST_CASE(response_chunked_test)
 {
 	Connection::chunked_test();
 }
 
-BOOST_AUTO_TEST_CASE(response_status_test)
+TEST_CASE(response_status_test)
 {
 	Connection::status_test();
 }

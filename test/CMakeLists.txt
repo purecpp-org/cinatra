@@ -11,6 +11,8 @@ SET(TEST_SOURCES
     context_container/context_container.cpp
 )
 
+INCLUDE_DIRECTORIES(.)
+
 ADD_EXECUTABLE(cinatra_test ${TEST_SOURCES})
 
 TARGET_LINK_LIBRARIES(cinatra_test ${EXTRA_LIBS})
