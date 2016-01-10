@@ -36,7 +36,7 @@ public:
 
     void runAll()
     {
-        std::cout << "running " << test_cases_.size() << " tests..." << std::endl;
+        std::cout << ">>> running " << test_cases_.size() << " tests..." << std::endl;
         for(BaseCase *test : test_cases_)
         {
             if(setjmp(abort_case())) 
@@ -52,6 +52,7 @@ public:
 
     void printLastCheckedPoint()
     {
+        std::cout << ">>> ";
         std::cout << last_checked_file_ << "(" << last_checked_line_ << ")" << ": last checkpoint" << std::endl;
     }
  
@@ -65,7 +66,7 @@ public:
         last_checked_line_ = line;
     }
 
-    void failure()
+    void incFailure()
     {
         ++failure_num_;
     }
@@ -95,19 +96,21 @@ public:
             method_(); 
             int failures = UnitTest::getInstance().getFailureNum() - old_failure_num;
             if(failures)
+            {
+                std::cout << ">>> ";
                 std::cout << failures << " failures are detected in the test case \"" << case_name_ << "\"" << std::endl;
+            }
         }
         catch(std::exception& e)
         {
-            UnitTest::getInstance().failure();
-            std::cout << "unknown location(0): fatal error: in \"" << case_name_ << "\": "
-                << typeid(e).name() << ": " << e.what() << std::endl;
+            UnitTest::getInstance().incFailure();
+            std::cout << ">>> fatal error: in \"" << case_name_ << "\": " << typeid(e).name() << ": " << e.what() << std::endl;
             UnitTest::getInstance().printLastCheckedPoint();
         }
         catch(...)
         {
-            UnitTest::getInstance().failure();
-            std::cout << "unknown location(0): fatal error: in \"" << case_name_ << "\": unknown type" << std::endl;
+            UnitTest::getInstance().incFailure();
+            std::cout << ">>> fatal error: in \"" << case_name_ << "\": unknown type exception" << std::endl;
             UnitTest::getInstance().printLastCheckedPoint();
         }
     }
@@ -134,8 +137,8 @@ int main()
 {
     signal(SIGSEGV, [](int)
     {
-        UnitTest::getInstance().failure();
-        std::cout << "unknown location(0): fatal error: received SIGSEGV." << std::endl;
+        UnitTest::getInstance().incFailure();
+        std::cout << ">>> fatal error: received SIGSEGV." << std::endl;
         UnitTest::getInstance().printLastCheckedPoint();
         report_and_exit();
     });
@@ -153,7 +156,7 @@ void do_check_failed(F&& f, Args&&... args)
 template <typename... Msgs>
 void do_check_failed(Msgs&&... msgs)
 {
-    (void)std::initializer_list<int>{(std::cout << msgs << std::endl, 0)...};
+    (void)std::initializer_list<int>{(std::cout << ">>> " << msgs << std::endl, 0)...};
 }
 
 #define TEST_CASE(test_name)                                                                    \
@@ -166,14 +169,14 @@ do {                                                                            
     UnitTest::getInstance().checkFile(__FILE__);                                                \
     UnitTest::getInstance().checkLine(__LINE__);                                                \
     if(!(cond)) {                                                                               \
-        UnitTest::getInstance().failure();                                                      \
+        UnitTest::getInstance().incFailure();                                                   \
         if(strict) {                                                                            \
-            std::cout << "check \"" << #cond << "\" failed." << std::endl;                      \
-            std::cout << "critical error at " __FILE__ "(" << __LINE__ << ")." << std::endl;    \
+            std::cout << ">>> check \"" << #cond << "\" failed." << std::endl;                  \
+            std::cout << ">>> critical error at " __FILE__ "(" << __LINE__ << ")." << std::endl;\
             do_check_failed(__VA_ARGS__);                                                       \
             longjmp(UnitTest::abort_case(), true);                                              \
         } else {                                                                                \
-            std::cout << "check \"" << #cond << "\" failed." << "at "                           \
+            std::cout << ">>> check \"" << #cond << "\" failed." << "at "                       \
                 << __FILE__ << "(" << __LINE__ << ")" << std::endl;                             \
             do_check_failed(__VA_ARGS__);                                                       \
         }                                                                                       \
