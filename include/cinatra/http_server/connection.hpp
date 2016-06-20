@@ -486,7 +486,7 @@ namespace cinatra
 						return;
 					}
 				}
-				catch (boost::coroutines::detail::forced_unwind& e)
+				catch (boost::coroutines::detail::forced_unwind& /*e*/)
 				{
 					//强制stop
 					close();
