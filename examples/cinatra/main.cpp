@@ -143,11 +143,11 @@ int main()
 		});
 	});
 
-	std::thread([&app]
-	{
-		std::this_thread::sleep_for(std::chrono::seconds(10));
-		app.stop();
-	}).detach();
+// 	std::thread([&app]
+// 	{
+// 		std::this_thread::sleep_for(std::chrono::seconds(10));
+// 		app.stop();
+// 	}).detach();
 
 	app.static_dir("./static")
 		.listen("0.0.0.0", "https", cinatra::HttpsConfig(
