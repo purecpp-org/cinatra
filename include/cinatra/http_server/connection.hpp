@@ -90,11 +90,14 @@ namespace cinatra
 			return raw_socket(socket_);
 		}
 
+#ifndef CINATRA_CORO_STACK_SIZE
+#define CINATRA_CORO_STACK_SIZE 64 * 1024
+#endif
 		void start()
 		{
 			boost::asio::spawn(service_,
 				std::bind(&Connection<SocketT>::do_work,
-				this->shared_from_this(), std::placeholders::_1));
+				this->shared_from_this(), std::placeholders::_1),boost::coroutines::attributes(CINATRA_CORO_STACK_SIZE));
 		}
 	private:
 		using coro_t = boost::asio::yield_context;
