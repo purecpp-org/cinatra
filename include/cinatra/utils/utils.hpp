@@ -124,11 +124,21 @@ namespace cinatra
 			}
 		};
 
+		bool static iequals(const char *s, const char *t, size_t n)  {
+			while (n > 0 && *s && *t && tolower(*s) == tolower(*t)) {
+				++s;
+				++t;
+				--n;
+			}
+			return n == 0 || !*s || !*t;
+		}
+
 		struct IsKeyEqu
 		{
 			bool operator()(const std::string& l, const std::string& r) const
 			{
-				return boost::iequals(l, r);
+				//return boost::iequals(l, r);
+				return iequals(l.c_str(), r.c_str(), l.size());
 			}
 		};
 		using map_t = boost::unordered_multimap<std::string, std::string, NcaseHash, IsKeyEqu>;
@@ -192,7 +202,7 @@ namespace cinatra
 		}
 		bool val_ncase_equal(const std::string& key, const std::string& str) const
 		{
-			return boost::iequals(get_val(key), str);
+			return iequals(get_val(key).c_str(), str.c_str(), str.length());
 		}
 
 		void clear()
