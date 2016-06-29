@@ -58,6 +58,11 @@ namespace cinatra
 			return indeterminate;
 		}
 
+		result_type parse(boost::asio::streambuf&)
+		{
+			return{};
+		}
+
 		bool check_version(int major, int minor) const
 		{
 			return version_major_ == major && version_minor_ == minor;
