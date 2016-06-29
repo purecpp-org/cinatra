@@ -30,12 +30,14 @@ namespace cinatra
 		/// been parsed, bad if the data is invalid, indeterminate when more data is
 		/// required. The InputIterator return value indicates how much of the input
 		/// has been consumed.
-		result_type parse(boost::asio::streambuf& buf)
+		result_type parse(const char* buf, size_t n)
 		{
-			int c = EOF;
-			while ((c = buf.sbumpc()) != EOF)
+			const char* temp = buf;
+			int c = 0;
+			while (c<n)
 			{
-				result_type result = consume(c);
+				result_type result = consume(*temp++);
+				c++;
 				if (result == good || result == bad)
 				{
 					std::string url = urldecode(url_);

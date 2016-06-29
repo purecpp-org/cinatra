@@ -48,8 +48,8 @@ namespace cinatra
 			const request_handler_t& request_handler,
 			const error_handler_t& error_handler,
 			const std::string& static_dir,
-			typename std::enable_if<std::is_same<U,tcp_socket>::value>::type* = 0)
-			:service_(service),socket_(service), timer_(service),
+			typename std::enable_if<std::is_same<U, tcp_socket>::value>::type* = 0)
+			:service_(service), socket_(service), timer_(service),
 			error_handler_(error_handler), static_dir_(static_dir),
 			request_handler_(request_handler)
 		{
@@ -92,9 +92,9 @@ namespace cinatra
 
 		void start()
 		{
+			set_no_delay();
 			boost::asio::spawn(service_,
-				std::bind(&Connection<SocketT>::do_work,
-				this->shared_from_this(), std::placeholders::_1));
+				std::bind(&Connection<SocketT>::do_work, this->shared_from_this()));
 		}
 	private:
 		using coro_t = boost::asio::yield_context;
@@ -102,7 +102,7 @@ namespace cinatra
 
 #ifdef CINATRA_ENABLE_HTTPS
 		//https需要handshake
-		void handshake(tcp_socket&, coro_t){}
+		void handshake(tcp_socket&, coro_t) {}
 		void handshake(ssl_socket& s, coro_t yield)
 		{
 			s.async_handshake(boost::asio::ssl::stream_base::server, yield);
@@ -139,21 +139,21 @@ namespace cinatra
 		}
 
 		bool init_req_res(Request& req, Response& res,
-			const RequestParser& parser, boost::asio::yield_context& yield)
+			const RequestParser& parser)
 		{
-			init_response(res, yield);
+			init_response(res);
 			bool has_error = check_request(parser, req, res);
 			add_version(parser, req, res);
 
 			return !has_error;
 		}
 
-		void init_response(Response& res, const boost::asio::yield_context& yield)
+		void init_response(Response& res)
 		{
-			res.direct_write_func_ = [&yield, this](const char* data, std::size_t len)
+			res.direct_write_func_ = [this](const char* data, std::size_t len)
 			{
 				boost::system::error_code ec;
-				boost::asio::async_write(socket_, boost::asio::buffer(data, len), yield[ec]);
+				boost::asio::write(socket_, boost::asio::buffer(data, len), ec);
 				if (ec)
 				{
 					LOG_WARN << "direct_write_func error" << ec.message();
@@ -163,7 +163,7 @@ namespace cinatra
 			};
 		}
 
-		bool response_file(Request& req, bool keep_alive, const boost::asio::yield_context& yield)
+		bool response_file(Request& req, bool keep_alive)
 		{
 			if (static_dir_.empty())
 			{
@@ -194,18 +194,18 @@ namespace cinatra
 
 			in.seekg(0, std::ios::beg);
 
-			boost::asio::async_write(socket_, boost::asio::buffer(header), yield);
+			boost::asio::write(socket_, boost::asio::buffer(header));
 			std::vector<char> data(1024 * 1024);
 			while (!in.eof())
 			{
 				in.read(&data[0], data.size());
-				boost::asio::async_write(socket_, boost::asio::buffer(data, size_t(in.gcount())), yield);
+				boost::asio::write(socket_, boost::asio::buffer(data, size_t(in.gcount())));
 			}
 
 			return true;
 		}
 
-		void response(Response& res, const boost::asio::yield_context& yield)
+		void response(Response& res)
 		{
 			if (res.header.get_count("Content-Type") == 0)
 			{
@@ -221,8 +221,8 @@ namespace cinatra
 			{
 				// 如果是chunked编码数据应该都发完了.
 				std::string header_str = res.get_header_str();
-				boost::asio::async_write(socket_, boost::asio::buffer(header_str), yield);
-				boost::asio::async_write(socket_, res.buffer_, yield);
+				boost::asio::write(socket_, boost::asio::buffer(header_str));
+				boost::asio::write(socket_, res.buffer_);
 			}
 		}
 
@@ -261,7 +261,7 @@ namespace cinatra
 			}
 		}
 
-		void response_error(const HttpError& e, Request& req, Response& res, const boost::asio::yield_context& yield)
+		void response_error(const HttpError& e, Request& req, Response& res)
 		{
 			res.set_status_code(e.get_code(), e.get_description());
 			if (!error_handler_ || !error_handler_(e, req, res))
@@ -277,16 +277,16 @@ namespace cinatra
 				}
 				html += "</body></html>";
 
-				res.set_status_code(e.get_code(),e.get_description());
+				res.set_status_code(e.get_code(), e.get_description());
 
 				res.write(html);
 			}
 			boost::system::error_code ignored_ec;
-			boost::asio::async_write(socket_, boost::asio::buffer(res.get_header_str()), yield[ignored_ec]);
-			boost::asio::async_write(socket_, res.buffer_, yield[ignored_ec]);
+			boost::asio::write(socket_, boost::asio::buffer(res.get_header_str()), ignored_ec);
+			boost::asio::write(socket_, res.buffer_, ignored_ec);
 		}
 
-		bool shutdown(tcp_socket& s, coro_t&)
+		bool shutdown(tcp_socket& s)
 		{
 			LOG_DBG << "Shutdown Http connection";
 			boost::system::error_code ignored_ec;
@@ -315,193 +315,209 @@ namespace cinatra
 		}
 
 
-		void do_work(coro_t yield)
+		void do_work()
 		{
-			boost::system::error_code ec;
 #ifdef CINATRA_ENABLE_HTTPS
+			boost::system::error_code ec;
 			handshake(socket_, yield[ec]);
-#endif // CINATRA_ENABLE_HTTPS
+
 			if (ec)
 			{
 				LOG_ERR << "SSL handshake failed: " << ec.message();
 				return;
 			}
+#endif // CINATRA_ENABLE_HTTPS
 
-			for (;;)
+			reset_timer();
+
+//			std::array<char, 8192> buffer;
+
+			auto self(shared_from_this());
+			socket_.async_read_some(boost::asio::buffer(read_buf_),
+				[this, self](boost::system::error_code ec, std::size_t n)
 			{
-				Request req;
-				Response res;
-				try
+				if (ec)
 				{
-					reset_timer();
-
-					std::array<char, 8192> buffer;
-					RequestParser parser;
-
-					std::size_t total_size = 0;
-					for (;;)
+					if (ec == boost::asio::error::eof
+						|| ec == boost::asio::error::connection_reset
+						|| ec == boost::asio::error::connection_aborted)
 					{
-						std::size_t n = socket_.async_read_some(boost::asio::buffer(buffer), yield[ec]);
-						if (ec)
+						LOG_DBG << "Socket shutdown";
+					}
+					else
+					{
+						LOG_DBG << "Network exception: " << ec.value() << " " << ec.message();
+					}
+					close();
+					return;
+				}
+
+				//req_buf_.sputn(buffer.data(), n);
+
+
+				cancel_timer();	//读取到了数据之后就取消关闭连接的timer
+				total_size_ += n;
+				if (total_size_ > CINATRA_REQ_MAX_SIZE)
+				{
+					throw HttpError(400, "Request tooooooooo large");
+				}
+
+				auto ret = parser_.parse(read_buf_, n);
+				if (ret == RequestParser::good)
+				{
+					Response res;
+					Request req = parser_.get_request();
+					try
+					{
+						LOG_DBG << "New request,path:" << req.path();
+						if (req.path().find("../") != std::string::npos
+							|| req.path().find("..\\") != std::string::npos)
 						{
-							if (ec == boost::asio::error::eof
-								|| ec == boost::asio::error::connection_reset
-								|| ec == boost::asio::error::connection_aborted)
+							throw HttpError(400, "Bad request path");
+						}
+
+						/*
+						如果是http1.0，规则是这样的：
+						如果request里面的connection是keep-alive，那就说明浏览器想要长连接，服务器如果也同意长连接，
+						那么返回的response的connection也应该有keep-alive通知浏览器，如果不想长链接，response里面就不应该有keep-alive;
+						如果是1.1的，规则是这样的：
+						如果request里面的connection是close，那就说明浏览器不希望长连接，如果没有close，就是默认保持长链接，
+						本来是跟keep-alive没关系，但是如果浏览器发了keep-alive，那你返回的时候也应该返回keep-alive;
+						惯例是根据有没有close判断是否长链接，但是如果没有close但是有keep-alive，你response也得加keep-alive;
+						如果没有close也没有keep-alive
+						那就是长链接但是不用返回keep-alive
+						*/
+						bool persistent_connection = true;
+						bool add_keep_alive = false;
+						if (parser_.is_version10())
+						{
+							if (req.header().val_ncase_equal("Connection", "Keep-Alive"))
 							{
-								LOG_DBG << "Socket shutdown";
+								persistent_connection = true;
+								add_keep_alive = true;
 							}
 							else
 							{
-								LOG_DBG << "Network exception: " << ec.value() << " " << ec.message();
+								persistent_connection = false;
 							}
-							close();
-							return;
 						}
-
-						req_buf_.sputn(buffer.data(), n);
-
-						cancel_timer();	//读取到了数据之后就取消关闭连接的timer
-						total_size += n;
-						if (total_size > CINATRA_REQ_MAX_SIZE)
+						else if (parser_.is_version11())
 						{
-							throw HttpError(400,"Request tooooooooo large");
-						}
-
-						auto ret = parser.parse(req_buf_);
-						if (ret == RequestParser::good)
-						{
-							break;
-						}
-						if (ret == RequestParser::bad)
-						{
-							throw HttpError(400,"HTTP Parser error");
-						}
-					}
-
-					req = parser.get_request();
-					LOG_DBG << "New request,path:" << req.path();
-					if (req.path().find("../") != std::string::npos
-						|| req.path().find("..\\") != std::string::npos)
-					{
-						throw HttpError(400, "Bad request path");
-					}
-
-					/*
-					如果是http1.0，规则是这样的：
-					如果request里面的connection是keep-alive，那就说明浏览器想要长连接，服务器如果也同意长连接，
-					那么返回的response的connection也应该有keep-alive通知浏览器，如果不想长链接，response里面就不应该有keep-alive;
-					如果是1.1的，规则是这样的：
-					如果request里面的connection是close，那就说明浏览器不希望长连接，如果没有close，就是默认保持长链接，
-					本来是跟keep-alive没关系，但是如果浏览器发了keep-alive，那你返回的时候也应该返回keep-alive;
-					惯例是根据有没有close判断是否长链接，但是如果没有close但是有keep-alive，你response也得加keep-alive;
-					如果没有close也没有keep-alive
-					那就是长链接但是不用返回keep-alive
-					*/
-					bool persistent_connection = true;
-					bool add_keep_alive = false;
-					if (parser.is_version10())
-					{
-						if (req.header().val_ncase_equal("Connection", "Keep-Alive"))
-						{
-							persistent_connection = true;
-							add_keep_alive = true;
-						}
-						else
-						{
-							persistent_connection = false;
-						}
-					}
-					else if (parser.is_version11())
-					{
-						if (req.header().val_ncase_equal("Connection", "Keep-Alive"))
-						{
-							add_keep_alive = true;
-						}
-						else if (req.header().val_ncase_equal("Connection", "Close"))
-						{
-							persistent_connection = false;
-						}
-					}
-
-					if (add_keep_alive)
-					{
-						res.header.add("Connection", "Keep-Alive");
-					}
-
-					if (init_req_res(req, res, parser, yield))
-					{
-						bool r = request_handler_(req, res);
-						if (!res.is_complete() && !r)
-						{
-							if (response_file(req, add_keep_alive, yield))
+							if (req.header().val_ncase_equal("Connection", "Keep-Alive"))
 							{
-								if (!persistent_connection && shutdown(socket_, yield))
+								add_keep_alive = true;
+							}
+							else if (req.header().val_ncase_equal("Connection", "Close"))
+							{
+								persistent_connection = false;
+							}
+						}
+
+						if (add_keep_alive)
+						{
+							res.header.add("Connection", "Keep-Alive");
+						}
+
+						if (init_req_res(req, res, parser_))
+						{
+							bool r = request_handler_(req, res);
+							if (!res.is_complete() && !r)
+							{
+								if (response_file(req, add_keep_alive))
 								{
-									close();
+									if (!persistent_connection && shutdown(socket_))
+									{
+										close();
+										return;
+									}
+									
+									total_size_ = 0;
+									parser_ = {};
+									do_work();
 									return;
 								}
-								continue;
+
+								response_error(HttpError(404), req, res);
+								
+								total_size_ = 0;
+								parser_ = {};
+								do_work();
+								return;
 							}
-
-							response_error(HttpError(404), req, res, yield);
-							continue;
 						}
+
+						response(res);
+						total_size_ = 0;
+						parser_ = {};
+						do_work();
+						if (!persistent_connection)
+						{
+							if (shutdown(socket_))
+							{
+								close();
+								return;
+							}
+						}
+
 					}
-
-					response(res, yield);
-
-					if (!persistent_connection)
+					catch (boost::system::system_error& e)
 					{
-						if (shutdown(socket_, yield))
+						//网络通信异常，关socket，通常是浏览器端前置关闭连接会导致此异常.
+						LOG_DBG << "Network exception: " << e.code().message();
+						close();
+						return;
+					}
+					catch (HttpError& e)
+					{
+						response_error(e, req, res);
+						if (shutdown(socket_))
 						{
 							close();
 							return;
 						}
 					}
+					catch (std::exception& e)
+					{
+						LOG_ERR << "Error occurs,response 500: " << e.what();
+						response_error(HttpError(500, e.what()), req, res);
+						if (shutdown(socket_))
+						{
+							close();
+							return;
+						}
+					}
+					catch (boost::coroutines::detail::forced_unwind& e)
+					{
+						//强制stop
+						close();
+						return;
+					}
+					catch (...)
+					{
+						response_error(HttpError(500), req, res);
+						if (shutdown(socket_))
+						{
+							close();
+							return;
+						}
+					}
+				}
+				else if (ret == RequestParser::bad)
+				{
+					throw HttpError(400, "HTTP Parser error");
+				}
+				else
+				{
+					do_work();
+				}
+			});
+		}
 
-				}
-				catch (boost::system::system_error& e)
-				{
-					//网络通信异常，关socket，通常是浏览器端前置关闭连接会导致此异常.
-					LOG_DBG << "Network exception: " << e.code().message();
-					close();
-					return;
-				}
-				catch (HttpError& e)
-				{
-					response_error(e, req, res, yield);
-					if (shutdown(socket_, yield))
-					{
-						close();
-						return;
-					}
-				}
-				catch (std::exception& e)
-				{
-					LOG_ERR << "Error occurs,response 500: " << e.what();
-					response_error(HttpError(500, e.what()), req, res, yield);
-					if (shutdown(socket_, yield))
-					{
-						close();
-						return;
-					}
-				}
-				catch (boost::coroutines::detail::forced_unwind& e)
-				{
-					//强制stop
-					close();
-					return;
-				}
-				catch (...)
-				{
-					response_error(HttpError(500), req, res, yield);
-					if (shutdown(socket_, yield))
-					{
-						close();
-						return;
-					}
-				}
-			}
+		void set_no_delay()
+		{
+			boost::asio::ip::tcp::no_delay option(true);
+			boost::system::error_code ec;
+			socket_.set_option(option, ec);
 		}
 	private:
 		boost::asio::io_service& service_;
@@ -513,5 +529,8 @@ namespace cinatra
 		const std::string& static_dir_;
 		const request_handler_t& request_handler_;
 
+		char read_buf_[8192];
+		std::size_t total_size_ = 0;
+		RequestParser parser_;
 	};
 }
