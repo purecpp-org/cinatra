@@ -332,7 +332,7 @@ namespace cinatra
 
 //			std::array<char, 8192> buffer;
 
-			auto self(shared_from_this());
+			auto self(this->shared_from_this());
 			socket_.async_read_some(boost::asio::buffer(read_buf_),
 				[this, self](boost::system::error_code ec, std::size_t n)
 			{
