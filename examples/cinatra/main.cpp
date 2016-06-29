@@ -149,17 +149,17 @@ int main()
 		app.stop();
 	}).detach();
 
-	app.static_dir("./static")
-		.listen("0.0.0.0", "https", cinatra::HttpsConfig(
-		true,
-		cinatra::HttpsConfig::none,
-		[](std::size_t, int)->std::string{ return "123456"; },
-		"server.crt",
-		"server.key",
-		"dh2048.pem",
-		""
-		))
-		.listen("http").run();
+	app.static_dir("./static").listen("9000").run();
+		//.listen("0.0.0.0", "https", cinatra::HttpsConfig(
+		//true,
+		//cinatra::HttpsConfig::none,
+		//[](std::size_t, int)->std::string{ return "123456"; },
+		//"server.crt",
+		//"server.key",
+		//"dh2048.pem",
+		//""
+		//))
+		//.listen("http").run();
 
 	return 0;
 }
