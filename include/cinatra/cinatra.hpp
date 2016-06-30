@@ -124,7 +124,7 @@ namespace cinatra
 		void run()
 		{
 #ifndef CINATRA_SINGLE_THREAD
-			http_server_.reset(new HTTPServer(num_threads_));
+			http_server_.reset(new HTTPServer(9000, num_threads_));
 #else
 			http_server_.reset(new HTTPServer);
 #endif
@@ -137,10 +137,10 @@ namespace cinatra
 				.set_error_handler(error_handler_)
 				.static_dir(static_dir_);
 
-			for (auto const & info : http_listen_infos_)
-			{
-				http_server_->listen(info.address, info.port);
-			}
+			//for (auto const & info : http_listen_infos_)
+			//{
+			//	http_server_->listen(info.address, info.port);
+			//}
 #ifdef CINATRA_ENABLE_HTTPS
 			for (auto const & info : https_listen_infos_)
 			{

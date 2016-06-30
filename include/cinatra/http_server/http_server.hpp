@@ -17,7 +17,7 @@
 #include <functional>
 #include <memory>
 #include <string>
-
+using boost::asio::ip::tcp;
 
 namespace cinatra
 {
@@ -61,15 +61,21 @@ namespace cinatra
 	class HTTPServer : boost::noncopyable
 	{
 	public:
-#ifndef CINATRA_SINGLE_THREAD
-		HTTPServer(std::size_t io_service_pool_size)
-			:io_service_pool_(io_service_pool_size)
-#else
-		HTTPServer()
-			: io_service_pool_(1)
-#endif // CINATRA_SINGLE_THREAD
-		{
+//#ifndef CINATRA_SINGLE_THREAD
+//		HTTPServer(std::size_t io_service_pool_size)
+//			:io_service_pool_(io_service_pool_size)
+//#else
+//		HTTPServer()
+//			: io_service_pool_(1)
+//#endif // CINATRA_SINGLE_THREAD
+//		{
+//
+//		}
 
+		HTTPServer(short port, size_t size = std::thread::hardware_concurrency()) : io_service_pool_(size),
+			acceptor_(io_service_pool_.get_io_service(), tcp::endpoint(tcp::v4(), port))
+		{
+			do_accept();
 		}
 
 		~HTTPServer()
@@ -87,17 +93,17 @@ namespace cinatra
 			return *this;
 		}
 
-		HTTPServer& listen(const std::string& address, const std::string& port)
-		{
-			boost::asio::spawn(
-				io_service_pool_.get_io_service(),
-				[this, address, port](boost::asio::yield_context yield)
-			{
-				do_accept(address, port, yield);
-			});
+		//HTTPServer& listen(const std::string& address, const std::string& port)
+		//{
+		//	boost::asio::spawn(
+		//		io_service_pool_.get_io_service(),
+		//		[this, address, port](boost::asio::yield_context yield)
+		//	{
+		//		do_accept(address, port, yield);
+		//	});
 
-			return *this;
-		}
+		//	return *this;
+		//}
 
 #ifdef CINATRA_ENABLE_HTTPS
 		HTTPServer& listen(const std::string& address, const std::string& port, HttpsConfig cfg)
@@ -113,10 +119,10 @@ namespace cinatra
 		}
 #endif //CINATRA_ENABLE_HTTPS
 
-		HTTPServer& listen(const std::string& address, unsigned short port)
-		{
-			return listen(address, boost::lexical_cast<std::string>(port));
-		}
+		//HTTPServer& listen(const std::string& address, std::string port)
+		//{
+		//	//return listen(address, boost::lexical_cast<std::string>(port));
+		//}
 
 		HTTPServer& static_dir(const std::string& dir)
 		{
@@ -137,6 +143,24 @@ namespace cinatra
 		}
 
 	private:
+		void do_accept()
+		{
+			conn_.reset(new Connection<tcp_socket>(io_service_pool_.get_io_service(), request_handler_, error_handler_, static_dir_));
+			acceptor_.async_accept(conn_->socket(), [this](boost::system::error_code ec)
+			{
+				if (ec)
+				{
+					//todo log
+				}
+				else
+				{
+					conn_->start();
+				}
+
+				do_accept();
+			});
+		}
+
 		void do_accept(
 			const std::string address,
 			const std::string port,
@@ -250,7 +274,8 @@ namespace cinatra
 
 		request_handler_t request_handler_;
 		error_handler_t error_handler_;
-
+		std::shared_ptr<Connection<tcp_socket>> conn_;
+		boost::asio::ip::tcp::acceptor acceptor_;
 		std::string static_dir_;
 	};
 }

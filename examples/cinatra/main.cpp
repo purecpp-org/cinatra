@@ -46,13 +46,13 @@ struct MyStruct
 int main()
 {
 	cinatra::Cinatra<
-		cinatra::RequestCookie,
-		cinatra::ResponseCookie,
-		cinatra::Session,
-		CheckLoginAspect
+		//cinatra::RequestCookie,
+		//cinatra::ResponseCookie,
+		//cinatra::Session,
+		//CheckLoginAspect
 	> app;
 
-	app.get_middleware<cinatra::Session>().set_session_life_circle(5 * 60);
+//	app.get_middleware<cinatra::Session>().set_session_life_circle(5 * 60);
 	app.route("/", [](cinatra::Request& /* req */, cinatra::Response& res)
 	{
 		res.end("Hello Cinatra");
@@ -143,11 +143,11 @@ int main()
 		});
 	});
 
-	std::thread([&app]
-	{
-		std::this_thread::sleep_for(std::chrono::seconds(10));
-		app.stop();
-	}).detach();
+	//std::thread([&app]
+	//{
+	//	std::this_thread::sleep_for(std::chrono::seconds(10));
+	//	app.stop();
+	//}).detach();
 
 	app.static_dir("./static").listen("9000").run();
 		//.listen("0.0.0.0", "https", cinatra::HttpsConfig(

@@ -56,6 +56,11 @@ namespace cinatra
 			LOG_DBG << "New http connection";
 		}
 
+		boost::asio::ip::tcp::socket& socket()
+		{
+			return socket_;
+		}
+
 #ifdef CINATRA_ENABLE_HTTPS
 		template<typename U = SocketT>
 		Connection(boost::asio::io_service& service,
@@ -71,7 +76,7 @@ namespace cinatra
 			LOG_DBG << "New https connection";
 		}
 #endif // CINATRA_ENABLE_HTTPS
-
+		
 	private:
 		tcp_socket& raw_socket(tcp_socket& s)
 		{
