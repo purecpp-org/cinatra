@@ -33,7 +33,7 @@ namespace cinatra
 		result_type parse(const char* buf, size_t n)
 		{
 			const char* temp = buf;
-			int c = 0;
+			size_t c = 0;
 			while (c<n)
 			{
 				result_type result = consume(*temp++);
@@ -58,10 +58,10 @@ namespace cinatra
 			return indeterminate;
 		}
 
-		result_type parse(boost::asio::streambuf&)
-		{
-			return{};
-		}
+		//result_type parse(boost::asio::streambuf&)
+		//{
+		//	return{};
+		//}
 
 		bool check_version(int major, int minor) const
 		{
