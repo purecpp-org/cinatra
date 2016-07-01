@@ -28,7 +28,7 @@
 #define CINATRA_UNIQUE_LOCK(mtx) std::unique_lock<std::mutex> lock(mtx)
 #endif // CINATRA_SINGLE_THREAD
 
-
+std::atomic<std::int64_t> g_sessionid(0);
 namespace cinatra
 {
 	class Session
@@ -46,7 +46,9 @@ namespace cinatra
 				//检查所有session有没有超时的
 				for (auto it = sessions_.begin(); it != sessions_.end();)
 				{
-					if (std::time(nullptr) - it->second->last_used_time >= life_cycle_)
+					time_t mytime;
+					mytime = time(0);
+					if (false)
 					{
 						it = sessions_.erase(it);
 					}
@@ -149,9 +151,9 @@ namespace cinatra
 
 		std::string new_sessionid()
 		{
-			boost::uuids::uuid u = boost::uuids::random_generator()();
-
-			std::string u_str;
+			//boost::uuids::uuid u = boost::uuids::random_generator()();
+			const std::string u_str = std::to_string(g_sessionid++);
+			/*std::string u_str;
 			for (auto c : u)
 			{
 				char out1, out2;
@@ -159,7 +161,7 @@ namespace cinatra
 
 				u_str.push_back(out1);
 				u_str.push_back(out2);
-			}
+			}*/
 			
 			CINATRA_UNIQUE_LOCK(mutex_);
 			sessions_.emplace(u_str, std::make_shared<SessionMap>());
