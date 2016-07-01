@@ -28,7 +28,7 @@
 #define CINATRA_UNIQUE_LOCK(mtx) std::unique_lock<std::mutex> lock(mtx)
 #endif // CINATRA_SINGLE_THREAD
 
-std::atomic<std::int64_t> g_sessionid(0);
+static std::atomic<std::int64_t> g_sessionid(0);
 namespace cinatra
 {
 	class Session
