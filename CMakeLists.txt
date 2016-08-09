@@ -6,7 +6,7 @@ OPTION(ENABLE_OPENSSL "Enable use of OpenSSL for https" ON)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 
-FIND_PACKAGE(Boost 1.55 COMPONENTS coroutine context system  REQUIRED)
+FIND_PACKAGE(Boost 1.55 COMPONENTS coroutine context system thread REQUIRED)
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 FIND_PACKAGE (Threads)
