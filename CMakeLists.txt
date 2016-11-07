@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
 PROJECT(cinatra)
 
-OPTION(ENABLE_OPENSSL "Enable use of OpenSSL for https" ON)
+OPTION(ENABLE_OPENSSL "Enable use of OpenSSL for https" OFF)
 OPTION(ENABLE_STATIC_BOOST "Enable use static Boost libs" OFF)
 
 SET(CMAKE_VERBOSE_MAKEFILE ON)
