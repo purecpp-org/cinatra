@@ -19,7 +19,7 @@ namespace cinatra
 {
 	inline CaseMap query_parser(const std::string& data)
 	{
-		return kv_parser<std::string::const_iterator, CaseMap, '=', '&'>(data.begin(), data.end(), false);
+		return kv_parser<std::string::const_iterator, CaseMap, '=', '&', false, false>(data.begin(), data.end());
 	}
 
 	class Request

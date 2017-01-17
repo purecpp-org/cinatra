@@ -55,7 +55,7 @@ namespace cinatra
 	private:
 		static inline CaseMap cookie_parser(const std::string& data)
 		{
-			return kv_parser<std::string::const_iterator, CaseMap, '=', ';'>(data.begin(), data.end(), true);
+			return kv_parser<std::string::const_iterator, CaseMap, '=', ';', true, true>(data.begin(), data.end());
 		}
 	};
 

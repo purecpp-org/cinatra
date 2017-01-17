@@ -7,6 +7,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 #include <map>
 #include <string>
@@ -730,12 +731,23 @@ namespace cinatra
 		typename Iterator,
 		typename MapType,
 		int KVSep,
-		int FieldSep
+		int FieldSep,
+		bool Unescape,
+		bool Trim
 	>
-	inline MapType kv_parser(Iterator begin, Iterator end, bool unescape)
+	inline MapType kv_parser(Iterator begin, Iterator end)
 	{
 		CaseMap result;
 		std::string key, val;
+		auto result_add = [&result](std::string key, std::string val)
+		{
+			if (Trim)
+			{
+				boost::algorithm::trim(key);
+				boost::algorithm::trim(val);
+			}
+			result.add(key, val);
+		}
 ;
 		bool is_k = true;
 		for (Iterator it = begin; it != end; ++it)
@@ -744,7 +756,7 @@ namespace cinatra
 			if (c == FieldSep)
 			{
 				is_k = true;
-				result.add(key, val);
+				result_add(key, val);
 				key.clear();
 			}
 			else if (c == KVSep)
@@ -755,7 +767,7 @@ namespace cinatra
 
 			else
 			{
-				if (unescape && c == '%')
+				if (Unescape && c == '%')
 				{
 					++it;
 					char c1 = *it;
@@ -777,7 +789,7 @@ namespace cinatra
 
 		if (!is_k)
 		{
-			result.add(key, val);
+			result_add(key, val);
 		}
 		return result;
 	}

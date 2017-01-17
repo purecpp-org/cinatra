@@ -59,19 +59,9 @@ namespace cinatra
 
 			// 如果这里抛异常请检查是否添加了RequestCookie和ResponseCookie中间件,并且在session中间件的前面
 			auto& req_cookie = ctx.get_req_ctx<RequestCookie>();
+			auto& res_cookie = ctx.get_req_ctx<ResponseCookie>();
 
-  			// 获取session id
-			std::string session_id = req_cookie.get("CSESSIONID");
-			if (session_id.empty() || sessions_.find(session_id) == sessions_.end())
- 			{
- 			 	// ID为空则新建一个session
-				session_id = new_sessionid();
-				auto& res_cookie = ctx.get_req_ctx<ResponseCookie>();
-				res_cookie.new_cookie().add("CSESSIONID", session_id);
- 			}
-
-			auto it = sessions_.find(session_id);
-			ctx.add_req_ctx(Context(it->second));
+			ctx.add_req_ctx(Context{ req_cookie , res_cookie, sessions_, mutex_});
 		}
 
 		void after(Request& /*req*/, Response& /*res*/, ContextContainer& /*ctx*/)
@@ -98,29 +88,43 @@ namespace cinatra
 		class Context
 		{
 		public:
-			Context(std::shared_ptr<SessionMap> sm)
-				:sm_(sm)
-			{}
+			Context(RequestCookie::Context& req_cookie,
+				ResponseCookie::Context& res_cooike,
+				std::unordered_map<std::string, std::shared_ptr<SessionMap>>& sm2, std::mutex& mutex)
+				:req_cookie_(req_cookie), res_cooike_(res_cooike), sm2_(sm2), mutex_(mutex)
+			{
+
+			}
 
 			template<typename T>
 			void set(const std::string& key, T const & val)
 			{
-				CINATRA_UNIQUE_LOCK(sm_->mutex);
-				sm_->last_used_time = std::time(nullptr);
-				sm_->m[key] = val;
+				get_session_map()->last_used_time = std::time(nullptr);
+				get_session_map()->m[key] = val;
 			}
 			bool has(const std::string& key)
 			{
-				sm_->last_used_time = std::time(nullptr);
-				return sm_->m.find(key) != sm_->m.end();
+				if (!get_session_map(false))
+				{
+					return false;
+				}
+
+				get_session_map()->last_used_time = std::time(nullptr);
+				return get_session_map()->m.find(key) != get_session_map()->m.end();
 			}
 			template<typename T>
 			T& get(const std::string& key)
 			{
-				CINATRA_UNIQUE_LOCK(sm_->mutex);
-				sm_->last_used_time = std::time(nullptr);
-				auto it = sm_->m.find(key);
-				if (it == sm_->m.end())
+				if (!get_session_map(false))
+				{
+					//TODO: 修改接口..
+					static T empty;
+					return empty;
+				}
+
+				get_session_map()->last_used_time = std::time(nullptr);
+				auto it = get_session_map()->m.find(key);
+				if (it == get_session_map()->m.end())
 				{
 					throw std::invalid_argument("key \"" + key + "\" not found.");
 				}
@@ -129,43 +133,77 @@ namespace cinatra
 			}
 			void del(const std::string& key)
 			{
-				CINATRA_UNIQUE_LOCK(sm_->mutex);
-				sm_->last_used_time = std::time(nullptr);
-				auto it = sm_->m.find(key);
-				if (it == sm_->m.end())
+				if (!get_session_map(false))
+				{
+					return;
+				}
+				get_session_map()->last_used_time = std::time(nullptr);
+				auto it = get_session_map()->m.find(key);
+				if (it == get_session_map()->m.end())
 				{
 					throw std::invalid_argument("key \"" + key + "\" not found.");
 				}
 
-				sm_->m.erase(it);
+				get_session_map()->m.erase(it);
 			}
 		private:
-			std::shared_ptr<SessionMap> sm_;
-		};
-	private:
-#ifndef CINATRA_SINGLE_THREAD
-		std::mutex mutex_;
-#endif //CINATRA_SINGLE_THREAD
-
-		std::string new_sessionid()
-		{
-			boost::uuids::uuid u = boost::uuids::random_generator()();
-			const std::string u_str = boost::uuids::to_string(u);
-			/*std::string u_str;
-			for (auto c : u)
+			std::shared_ptr<SessionMap> get_session_map(bool create_if_no = true)
 			{
+				if (sm_)
+				{
+					std::cout << "1" << std::endl;
+					return sm_;
+				}
+
+
+				std::cout << "2" << std::endl;
+				// 获取session id
+				std::string session_id = req_cookie_.get("CSESSIONID");
+				if (session_id.empty() || sm2_.find(session_id) == sm2_.end())
+				{
+					if (!create_if_no)
+					{
+						return nullptr;
+					}
+					// ID为空则新建一个session
+					session_id = new_sessionid();
+					res_cooike_.new_cookie().add("CSESSIONID", session_id);
+				}
+
+				sm_ = sm2_.find(session_id)->second;
+				return sm_;
+			}
+
+			std::string new_sessionid()
+			{
+				boost::uuids::uuid u = boost::uuids::random_generator()();
+				const std::string u_str = boost::uuids::to_string(u);
+				/*std::string u_str;
+				for (auto c : u)
+				{
 				char out1, out2;
 				itoh(c, out1, out2);
 
 				u_str.push_back(out1);
 				u_str.push_back(out2);
-			}*/
-			
-			CINATRA_UNIQUE_LOCK(mutex_);
-			sessions_.emplace(u_str, std::make_shared<SessionMap>());
-			return u_str;
-		}
+				}*/
 
+				CINATRA_UNIQUE_LOCK(mutex_);
+				sm2_.emplace(u_str, std::make_shared<SessionMap>());
+				return u_str;
+			}
+
+
+			std::shared_ptr<SessionMap> sm_;
+			RequestCookie::Context& req_cookie_;
+			ResponseCookie::Context& res_cooike_;
+			std::unordered_map<std::string, std::shared_ptr<SessionMap>>& sm2_;
+			std::mutex& mutex_;
+		};
+	private:
+#ifndef CINATRA_SINGLE_THREAD
+		std::mutex mutex_;
+#endif //CINATRA_SINGLE_THREAD
 		std::unordered_map<std::string, std::shared_ptr<SessionMap>> sessions_;
 
 		int life_cycle_ = 10 * 60;
