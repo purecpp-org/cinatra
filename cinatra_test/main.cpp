@@ -1,0 +1,64 @@
+
+#include <iostream>
+
+#include <cinatra/cinatra.h>
+#include <cinatra/middleware/cookies.hpp>
+
+
+struct CheckLoginAspect
+{
+	void before(cinatra::request const& req, cinatra::response& res, cinatra::context_container& ctx)
+	{
+		std::cout << "before" << std::endl;
+	}
+
+	void after(cinatra::request const& req, cinatra::response& res, cinatra::context_container& ctx)
+	{
+		std::cout << "after" << std::endl;
+	}
+};
+
+
+int main()
+{
+	cinatra::cinatra<CheckLoginAspect, cinatra::cookies> app;
+
+	app.route("/", [](cinatra::response& res)
+	{
+		res.response_text("hhhhhhhhhhhhhhhhhh");
+	});
+	app.route("/test/:name", [](std::string name, cinatra::response& res)
+	{
+		res.response_text(name);
+	});
+
+
+	app.route("/show_cookie", [](cinatra::response& res, cinatra::context_container& ctx)
+	{
+		std::string cookie_str;
+		auto& cookie_ctx = ctx.get_req_ctx<cinatra::cookies>();
+		for (auto it : cookie_ctx.get())
+		{
+			cookie_str += it.first + ": " + it.second + "\n";
+		}
+		res.response_text(cookie_str);
+	});
+
+	app.route("/add_cookie", [](cinatra::response& res, cinatra::context_container& ctx)
+	{
+		auto& cookie_ctx = ctx.get_req_ctx<cinatra::cookies>();
+		cinatra::cookies::cookie_t cookie;
+		cookie.add("foo", "bar");
+		cookie.set_http_only(true);
+		cookie_ctx.add_cookie(cookie);
+
+		res.response_text("over");
+	});
+
+
+	app.listen("127.0.0.1", "8080");
+	app.run();
+
+
+	return 0;
+}
