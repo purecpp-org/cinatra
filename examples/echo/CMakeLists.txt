@@ -1,3 +1,0 @@
-ADD_EXECUTABLE(echo main.cpp)
-
-TARGET_LINK_LIBRARIES(echo ${EXTRA_LIBS})
