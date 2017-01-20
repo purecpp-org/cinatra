@@ -26,7 +26,7 @@ namespace cinatra
 	public:
 		void before(request const& req, response& res, context_container& ctx)
 		{
-			ctx.add_req_ctx(context_t(sessions_, ctx));
+			ctx.add_req_ctx(context_t(sessions_, mtx_, ctx));
 		}
 
 		void after(request const& req, response& res, context_container& ctx)
@@ -46,8 +46,8 @@ namespace cinatra
 		class context_t
 		{
 		public:
-			context_t(std::unordered_map<std::string, session_map_t>& sessions,context_container& ctx)
-				:sessions_(sessions), ctx_(ctx)
+			context_t(std::unordered_map<std::string, session_map_t>& sessions, std::mutex& mtx, context_container& ctx)
+				:sessions_(sessions), mtx_(mtx), ctx_(ctx)
 			{
 
 			}
@@ -136,6 +136,7 @@ namespace cinatra
 					return nullptr;
 				}
 
+				std::lock_guard<std::mutex> _(mtx_);
 				auto it = sessions_.find(session_id);
 				if (it == sessions_.end())
 				{
@@ -180,6 +181,7 @@ namespace cinatra
 					cookie.add_cookie(c);
 				}
 
+				std::lock_guard<std::mutex> _(mtx_);
 // 				sessions_.emplace(session_id_, session_map_t());
 				session_map_ptr_ = &sessions_[session_id];
 				return session_map_ptr_;
@@ -190,6 +192,7 @@ namespace cinatra
 			session_map_t* session_map_ptr_ = nullptr;
 			bool session_map_ptr_not_found_ = false;
 
+			std::mutex& mtx_;
 			std::unordered_map<std::string, session_map_t>& sessions_;
 		};
 	private:
