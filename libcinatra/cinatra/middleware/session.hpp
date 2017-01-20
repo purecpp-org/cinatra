@@ -16,7 +16,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
-
+#include <ctime>
 
 
 namespace cinatra
@@ -26,12 +26,27 @@ namespace cinatra
 	public:
 		void before(request const& req, response& res, context_container& ctx)
 		{
+			{
+				auto now = std::time(nullptr);
+				std::lock_guard<std::mutex> _(mtx_);
+				for (auto it = sessions_.begin(); it != sessions_.end();)
+				{
+					if (now - it->second.last_used_time > timeout_sec_)
+					{
+						it = sessions_.erase(it);
+					}
+					else
+					{
+						++it;
+					}
+				}
+			}
+
 			ctx.add_req_ctx(context_t(sessions_, mtx_, ctx));
 		}
 
 		void after(request const& req, response& res, context_container& ctx)
 		{
-
 		}
 
 		struct session_map_t
@@ -121,6 +136,7 @@ namespace cinatra
 			{
 				if (session_map_ptr_)
 				{
+					session_map_ptr_->last_used_time = std::time(nullptr);
 					return session_map_ptr_;
 				}
 				if (session_map_ptr_not_found_)
@@ -146,6 +162,7 @@ namespace cinatra
 
 				session_map_ptr_ = &it->second;
 
+				session_map_ptr_->last_used_time = std::time(nullptr);
 				return session_map_ptr_;
 			}
 
@@ -160,6 +177,7 @@ namespace cinatra
 			{
 				if (session_map_ptr_)
 				{
+					session_map_ptr_->last_used_time = std::time(nullptr);
 					return session_map_ptr_;
 				}
 
@@ -198,6 +216,7 @@ namespace cinatra
 	private:
 		std::mutex mtx_;
 		std::unordered_map<std::string, session_map_t> sessions_;
+		std::time_t timeout_sec_ = 10 * 60;
 	};
 
 
