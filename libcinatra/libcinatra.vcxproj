@@ -25,6 +25,7 @@
     <ClInclude Include="cinatra\function_traits.hpp" />
     <ClInclude Include="cinatra\router.h" />
     <ClInclude Include="cinatra\middleware\cookies.hpp" />
+    <ClInclude Include="cinatra\middleware\session.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="router.cpp" />

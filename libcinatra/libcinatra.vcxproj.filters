@@ -39,6 +39,9 @@
     <ClInclude Include="cinatra\middleware\cookies.hpp">
       <Filter>头文件\cinatra\middleware</Filter>
     </ClInclude>
+    <ClInclude Include="cinatra\middleware\session.hpp">
+      <Filter>头文件\cinatra\middleware</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="router.cpp">
