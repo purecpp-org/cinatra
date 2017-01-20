@@ -56,6 +56,7 @@ namespace cinatra
 					return std::shared_ptr<response::connection>();
 				}
 
+				kill_timer_ = kill_timer;
 				if (kill_timer)
 				{
 					boost::system::error_code ec;
@@ -107,6 +108,10 @@ namespace cinatra
 
 		void reset_timer(int seconds = 60)
 		{
+			if (kill_timer_)
+			{
+				return;
+			}
 			deadline_.expires_from_now(boost::posix_time::seconds(seconds));	//TODO:超时时间改为可配置
 			std::weak_ptr<connection<socket_type>> weak_self = this->shared_from_this();
 
@@ -469,6 +474,7 @@ namespace cinatra
 
 		bool keep_alive_ = false;
 
+		bool kill_timer_ = false;
 		boost::asio::deadline_timer deadline_;
 	};
 }

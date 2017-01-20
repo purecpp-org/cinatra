@@ -93,7 +93,7 @@ namespace cinatra
             return response::stock_reply(response::bad_request);
         }
 		response rep;
-		if (rep.response_file((boost::filesystem::path(static_path) / req.url().to_string()).generic_string()))
+		if (rep.response_file((boost::filesystem::path(static_path) / req.path().to_string()).generic_string()))
 		{
 			return rep;
 		}
