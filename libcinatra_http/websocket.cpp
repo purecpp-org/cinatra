@@ -67,7 +67,7 @@ namespace cinatra
 				rep.add_header("Sec-WebSocket-Protocol", protocal_str.to_string());
 			}
 
-			auto conn = rep.get_connection();
+			auto conn = rep.get_connection(true);
 			conn->async_write(nullptr, 0, [conn, cfg](boost::system::error_code const& ec, size_t)
 			{
 				if (ec)

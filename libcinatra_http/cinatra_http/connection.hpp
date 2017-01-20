@@ -48,7 +48,7 @@ namespace cinatra
 		void start()
 		{
 			std::weak_ptr<connection<socket_type>> weak_self = this->shared_from_this();
-			reply_.set_get_connection_func([weak_self, this]
+			reply_.set_get_connection_func([weak_self, this](bool kill_timer)
 			{
 				auto self = weak_self.lock();
 				if (!self)
@@ -56,6 +56,11 @@ namespace cinatra
 					return std::shared_ptr<response::connection>();
 				}
 
+				if (kill_timer)
+				{
+					boost::system::error_code ec;
+					deadline_.cancel(ec);
+				}
 				return std::make_shared<response::connection>(reply_,
 					[self, this](const void* data, std::size_t size, response::handler_ec_size_t handler) {delay_write(data, size, std::move(handler));},
 					[self, this](std::vector<boost::asio::const_buffer> const& buffers, response::handler_ec_size_t handler) {delay_write(buffers, std::move(handler));},

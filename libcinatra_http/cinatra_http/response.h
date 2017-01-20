@@ -112,7 +112,7 @@ namespace cinatra
 			end_func_t end_func_;
 		};
 
-		using get_connection_func_t = std::function<std::shared_ptr<connection>()>;
+		using get_connection_func_t = std::function<std::shared_ptr<connection>(bool)>;
 
 		enum status_type
 		{
@@ -194,10 +194,10 @@ namespace cinatra
 			get_connection_func_ = std::move(func);
 		}
 
-		std::shared_ptr<connection> get_connection(bool delay = true)
+		std::shared_ptr<connection> get_connection(bool kill_timer = false, bool delay = true)
 		{
 			set_delay(delay);
-			return get_connection_func_();
+			return get_connection_func_(kill_timer);
 		}
 
 		bool header_buffer_wroted() const { return header_buffer_wroted_; }
