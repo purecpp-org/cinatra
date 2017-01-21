@@ -49,6 +49,11 @@ namespace cinatra
 		{
 		}
 
+		void set_timeout(std::time_t seconds)
+		{
+			timeout_sec_ = seconds;
+		}
+
 		struct session_map_t
 		{
 			session_map_t()

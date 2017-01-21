@@ -24,6 +24,8 @@ int main()
 {
 	cinatra::cinatra<CheckLoginAspect, cinatra::cookies, cinatra::session> app;
 
+	app.get_middleware<cinatra::session>().set_timeout(50);
+
 	app.route("/", [](cinatra::response& res)
 	{
 		res.response_text("hhhhhhhhhhhhhhhhhh");
