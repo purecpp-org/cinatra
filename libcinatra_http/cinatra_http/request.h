@@ -197,7 +197,6 @@ namespace cinatra
 		size_t body_len_;
 
 		multipart_parser* multipart_parser_ = nullptr;
-		multipart_parser_settings multipart_parser_settings_ = {0};
 		std::vector<form_parts_t> multipart_form_data_;
 		std::map<std::string, std::string> urlencoded_form_data_;
 	};

@@ -54,7 +54,6 @@ namespace cinatra
 
 			void start();
 
-			// TODO: 让用户传入message结构体
 			void async_send_msg(std::string const& text, opcode_t opCode, async_write_msg_callback_t handler)
 			{
 				async_send_msg(text.data(), text.size(), opCode, std::move(handler));
@@ -101,7 +100,7 @@ namespace cinatra
 
 
 			bool set_compressed(void *user) { return false; }	//TODO:添加gzip支持
-			void force_close(void *user) { conn_->close(); }	//TODO: close connection
+			void force_close(void *user) { conn_->close(); }
 
 			void consume(char *src, std::size_t length, void *user);
 

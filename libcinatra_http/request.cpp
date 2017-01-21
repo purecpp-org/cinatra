@@ -195,69 +195,71 @@ namespace cinatra
 
 			auto boundary = "--" + content_type.substr(pos, content_type.size() - pos);
 
-			// TODO:改为static const
-			multipart_parser_settings_.on_part_data_begin = [](multipart_parser* p)
+			static const multipart_parser_settings multipart_parser_settings_ = 
 			{
-				auto self = static_cast<request*>(multipart_parser_get_data(p));
-				self->multipart_form_data_.emplace_back(form_parts_t{});
-				return 0;
-			};
-			multipart_parser_settings_.on_header_field = [](multipart_parser* p, const char *at, size_t length)
-			{
-				auto self = static_cast<request*>(multipart_parser_get_data(p));
-				auto& part = self->multipart_form_data_.back();
-				if (part.state_ == 1)
+// 				multipart_data_cb on_header_field;
+				[](multipart_parser* p, const char *at, size_t length)
 				{
-					if (iequal(part.curr_field_.data(), part.curr_field_.size(), "Content-Disposition", 19))
+					auto self = static_cast<request*>(multipart_parser_get_data(p));
+					auto& part = self->multipart_form_data_.back();
+					if (part.state_ == 1)
 					{
-						part.content_disposition_ = parser::parse_content_disposition(part.curr_value_);
+						if (iequal(part.curr_field_.data(), part.curr_field_.size(), "Content-Disposition", 19))
+						{
+							part.content_disposition_ = parser::parse_content_disposition(part.curr_value_);
+						}
+
+						part.meta_.emplace_back(part.curr_field_, part.curr_value_);
+						part.state_ = 0;
+
+						part.curr_field_.clear();
+						part.curr_value_.clear();
 					}
 
+					part.curr_field_ += std::string(at, length);
+					return 0;
+				},
+
+// 			multipart_data_cb on_header_value;
+				[](multipart_parser* p, const char *at, size_t length)
+				{
+					auto self = static_cast<request*>(multipart_parser_get_data(p));
+					auto& part = self->multipart_form_data_.back();
+					part.state_ = 1;
+					part.curr_value_ += std::string(at, length);
+					return 0;
+				},
+// 			multipart_data_cb on_part_data;
+				[](multipart_parser* p, const char *at, size_t length)
+				{
+					auto self = static_cast<request*>(multipart_parser_get_data(p));
+					auto& part = self->multipart_form_data_.back();
+					part.data_ += std::string(at, length);
+
+					return 0;
+				},
+
+// 			multipart_notify_cb on_part_data_begin;
+				[](multipart_parser* p)
+				{
+					auto self = static_cast<request*>(multipart_parser_get_data(p));
+					self->multipart_form_data_.emplace_back(form_parts_t{});
+					return 0;
+				},
+// 			multipart_notify_cb on_headers_complete;
+				[](multipart_parser* p)
+				{
+					auto self = static_cast<request*>(multipart_parser_get_data(p));
+					auto& part = self->multipart_form_data_.back();
+					assert(part.state_ == 1);
 					part.meta_.emplace_back(part.curr_field_, part.curr_value_);
-					part.state_ = 0;
-
-					part.curr_field_.clear();
-					part.curr_value_.clear();
-				}
-				
-				part.curr_field_ += std::string(at, length);
-				return 0;
+					return 0;
+				},
+// 			multipart_notify_cb on_part_data_end;
+				nullptr,
+// 			multipart_notify_cb on_body_end;
+				nullptr
 			};
-			multipart_parser_settings_.on_header_value = [](multipart_parser* p, const char *at, size_t length)
-			{
-				auto self = static_cast<request*>(multipart_parser_get_data(p));
-				auto& part = self->multipart_form_data_.back();
-				part.state_ = 1;
-				part.curr_value_ += std::string(at, length);
-				return 0;
-			};
-			multipart_parser_settings_.on_headers_complete = [](multipart_parser* p)
-			{
-				auto self = static_cast<request*>(multipart_parser_get_data(p));
-				auto& part = self->multipart_form_data_.back();
-				assert(part.state_ == 1);
-				part.meta_.emplace_back(part.curr_field_, part.curr_value_);
-				return 0;
-			};
-			multipart_parser_settings_.on_part_data = [](multipart_parser* p, const char *at, size_t length)
-			{
-				auto self = static_cast<request*>(multipart_parser_get_data(p));
-				auto& part = self->multipart_form_data_.back();
-				part.data_ += std::string(at, length);
-
-				return 0;
-			};
-
-// 			multipart_parser_settings_.on_part_data_end = [](multipart_parser*)
-// 			{
-// 				std::cout << "*****************on_part_data_end********************************" << std::endl;
-// 				return 0;
-// 			};
-// 			multipart_parser_settings_.on_body_end = [](multipart_parser*)
-// 			{
-// 				std::cout << "*****************on_body_end********************************" << std::endl;
-// 				return 0;
-// 			};
 
 			multipart_parser_ = multipart_parser_init(boundary.c_str(), &multipart_parser_settings_);
 			multipart_parser_set_data(multipart_parser_, this);
