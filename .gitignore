@@ -9,3 +9,5 @@ build
 *.user
 *.db
 *.opendb
+cmake-build-*
+.idea

@@ -7,9 +7,29 @@
 #include <memory>
 
 #ifdef _WIN32
-#define be64toh(x) ntohll(x)
-#define htobe64(x) htonll(x)
-#endif // _WIN32
+#define __SWAP_LONGLONG(l)            \
+            ( ( ((l) >> 56) & 0x00000000000000FFLL ) |       \
+              ( ((l) >> 40) & 0x000000000000FF00LL ) |       \
+              ( ((l) >> 24) & 0x0000000000FF0000LL ) |       \
+              ( ((l) >>  8) & 0x00000000FF000000LL ) |       \
+              ( ((l) <<  8) & 0x000000FF00000000LL ) |       \
+              ( ((l) << 24) & 0x0000FF0000000000LL ) |       \
+              ( ((l) << 40) & 0x00FF000000000000LL ) |       \
+              ( ((l) << 56) & 0xFF00000000000000LL ) )
+
+inline uint64_t htobe64 (uint64_t val)
+{
+	const uint64_t ret = __SWAP_LONGLONG (val);
+	return ret;
+}
+
+inline uint64_t be64toh (uint64_t val)
+{
+	const uint64_t ret = __SWAP_LONGLONG (val);
+	return ret;
+}
+
+#endif //_WIN32
 
 namespace cinatra
 {
@@ -99,7 +119,7 @@ namespace cinatra
 			static close_frame_t parse_close_payload(char *src, size_t length);
 
 
-			bool set_compressed(void *user) { return false; }	//TODO:Ìí¼ÓgzipÖ§³Ö
+			bool set_compressed(void *user) { return false; }	//TODO:ï¿½ï¿½ï¿½gzipÖ§ï¿½ï¿½
 			void force_close(void *user) { conn_->close(); }
 
 			void consume(char *src, std::size_t length, void *user);

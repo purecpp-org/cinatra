@@ -3,6 +3,8 @@
 #include <cinatra_http/response.h>
 #include <cinatra_http/request.h>
 
+#include <boost/algorithm/string/trim.hpp>
+
 #include <string>
 
 namespace cinatra
