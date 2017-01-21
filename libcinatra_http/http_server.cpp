@@ -56,7 +56,7 @@ namespace cinatra
 	void http_server::start_accept(std::shared_ptr<boost::asio::ip::tcp::acceptor> const& acceptor)
 	{
 		auto new_conn = std::make_shared<connection<boost::asio::ip::tcp::socket>>(
-			io_service_pool_.get_io_service(), request_handler_);
+			io_service_pool_.get_io_service(), request_handler_, max_req_size_, keep_alive_timeout_);
 		acceptor->async_accept(new_conn->socket(), [this, new_conn, acceptor](const boost::system::error_code& e)
 		{
 			if (!e)
@@ -77,7 +77,7 @@ namespace cinatra
 		std::shared_ptr<boost::asio::ssl::context> const& ssl_ctx)
 	{
 		auto new_conn = std::make_shared<connection<boost::asio::ssl::stream<boost::asio::ip::tcp::socket>>>(
-			io_service_pool_.get_io_service(), request_handler_, *ssl_ctx);
+			io_service_pool_.get_io_service(), request_handler_, *ssl_ctx, max_req_size_, keep_alive_timeout_);
 		acceptor->async_accept(new_conn->socket().lowest_layer(), [this, new_conn, acceptor, ssl_ctx](const boost::system::error_code& e)
 		{
 			if (!e)

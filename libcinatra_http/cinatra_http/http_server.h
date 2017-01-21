@@ -52,6 +52,15 @@ namespace cinatra
 
 		void stop();
 
+		void set_max_req_size(std::size_t sz)
+		{
+			max_req_size_ = sz;
+		}
+
+		void set_keep_alive_timeout(long seconds)
+		{
+			keep_alive_timeout_ = seconds;
+		}
 	private:
 		void start_accept(std::shared_ptr<boost::asio::ip::tcp::acceptor> const& acceptor);
 		void start_accept(std::shared_ptr<boost::asio::ip::tcp::acceptor> const& acceptor,
@@ -62,6 +71,9 @@ namespace cinatra
 
 		io_service_pool io_service_pool_;
 		request_handler_t request_handler_;
+
+		std::size_t max_req_size_ = 2 * 1024 * 1024;
+		long keep_alive_timeout_ = 60;
 	};
 
 }

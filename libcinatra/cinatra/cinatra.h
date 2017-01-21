@@ -59,6 +59,8 @@ namespace cinatra
 				return router_.handle(req, res, ctx);
 			});
 
+			server.set_max_req_size(max_req_size_);
+			server.set_keep_alive_timeout(keep_alive_timeout_);
 			server.run();
 		}
 
@@ -78,6 +80,16 @@ namespace cinatra
 		void set_static_path(std::string path)
 		{
 			static_path_ = std::move(path);
+		}
+
+		void set_max_req_size(std::size_t sz)
+		{
+			max_req_size_ = sz;
+		}
+
+		void set_keep_alive_timeout(long seconds)
+		{
+			keep_alive_timeout_ = seconds;
 		}
 
 	private:
@@ -102,6 +114,9 @@ namespace cinatra
 		router router_;
 
 		std::string static_path_;
+
+		std::size_t max_req_size_ = 2 * 1024 * 1024;
+		long keep_alive_timeout_ = 60;
 	};
 
 }

@@ -28,14 +28,18 @@ namespace cinatra
 		private boost::noncopyable
 	{
 	public:
-		explicit connection(boost::asio::io_service& io_service, request_handler_t& handler)
-			: socket_(io_service), request_handler_(handler), deadline_(io_service)
+		explicit connection(boost::asio::io_service& io_service, request_handler_t& handler,
+			std::size_t max_req_size, long keep_alive_timeout)
+			: socket_(io_service), request_handler_(handler), deadline_(io_service),
+			max_req_size_(max_req_size), keep_alive_timeout_(keep_alive_timeout)
 		{
 			request_.raw_request().size = 0;
 		}
 
-		explicit connection(boost::asio::io_service& io_service, request_handler_t& handler, boost::asio::ssl::context& ctx)
-			: socket_(io_service, ctx), request_handler_(handler), deadline_(io_service)
+		explicit connection(boost::asio::io_service& io_service, request_handler_t& handler,
+			boost::asio::ssl::context& ctx, std::size_t max_req_size, long keep_alive_timeout)
+			: socket_(io_service, ctx), request_handler_(handler), deadline_(io_service),
+			max_req_size_(max_req_size), keep_alive_timeout_(keep_alive_timeout)
 		{
 			request_.raw_request().size = 0;
 		}
@@ -106,13 +110,13 @@ namespace cinatra
 			do_close(socket_);
 		}
 
-		void reset_timer(int seconds = 60)
+		void reset_timer()
 		{
 			if (kill_timer_)
 			{
 				return;
 			}
-			deadline_.expires_from_now(boost::posix_time::seconds(seconds));	//TODO:超时时间改为可配置
+			deadline_.expires_from_now(boost::posix_time::seconds(keep_alive_timeout_));
 			std::weak_ptr<connection<socket_type>> weak_self = this->shared_from_this();
 
 			deadline_.async_wait([weak_self](boost::system::error_code const& ec)
@@ -246,7 +250,7 @@ namespace cinatra
 			auto last_len = buf.size;
 			buf.size += bytes_transferred;
 
-			if (buf.size >= 2 * 1024 * 1024)
+			if (buf.size >= max_req_size_)
 			{
 				// 请求过大,断开链接
 				return;
@@ -269,7 +273,7 @@ namespace cinatra
 			}
 
 
-			if (request_.header_size() + request_.body_len() >= 2 * 1024 * 1024)
+			if (request_.header_size() + request_.body_len() >= max_req_size_)
 			{
 				return;
 			}
@@ -352,7 +356,7 @@ namespace cinatra
 			boost::system::error_code ignored_ec;
 			socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send, ignored_ec);
 		}
-		void shutdown(boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const&s)
+		void shutdown(boost::asio::ssl::stream<boost::asio::ip::tcp::socket> const&)
 		{
 			//s.async_shutdown()
 		}
@@ -476,5 +480,8 @@ namespace cinatra
 
 		bool kill_timer_ = false;
 		boost::asio::deadline_timer deadline_;
+
+		const std::size_t max_req_size_;
+		const long keep_alive_timeout_;
 	};
 }
