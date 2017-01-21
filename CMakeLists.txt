@@ -59,4 +59,4 @@ add_library(cinatra_http STATIC ${CINATRA_HTTP_FILES})
 add_library(cinatra STATIC ${CINATRA_FILES})
 
 add_executable(cinatra_test ${CINATRA_TEST_FILES})
-target_link_libraries(cinatra_test cinatra cinatra_http ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${EXTRA_LIB})
+target_link_libraries(cinatra_test cinatra cinatra_http ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIB})
