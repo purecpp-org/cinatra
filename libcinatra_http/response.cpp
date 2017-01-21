@@ -126,9 +126,9 @@ namespace cinatra
 		case response::file_body:
 		{
 			content_.resize(1024 * 1024);
-			fs_.read(&content_[0], content_.size());
-			buffers.emplace_back(boost::asio::buffer(content_.data(), static_cast<std::size_t>(fs_.gcount())));
-			return fs_.eof();
+			fs_->read(&content_[0], content_.size());
+			buffers.emplace_back(boost::asio::buffer(content_.data(), static_cast<std::size_t>(fs_->gcount())));
+			return fs_->eof();
 		}
 			break;
 		case response::chunked_body:
@@ -315,7 +315,7 @@ namespace cinatra
 		body_type_ = none;
 		headers_.clear();
 		content_.clear();
-		fs_.close();
+		fs_.reset();
 		content_gen_ = {};
 	}
 
@@ -501,8 +501,9 @@ namespace cinatra
 		}
 		add_header("Last-Modified", http_date(last_time));
 
-		fs_.open(path.generic_string(), std::ios::binary | std::ios::in);
-		if (!fs_.is_open())
+		fs_.reset(new std::ifstream());
+		fs_->open(path.generic_string(), std::ios::binary | std::ios::in);
+		if (!fs_->is_open())
 		{
 			return false;
 		}
