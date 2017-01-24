@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #define __SWAP_LONGLONG(l)            \
             ( ( ((l) >> 56) & 0x00000000000000FFLL ) |       \
               ( ((l) >> 40) & 0x000000000000FF00LL ) |       \
@@ -29,6 +29,10 @@ inline uint64_t be64toh (uint64_t val)
 	return ret;
 }
 
+#elif defined(__APPLE__)
+#include <libkern/OSByteOrder.h>
+#define be64toh(x) OSSwapBigToHostInt64(x)
+#define htobe64(x) OSSwapHostToBigInt64(x)
 #endif //_WIN32
 
 namespace cinatra

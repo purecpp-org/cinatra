@@ -139,7 +139,7 @@ namespace cinatra
 		template<typename T>
 		struct _get_param_t<request, T>
 		{
-			using type = std::reference_wrapper<request>;
+			using type = std::reference_wrapper<const request>;
 			static type get_param(param_container& params)
 			{
 				return std::ref(params.get_req());
