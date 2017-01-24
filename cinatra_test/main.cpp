@@ -30,9 +30,9 @@ int main()
 	{
 		res.response_text("hhhhhhhhhhhhhhhhhh");
 	});
-	app.route("/test/:name", [](std::string name, cinatra::response& res)
+	app.route("/test/:name/:age/:a1/a2", [](std::string name, std::string age, int a1, cinatra::response& res)
 	{
-		res.response_text(name);
+		res.response_text(name + ":" + age + ":" + std::to_string(a1));
 	});
 
 
