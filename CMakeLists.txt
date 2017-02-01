@@ -60,3 +60,9 @@ add_library(cinatra STATIC ${CINATRA_FILES})
 
 add_executable(cinatra_test ${CINATRA_TEST_FILES})
 target_link_libraries(cinatra_test cinatra cinatra_http ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIB})
+
+install(TARGETS cinatra DESTINATION lib)
+install(TARGETS cinatra_http DESTINATION lib)
+install(DIRECTORY libcinatra/cinatra DESTINATION include)
+install(DIRECTORY libcinatra_http/cinatra_http DESTINATION include)
+install(DIRECTORY cmake DESTINATION share/cinatra)
