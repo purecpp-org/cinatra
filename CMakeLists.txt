@@ -17,6 +17,8 @@ if (WIN32)
     set(EXTRA_LIB mswsock ws2_32)
 endif ()
 
+find_package(Boost 1.55 COMPONENTS coroutine context system thread filesystem REQUIRED)
+
 
 set(CINATRA_FILES
         libcinatra/cinatra/middleware/cookies.hpp
