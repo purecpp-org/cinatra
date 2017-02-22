@@ -7,6 +7,8 @@
 #include <cinatra_http/http_server.h>
 #include <cinatra_http/utils.h>
 
+#include <boost/thread.hpp>
+
 namespace cinatra
 {
 	template<typename... MiddlewaresT>
@@ -34,8 +36,7 @@ namespace cinatra
 
 		void run()
 		{
-			//TODO: 线程数可设置
-			http_server server(8);
+			http_server server(io_service_pool_size_);
 			server.request_handler([this](request const& req, response& res)
 			{
 				context_container ctx;
@@ -93,6 +94,10 @@ namespace cinatra
 			keep_alive_timeout_ = seconds;
 		}
 
+        void set_thread_num(std::size_t num)
+        {
+            io_service_pool_size_ = num;
+        }
 	private:
 		aop<MiddlewaresT...> aop_;
 
@@ -118,6 +123,7 @@ namespace cinatra
 
 		std::size_t max_req_size_ = 2 * 1024 * 1024;
 		long keep_alive_timeout_ = 60;
+        std::size_t io_service_pool_size_ = boost::thread::hardware_concurrency();
 	};
 
 }
