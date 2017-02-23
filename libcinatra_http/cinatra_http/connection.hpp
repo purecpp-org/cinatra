@@ -51,6 +51,7 @@ namespace cinatra
 
 		void start()
 		{
+            request_.set_remote_endpoint(socket_.lowest_layer().remote_endpoint());
 			std::weak_ptr<connection<socket_type>> weak_self = this->shared_from_this();
 			reply_.set_get_connection_func([weak_self, this](bool kill_timer)
 			{

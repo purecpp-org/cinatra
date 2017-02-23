@@ -26,9 +26,9 @@ int main()
 
 	app.get_middleware<cinatra::session>().set_timeout(50);
 
-	app.route("/", [](cinatra::response& res)
+	app.route("/", [](cinatra::request const& req, cinatra::response& res)
 	{
-		res.response_text("hhhhhhhhhhhhhhhhhh");
+		res.response_text("Your IP address is " + req.remote_endpoint().address().to_string());
 	});
 	app.route("/test/:name/:age/:a1/a2", [](std::string name, std::string age, int a1, cinatra::response& res)
 	{

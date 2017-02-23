@@ -12,6 +12,7 @@
 #include <cinatra_http/picohttpparser.h>
 #include <cinatra_http/multipart_parser.h>
 #include <cinatra_http/http_parser.h>
+#include <boost/asio/ip/tcp.hpp>
 
 
 namespace cinatra
@@ -179,6 +180,15 @@ namespace cinatra
 
 		std::vector<form_parts_t> const& multipart_form_data() const { return multipart_form_data_; }
 		std::map<std::string, std::string> const& urlencoded_form_data() const { return urlencoded_form_data_; }
+        void set_remote_endpoint(boost::asio::ip::tcp::endpoint&& ep)
+        {
+            remote_endpoint_ = ep;
+        }
+
+        boost::asio::ip::tcp::endpoint const& remote_endpoint() const
+        {
+            return remote_endpoint_;
+        }
 	private:
 		buffer_t buffer_;
 		const char* method_;
@@ -199,6 +209,8 @@ namespace cinatra
 		multipart_parser* multipart_parser_ = nullptr;
 		std::vector<form_parts_t> multipart_form_data_;
 		std::map<std::string, std::string> urlencoded_form_data_;
+
+        boost::asio::ip::tcp::endpoint remote_endpoint_;
 	};
 }
 
