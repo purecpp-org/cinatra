@@ -119,6 +119,11 @@ namespace cinatra
 
 		struct buffer_t 
 		{
+			buffer_t(char* buffer_,
+			std::size_t size_,
+			std::size_t max_size_)
+			:buffer(buffer_), size(size_), max_size(max_size_)
+			{}
 			char* buffer;
 			std::size_t size;
 			std::size_t max_size;

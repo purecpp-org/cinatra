@@ -225,7 +225,7 @@ namespace cinatra
 		bool header_buffer_wroted_ = false;
 		body_type_t body_type_ = none;
 		
-		std::unique_ptr<std::ifstream> fs_;
+		std::shared_ptr<std::ifstream> fs_;
 		char chunked_len_buf_[20];
 		content_generator_t content_gen_;
 

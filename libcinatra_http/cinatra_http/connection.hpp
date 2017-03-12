@@ -34,6 +34,7 @@ namespace cinatra
 			max_req_size_(max_req_size), keep_alive_timeout_(keep_alive_timeout)
 		{
 			request_.raw_request().size = 0;
+			std::memset(&chunked_dec_, 0, sizeof(chunked_dec_));
 		}
 
 		explicit connection(boost::asio::io_service& io_service, request_handler_t& handler,
@@ -42,6 +43,7 @@ namespace cinatra
 			max_req_size_(max_req_size), keep_alive_timeout_(keep_alive_timeout)
 		{
 			request_.raw_request().size = 0;
+			std::memset(&chunked_dec_, 0, sizeof(chunked_dec_));
 		}
 
 		socket_type&  socket()
@@ -472,7 +474,7 @@ namespace cinatra
 		request request_;
 
 		std::string chunked_buf_;
-		phr_chunked_decoder chunked_dec_ = { 0 };
+		phr_chunked_decoder chunked_dec_;
 
 		bool write_finished_;
 		response reply_;
