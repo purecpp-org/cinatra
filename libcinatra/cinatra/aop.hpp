@@ -31,7 +31,7 @@ namespace cinatra
 				func_(req, res, ctx);
 			}
 			invoke_after(req, res, ctx, identity_t<0>());
-			return res.is_complete();
+			return res.is_complete() || res.is_delay();
 		}
 
 		// 根据类型获取tuple中的实例

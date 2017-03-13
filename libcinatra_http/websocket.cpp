@@ -80,7 +80,11 @@ namespace cinatra
 				}
 
 
-				auto ws_conn = boost::make_shared<websocket_connection>(conn, std::move(cfg));
+				auto ws_conn = std::make_shared<websocket_connection>(conn, std::move(cfg));
+				if (ws_conn->get_ws_config().on_start)
+				{
+                    ws_conn->get_ws_config().on_start(ws_conn);
+				}
 				ws_conn->start();
 			});
 
@@ -128,7 +132,7 @@ namespace cinatra
 
 // 			char close_payload[MAX_CLOSE_PAYLOAD + 2];
 			boost::shared_array<char> close_payload(new char[MAX_CLOSE_PAYLOAD + 2]);
-			std::size_t close_payload_length = format_close_payload(close_payload.get(), code, message, length);
+			std::size_t close_payload_length = format_close_payload(close_payload.get(), static_cast<uint16_t>(code), message, length);
 			auto self = this->shared_from_this();
 			async_send_msg(close_payload.get(), close_payload_length, opcode_t::CLOSE, [close_payload, self, this](boost::system::error_code const& ec)
 			{

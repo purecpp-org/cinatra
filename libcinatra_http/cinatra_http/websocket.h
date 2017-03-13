@@ -54,6 +54,7 @@ namespace cinatra
 
 		struct ws_config_t
 		{
+			std::function<void(ws_conn_ptr_t)> on_start;
 			std::function<void(ws_conn_ptr_t, boost::string_ref, opcode_t)> on_message;
 			std::function<void(ws_conn_ptr_t, boost::string_ref)> on_ping;
 			std::function<void(ws_conn_ptr_t, boost::string_ref)> on_pong;
@@ -86,6 +87,11 @@ namespace cinatra
 			void async_send_msg(const char* data, std::size_t length, opcode_t opCode, async_write_msg_callback_t handler);
 
 			void close(int code, char *message, size_t length);
+
+            ws_config_t& get_ws_config()
+            {
+                return cfg_;
+            }
 
 		private:
 			enum state_t

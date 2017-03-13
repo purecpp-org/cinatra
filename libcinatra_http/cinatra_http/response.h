@@ -20,6 +20,12 @@ namespace cinatra
 	class response
 	{
 	public:
+		response(const response&) = delete;
+		response &operator=(response const&) = delete;
+		response() = default;
+		response(response&&) = default;
+		response &operator=(response&&) = default;
+
 
 		using handler_ec_t = std::function<void(boost::system::error_code const&)>;
 		using handler_ec_size_t = std::function<void(boost::system::error_code const&, std::size_t)>;
