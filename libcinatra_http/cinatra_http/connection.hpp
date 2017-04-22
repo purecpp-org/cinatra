@@ -149,6 +149,9 @@ namespace cinatra
 
 		void do_read()
 		{
+            request_.reset();
+            reply_.reset();
+
 			reset_timer();
 			auto& buf = request_.raw_request();
 			if (buf.remain_size() < 4096)
@@ -299,15 +302,12 @@ namespace cinatra
 
 			if (write_finished_)
 			{
-				reply_.reset();
-
 				if (!keep_alive_)
 				{
 					shutdown(socket_);
 					return;
 				}
 
-				request_.raw_request().size = 0;
 				do_read();
 				return;
 			}

@@ -194,6 +194,14 @@ namespace cinatra
         {
             return remote_endpoint_;
         }
+
+		void reset()
+		{
+			raw_request().size = 0;
+			queries_.clear();
+			multipart_form_data_.clear();
+			urlencoded_form_data_.clear();
+		}
 	private:
 		buffer_t buffer_;
 		const char* method_;
