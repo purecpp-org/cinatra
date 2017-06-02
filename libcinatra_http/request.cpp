@@ -47,7 +47,7 @@ namespace cinatra
 			{
 				return -1;
 			}
-
+			queries_.clear();
 			if (url_info_.field_set & (1 << UF_QUERY))
 			{
 				kv_parser(url_ + url_info_.field_data[UF_QUERY].off,
