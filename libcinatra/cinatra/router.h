@@ -87,7 +87,7 @@ namespace cinatra
 		};
 
 
-		template<typename Function, class Signature = Function, size_t N = function_traits<Signature>::arity>
+		template<typename Function, class Signature = Function, size_t N = timax::function_traits<Signature>::arity>
 		struct invoker;
 
 		template<typename Function, class Signature, size_t N>
@@ -103,7 +103,7 @@ namespace cinatra
 					return false;
 				}
 
-				typedef typename function_traits<Signature>::template args<N - 1>::type arg_type;
+				typedef typename timax::function_traits<Signature>::template args<N - 1>::type arg_type;
 				using _G = _get_param_t<typename std::decay<arg_type>::type>;
 				auto param = _G::get_param(parser);
 				if (!parser.success())
@@ -121,7 +121,7 @@ namespace cinatra
 			template<typename Args>
 			static inline bool call(const Function& func, param_container&/*parser*/, const Args& args)
 			{
-				apply(func, args);
+//				apply(func, args);
 				return true;
 			}
 		};

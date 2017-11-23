@@ -33,9 +33,19 @@ namespace cinatra
 			return boost::string_ref(method_, method_len_);
 		}
 
+		std::string_view get_method() const
+		{
+			return std::string_view(method_, method_len_);
+		}
+
 		boost::string_ref url() const
 		{
 			return boost::string_ref(url_, url_len_);
+		}
+
+		std::string_view get_url() const
+		{
+			return std::string_view(url_, url_len_);
 		}
 
 		boost::string_ref path() const

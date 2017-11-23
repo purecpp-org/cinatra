@@ -1,98 +1,89 @@
 ﻿#pragma once
+#include <type_traits>
 #include <functional>
 #include <tuple>
-//普通函数.
-//函数指针.
-//function/lambda
-//成员函数.
-//函数对象.
-
-//转换为std::function和函数指针.
-template<typename T>
-struct function_traits;
-
-//普通函数.
-template<typename Ret, typename... Args>
-struct function_traits<Ret(Args...)>
-{
-public:
-	enum { arity = sizeof...(Args) };
-	typedef Ret function_type(Args...);
-	typedef Ret return_type;
-	using stl_function_type = std::function<function_type>;
-	typedef Ret(*pointer)(Args...);
-
-	template<size_t I>
-	struct args
-	{
-		static_assert(I < arity, "index is out of range, index must less than sizeof Args");
-		using type = typename std::tuple_element<I, std::tuple<Args...>>::type;
-	};
-};
-
-//函数指针.
-template<typename Ret, typename... Args>
-struct function_traits<Ret(*)(Args...)> : function_traits<Ret(Args...)>{};
-
-//std::function
-template <typename Ret, typename... Args>
-struct function_traits<std::function<Ret(Args...)>> : function_traits<Ret(Args...)>{};
 
 //member function
-#define FUNCTION_TRAITS(...) \
-	template <typename ReturnType, typename ClassType, typename... Args>\
-struct function_traits<ReturnType(ClassType::*)(Args...) __VA_ARGS__> : function_traits<ReturnType(Args...)>{}; \
+#define TIMAX_FUNCTION_TRAITS(...)\
+template <typename ReturnType, typename ClassType, typename... Args>\
+struct function_traits_impl<ReturnType(ClassType::*)(Args...) __VA_ARGS__> : function_traits_impl<ReturnType(Args...)>{};\
 
-FUNCTION_TRAITS()
-FUNCTION_TRAITS(const)
-FUNCTION_TRAITS(volatile)
-FUNCTION_TRAITS(const volatile)
-
-//函数对象.
-template<typename Callable>
-struct function_traits : function_traits<decltype(&Callable::operator())>{};
-
-template <typename Function>
-typename function_traits<Function>::stl_function_type to_function(const Function& lambda)
+namespace timax
 {
-	return static_cast<typename function_traits<Function>::stl_function_type>(lambda);
-}
+	/*
+     * 1. function type							==>	Ret(Args...)
+     * 2. function pointer						==>	Ret(*)(Args...)
+     * 3. function reference						==>	Ret(&)(Args...)
+     * 4. pointer to non-static member function	==> Ret(T::*)(Args...)
+     * 5. function object and functor				==> &T::operator()
+     * 6. function with generic operator call		==> template <typeanme ... Args> &T::operator()
+     */
+	template <typename T>
+	struct function_traits_impl;
 
-template <typename Function>
-typename function_traits<Function>::stl_function_type to_function(Function&& lambda)
-{
-	return static_cast<typename function_traits<Function>::stl_function_type>(std::forward<Function>(lambda));
-}
+	template<typename T>
+	struct function_traits : function_traits_impl<
+			std::remove_cv_t<std::remove_reference_t<T>>>
+	{};
 
-template <typename Function>
-typename function_traits<Function>::pointer to_function_pointer(const Function& lambda)
-{
-	return static_cast<typename function_traits<Function>::pointer>(lambda);
-}
+	template<typename Ret, typename... Args>
+	struct function_traits_impl<Ret(Args...)>
+	{
+	public:
+		enum { arity = sizeof...(Args) };
+		typedef Ret function_type(Args...);
+		typedef Ret result_type;
+		using stl_function_type = std::function<function_type>;
+		typedef Ret(*pointer)(Args...);
 
+		template<size_t I>
+		struct args
+		{
+			static_assert(I < arity, "index is out of range, index must less than sizeof Args");
+			using type = typename std::tuple_element<I, std::tuple<Args...>>::type;
+		};
 
-// use tuple to invoke function
-template<int...>
-struct index_tuple {};
+		typedef std::tuple<std::remove_cv_t<std::remove_reference_t<Args>>...> tuple_type;
+		using args_type_t = std::tuple<Args...>;
+	};
 
-template<int N, int... Indexes>
-struct make_indexes : make_indexes<N - 1, N - 1, Indexes...> {};
+	template<size_t I, typename Function>
+	using arg_type = typename function_traits<Function>::template args<I>::type;
 
-template<int... Indexes>
-struct make_indexes<0, Indexes...>
-{
-	typedef index_tuple<Indexes...> type;
-};
+// function pointer
+	template<typename Ret, typename... Args>
+	struct function_traits_impl<Ret(*)(Args...)> : function_traits<Ret(Args...)> {};
 
-template<typename F, int ... Indexes, typename ... Args>
-static void apply_helper(const F& f, index_tuple<Indexes...>, const std::tuple<Args...>& tup)
-{
-	f(std::get<Indexes>(tup)...);
-}
+// std::function
+	template <typename Ret, typename... Args>
+	struct function_traits_impl<std::function<Ret(Args...)>> : function_traits_impl<Ret(Args...)> {};
 
-template<typename F, typename ... Args>
-static void apply(const F& f, const std::tuple<Args...>& tp)
-{
-	apply_helper(f, typename make_indexes<sizeof... (Args)>::type(), tp);
+// pointer of non-static member function
+	TIMAX_FUNCTION_TRAITS()
+	TIMAX_FUNCTION_TRAITS(const)
+	TIMAX_FUNCTION_TRAITS(volatile)
+	TIMAX_FUNCTION_TRAITS(const volatile)
+
+// functor
+	template<typename Callable>
+	struct function_traits_impl : function_traits_impl<decltype(&Callable::operator())> {};
+
+	template <typename Function>
+	typename function_traits<Function>::stl_function_type to_function(const Function& lambda)
+	{
+		return static_cast<typename function_traits<Function>::stl_function_type>(lambda);
+	}
+
+	template <typename Function>
+	typename function_traits<Function>::stl_function_type to_function(Function&& lambda)
+	{
+		return static_cast<typename function_traits<Function>::stl_function_type>(std::forward<Function>(lambda));
+	}
+
+	template <typename Function>
+	typename function_traits<Function>::pointer to_function_pointer(const Function& lambda)
+	{
+		return static_cast<typename function_traits<Function>::pointer>(lambda);
+	}
 }
 

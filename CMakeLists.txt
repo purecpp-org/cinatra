@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(cinatra)
 
 find_package (Threads)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++17")
 
 find_package(Boost 1.55 REQUIRED COMPONENTS system filesystem)
 find_package(OpenSSL REQUIRED)
@@ -28,7 +28,7 @@ set(CINATRA_FILES
         libcinatra/cinatra/context_container.hpp
         libcinatra/cinatra/function_traits.hpp
         libcinatra/cinatra/router.h
-        libcinatra/router.cpp)
+        libcinatra/router.cpp libcinatra/cinatra/http_router.hpp libcinatra/itoa.hpp)
 
 set(CINATRA_HTTP_FILES
         libcinatra_http/cinatra_http/connection.hpp

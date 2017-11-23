@@ -2,7 +2,8 @@
 
 
 #include <cinatra/aop.hpp>
-#include <cinatra/router.h>
+//#include <cinatra/router.h>
+#include <cinatra/http_router.hpp>
 
 #include <cinatra_http/http_server.h>
 #include <cinatra_http/utils.h>
@@ -11,7 +12,6 @@
 
 namespace cinatra
 {
-	template<typename... MiddlewaresT>
 	class cinatra
 	{
 	public:
@@ -22,12 +22,12 @@ namespace cinatra
 		}
 		void listen(const std::string& address, const std::string& port, const http_server::ssl_config_t& ssl_cfg)
 		{
-			listen_infos_.emplace_back(ssl_listen_info_t{ listen_info_t{ address, port }, ssl_cfg });
+			ssl_listen_infos_.emplace_back(ssl_listen_info_t{ listen_info_t{ address, port }, ssl_cfg });
 		}
 		void listen(const std::string& address, const std::string& port, http_server::ssl_method_t ssl_method,
 			const std::string& private_key, const std::string& certificate_chain, bool is_file = true)
 		{
-			listen_infos_.emplace_back(ssl_listen_info_t
+			ssl_listen_infos_.emplace_back(ssl_listen_info_t
 			{
 				listen_info_t{ address, port },
 				http_server::ssl_config_t{ssl_method, private_key, certificate_chain, is_file}
@@ -39,8 +39,8 @@ namespace cinatra
 			http_server server(io_service_pool_size_);
 			server.request_handler([this](request const& req, response& res)
 			{
-				context_container ctx;
-				if (!aop_.invoke(req, res, ctx))
+                bool result = http_router_.route(req.get_method(), req.get_url(), req, res);
+				if (!result)
 				{
 					res = reply_static_file(static_path_, req);
 				}
@@ -56,28 +56,30 @@ namespace cinatra
 				server.listen(info.info.address, info.info.port, info.config);
 			}
 
-			aop_.set_func([this](request const& req, response & res, context_container& ctx)
-			{
-				return router_.handle(req, res, ctx);
-			});
-
 			server.set_max_req_size(max_req_size_);
 			server.set_keep_alive_timeout(keep_alive_timeout_);
 			server.run();
 		}
 
+        template<httpmethod... Is, typename Function, typename... AP>
+        void register_handler(std::string_view name,  Function&& f, AP&&... ap){
+            http_router_.register_handler<Is...>(name, std::forward<Function>(f), std::forward<AP>(ap)...);
+        }
 
-		template<typename FunctionT>
-		void route(const std::string& path, const FunctionT& f)
-		{
-			router_.route(path, f);
-		}
+        template <httpmethod... Is, class T, class Type, typename... AP>
+        void register_handler(std::string_view name,  Type T::* f, AP&&... ap) {
+            http_router_.register_handler<Is...>(name, f, std::forward<AP>(ap)...);
+        }
 
-		template<typename T>
-		T& get_middleware()
-		{
-			return aop_.template get_aspect<T>();
-		}
+        template <httpmethod... Is, class T, class Type, typename T1, typename... AP>
+        void register_handler(std::string_view name,  Type T::* f, T1 t, AP&&... ap) {
+            http_router_.register_handler<Is...>(name, f, t, std::forward<AP>(ap)...);
+        }
+
+//        template<httpmethod... Is>
+//        void route(std::string_view method, std::string_view url){
+//            http_router_.route<Is...>(method, url);
+//        }
 
 		void set_static_path(std::string path)
 		{
@@ -99,10 +101,6 @@ namespace cinatra
             io_service_pool_size_ = num;
         }
 	private:
-		aop<MiddlewaresT...> aop_;
-
-
-
 
 		struct listen_info_t 
 		{
@@ -117,7 +115,7 @@ namespace cinatra
 		std::vector<listen_info_t> listen_infos_;
 		std::vector<ssl_listen_info_t> ssl_listen_infos_;
 
-		router router_;
+        http_router http_router_;
 
 		std::string static_path_;
 
