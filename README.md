@@ -33,10 +33,10 @@ make
 
 v0.11版本，主要针对上一版本进行改进和完善。
 
-1.更好用的api
-2.支持更好用的AOP
-3.支持可扩展的session和cookie
-4.加入json序列化模块
+  1.更好用的api
+  2.支持更好用的AOP
+  3.支持可扩展的session和cookie
+  4.加入json序列化模块
 
 v0.12版本，支持web socket
 
