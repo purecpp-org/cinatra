@@ -28,7 +28,7 @@ set(CINATRA_FILES
         libcinatra/cinatra/context_container.hpp
         libcinatra/cinatra/function_traits.hpp
         libcinatra/cinatra/router.h
-        libcinatra/router.cpp libcinatra/cinatra/http_router.hpp libcinatra/cinatra/itoa.hpp)
+        libcinatra/router.cpp libcinatra/cinatra/http_router.hpp libcinatra/cinatra/iguana/reflection.hpp libcinatra/cinatra/iguana/json.hpp)
 
 set(CINATRA_HTTP_FILES
         libcinatra_http/cinatra_http/connection.hpp
