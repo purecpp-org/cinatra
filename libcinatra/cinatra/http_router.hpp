@@ -222,7 +222,7 @@ namespace cinatra{
                 sprintf(temp.data(), "%f", value);
                 return std::string(temp.data());
             }
-            else if constexpr(std::is_same_v<std::string, U>){
+            else if constexpr(std::is_same_v<std::string, U>||std::is_same_v<const char*, U>){
                 return value;
             }
             else {

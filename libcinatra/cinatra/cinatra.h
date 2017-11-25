@@ -63,16 +63,20 @@ namespace cinatra
 
         template<httpmethod... Is, typename Function, typename... AP>
         void register_handler(std::string_view name,  Function&& f, AP&&... ap){
+            using result_type = typename timax::function_traits<Function>::result_type;
+            static_assert(!iguana::is_reflection_v<result_type >&&!std::is_class_v<result_type >);
             http_router_.register_handler<Is...>(name, std::forward<Function>(f), std::forward<AP>(ap)...);
         }
 
         template <httpmethod... Is, class T, class Type, typename... AP>
         void register_handler(std::string_view name,  Type T::* f, AP&&... ap) {
+            static_assert(!iguana::is_reflection_v<Type >&&!std::is_class_v<Type >);
             http_router_.register_handler<Is...>(name, f, std::forward<AP>(ap)...);
         }
 
         template <httpmethod... Is, class T, class Type, typename T1, typename... AP>
         void register_handler(std::string_view name,  Type T::* f, T1 t, AP&&... ap) {
+            static_assert(!iguana::is_reflection_v<Type >&&!std::is_class_v<Type >);
             http_router_.register_handler<Is...>(name, f, t, std::forward<AP>(ap)...);
         }
 
