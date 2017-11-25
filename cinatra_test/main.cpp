@@ -77,7 +77,7 @@ int main()
     });
 
     person p;
-    app.register_handler<GET>("/get_id", &person::get_id, p, mylog{});
+    app.register_handler<GET>("/get_id", &person::get_id, person{}, mylog{});
     app.register_handler<GET>("/get_ip", &person::get_ip, p, mylog{});
     app.register_handler<GET>("/test_json", &person::get_json, p);
 
