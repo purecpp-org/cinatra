@@ -66,7 +66,7 @@ int main()
     cinatra::cinatra app;
     app.register_handler<GET>("/", [](const request& req, response& res){
         return 20;
-    }, mylog{}, validate{});
+    }, mylog{});
 
     app.register_handler<POST>("/", [](const request& req, response& res){
         return 20;
