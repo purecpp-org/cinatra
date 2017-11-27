@@ -72,7 +72,7 @@ namespace cinatra
 		io_service_pool io_service_pool_;
 		request_handler_t request_handler_;
 
-		std::size_t max_req_size_ = 2 * 1024 * 1024;
+		std::size_t max_req_size_ = 3 * 1024 * 1024;
 		long keep_alive_timeout_ = 60;
 	};
 
