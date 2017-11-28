@@ -99,8 +99,8 @@ namespace cinatra{
         }
 
         template <httpmethod... Is, class T, class Type, typename T1, typename... Ap>
-        void register_handler(std::string_view name,  Type T::* f, T1 t, Ap&&... ap) {
-            register_handler_impl<Is...>(name, f, t, std::forward<Ap>(ap)...);
+        void register_handler(std::string_view name,  Type T::* f, T1&& t, Ap&&... ap) {
+            register_handler_impl<Is...>(name, f, std::forward<T1>(t), std::forward<Ap>(ap)...);
         }
 
         void remove_handler(std::string name) {
