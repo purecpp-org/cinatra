@@ -14,6 +14,10 @@ sudo apt-get install libboost-system-dev libboost-coroutine-dev libboost-thread-
 
 ```
 
+### 依赖的第三方库
+
+依赖了序列化引擎iguana，直接在cinatra目录下 git clone https://github.com/qicosmos/iguana.git
+
 #### ArchLinux
 ```
 sudo pacman -S boost
