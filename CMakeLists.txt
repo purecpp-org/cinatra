@@ -62,15 +62,20 @@ set(CINATRA_TEST_FILES
 set(DATABASE_EXAMPLE
         examples/database.cpp)
 
+set(FILE_EXAMPLE
+        examples/file_manager.cpp)
+
 add_library(cinatra_http STATIC ${CINATRA_HTTP_FILES})
 
 add_library(cinatra STATIC ${CINATRA_FILES})
 
 add_executable(examples ${CINATRA_TEST_FILES})
 add_executable(database_example ${DATABASE_EXAMPLE})
+add_executable(file_example ${FILE_EXAMPLE})
 
 target_link_libraries(examples cinatra cinatra_http ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIB})
 target_link_libraries(database_example cinatra cinatra_http mysqlclient ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIB})
+target_link_libraries(file_example cinatra cinatra_http ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIB})
 install(TARGETS cinatra DESTINATION lib)
 install(TARGETS cinatra_http DESTINATION lib)
 install(DIRECTORY libcinatra/cinatra DESTINATION include)
