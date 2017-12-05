@@ -11,7 +11,8 @@ include_directories(
         ${Boost_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_DIR}
         "${CMAKE_SOURCE_DIR}/libcinatra_http"
-        "${CMAKE_SOURCE_DIR}/libcinatra")
+        "${CMAKE_SOURCE_DIR}/libcinatra"
+        "${CMAKE_SOURCE_DIR}/iguana")
 
 if (WIN32)
     set(EXTRA_LIB mswsock ws2_32)
@@ -28,7 +29,8 @@ set(CINATRA_FILES
         libcinatra/cinatra/context_container.hpp
         libcinatra/cinatra/function_traits.hpp
         libcinatra/cinatra/router.h
-        libcinatra/router.cpp libcinatra/cinatra/http_router.hpp libcinatra/cinatra/iguana/reflection.hpp libcinatra/cinatra/iguana/json.hpp)
+        libcinatra/router.cpp libcinatra/cinatra/http_router.hpp
+        )
 
 set(CINATRA_HTTP_FILES
         libcinatra_http/cinatra_http/connection.hpp
