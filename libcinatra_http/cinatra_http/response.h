@@ -17,6 +17,87 @@ namespace cinatra
 {
 	using content_generator_t = std::function<std::string(void)>;
 
+	namespace stock_replies
+	{
+		const char ok[] = "";
+		const char created[] =
+				"<html>"
+						"<head><title>Created</title></head>"
+						"<body><h1>201 Created</h1></body>"
+						"</html>";
+		const char accepted[] =
+				"<html>"
+						"<head><title>Accepted</title></head>"
+						"<body><h1>202 Accepted</h1></body>"
+						"</html>";
+		const char no_content[] =
+				"<html>"
+						"<head><title>No Content</title></head>"
+						"<body><h1>204 Content</h1></body>"
+						"</html>";
+		const char multiple_choices[] =
+				"<html>"
+						"<head><title>Multiple Choices</title></head>"
+						"<body><h1>300 Multiple Choices</h1></body>"
+						"</html>";
+		const char moved_permanently[] =
+				"<html>"
+						"<head><title>Moved Permanently</title></head>"
+						"<body><h1>301 Moved Permanently</h1></body>"
+						"</html>";
+		const char moved_temporarily[] =
+				"<html>"
+						"<head><title>Moved Temporarily</title></head>"
+						"<body><h1>302 Moved Temporarily</h1></body>"
+						"</html>";
+		const char not_modified[] =
+				"<html>"
+						"<head><title>Not Modified</title></head>"
+						"<body><h1>304 Not Modified</h1></body>"
+						"</html>";
+		const char bad_request[] =
+				"<html>"
+						"<head><title>Bad Request</title></head>"
+						"<body><h1>400 Bad Request</h1></body>"
+						"</html>";
+		const char unauthorized[] =
+				"<html>"
+						"<head><title>Unauthorized</title></head>"
+						"<body><h1>401 Unauthorized</h1></body>"
+						"</html>";
+		const char forbidden[] =
+				"<html>"
+						"<head><title>Forbidden</title></head>"
+						"<body><h1>403 Forbidden</h1></body>"
+						"</html>";
+		const char not_found[] =
+				"<html>"
+						"<head><title>Not Found</title></head>"
+						"<body><h1>404 Not Found</h1></body>"
+						"</html>";
+		const char internal_server_error[] =
+				"<html>"
+						"<head><title>Internal Server Error</title></head>"
+						"<body><h1>500 Internal Server Error</h1></body>"
+						"</html>";
+		const char not_implemented[] =
+				"<html>"
+						"<head><title>Not Implemented</title></head>"
+						"<body><h1>501 Not Implemented</h1></body>"
+						"</html>";
+		const char bad_gateway[] =
+				"<html>"
+						"<head><title>Bad Gateway</title></head>"
+						"<body><h1>502 Bad Gateway</h1></body>"
+						"</html>";
+		const char service_unavailable[] =
+				"<html>"
+						"<head><title>Service Unavailable</title></head>"
+						"<body><h1>503 Service Unavailable</h1></body>"
+						"</html>";
+
+	} // namespace stock_replies
+
 	class response
 	{
 	public:
@@ -142,6 +223,48 @@ namespace cinatra
 			bad_gateway = 502,
 			service_unavailable = 503
 		};
+
+		std::string to_string(response::status_type status)
+		{
+			using namespace stock_replies;
+			switch (status)
+			{
+				case response::ok:
+					return stock_replies::ok;
+				case response::created:
+					return stock_replies::created;
+				case response::accepted:
+					return stock_replies::accepted;
+				case response::no_content:
+					return stock_replies::no_content;
+				case response::multiple_choices:
+					return stock_replies::multiple_choices;
+				case response::moved_permanently:
+					return stock_replies::moved_permanently;
+				case response::moved_temporarily:
+					return stock_replies::moved_temporarily;
+				case response::not_modified:
+					return stock_replies::not_modified;
+				case response::bad_request:
+					return stock_replies::bad_request;
+				case response::unauthorized:
+					return stock_replies::unauthorized;
+				case response::forbidden:
+					return stock_replies::forbidden;
+				case response::not_found:
+					return stock_replies::not_found;
+				case response::internal_server_error:
+					return stock_replies::internal_server_error;
+				case response::not_implemented:
+					return stock_replies::not_implemented;
+				case response::bad_gateway:
+					return stock_replies::bad_gateway;
+				case response::service_unavailable:
+					return stock_replies::service_unavailable;
+				default:
+					return stock_replies::internal_server_error;
+			}
+		}
 
 		struct header_t
 		{

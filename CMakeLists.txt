@@ -10,6 +10,7 @@ find_package(OpenSSL REQUIRED)
 include_directories(
         ${Boost_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_DIR}
+        ${CMAKE_SOURCE_DIR}
         "${CMAKE_SOURCE_DIR}/libcinatra_http"
         "${CMAKE_SOURCE_DIR}/libcinatra"
         "${CMAKE_SOURCE_DIR}/iguana")
@@ -58,13 +59,18 @@ set(CINATRA_HTTP_FILES
 set(CINATRA_TEST_FILES
         cinatra_test/main.cpp)
 
+set(DATABASE_EXAMPLE
+        cinatra_test/database.cpp)
+
 add_library(cinatra_http STATIC ${CINATRA_HTTP_FILES})
 
 add_library(cinatra STATIC ${CINATRA_FILES})
 
 add_executable(cinatra_test ${CINATRA_TEST_FILES})
-target_link_libraries(cinatra_test cinatra cinatra_http ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIB})
+add_executable(database_example ${DATABASE_EXAMPLE})
 
+target_link_libraries(cinatra_test cinatra cinatra_http ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIB})
+target_link_libraries(database_example cinatra cinatra_http mysqlclient ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${EXTRA_LIB})
 install(TARGETS cinatra DESTINATION lib)
 install(TARGETS cinatra_http DESTINATION lib)
 install(DIRECTORY libcinatra/cinatra DESTINATION include)
