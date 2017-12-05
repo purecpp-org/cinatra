@@ -3,9 +3,6 @@
 //
 #include <iostream>
 #include <cinatra/cinatra.h>
-#include <cinatra/middleware/cookies.hpp>
-#include <cinatra/middleware/session.hpp>
-#include <cinatra_http/websocket.h>
 #include <ormpp/mysql.hpp>
 #include <ormpp/dbng.hpp>
 
