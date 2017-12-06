@@ -66,10 +66,8 @@ int main(){
     });
 
     app.register_handler<GET, POST>("/delete_person", [&mysql](const request& req, response& res){
-        person s{};
-        iguana::json::from_json(s, req.body().data());
 
-        auto r = mysql.delete_records<person>(); //delete all
+        auto r = mysql.delete_records(FID(person::id), "==", req.get_header("id").data());
         if(!r){
             res.set_status(response::status_type::internal_server_error);
             res.response_text("failed");
