@@ -59,7 +59,7 @@ namespace cinatra
 			std::function<void(ws_conn_ptr_t, boost::string_ref)> on_ping;
 			std::function<void(ws_conn_ptr_t, boost::string_ref)> on_pong;
 			std::function<void(ws_conn_ptr_t, boost::string_ref, opcode_t)> on_close;
-			std::function<void(boost::system::error_code const&)> on_error;
+			std::function<void(ws_conn_ptr_t, boost::system::error_code const&)> on_error;
 		};
 
 		using async_write_msg_callback_t = std::function<void(boost::system::error_code const&)>;

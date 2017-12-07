@@ -74,7 +74,7 @@ namespace cinatra
 				{
 					if (cfg.on_error)
 					{
-						cfg.on_error(ec);
+						cfg.on_error(nullptr, ec);
 					}
 					return;
 				}
@@ -99,7 +99,7 @@ namespace cinatra
 				{
 					if (cfg_.on_error)
 					{
-						cfg_.on_error(ec);
+						cfg_.on_error(self, ec);
 					}
 					return;
 				}
