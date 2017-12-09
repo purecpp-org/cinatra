@@ -109,49 +109,67 @@ public:
 
 private:
     void handle_msg(const message& msg, std::shared_ptr<std::string> back_msg, websocket::ws_conn_ptr_t conn){
-        conn->async_send_msg(*back_msg, websocket::opcode_t::TEXT, [back_msg](boost::system::error_code const& ec)
-        {
-            if (ec)
-            {
-                std::cout << "Send websocket hello failed: " << ec.message() << std::endl;
-            }
-        });
-//        std::unique_lock lock(mtx_);
-//        auto it = groups_.find(msg.topic_id);
-//        if(it == groups_.end()){
-//            char reason[]  = "can't find the group";
-//            conn->close(websocket::opcode_t::CLOSE, reason, strlen(reason));
-//            return;
-//        }
-//
-//        auto cnit = conn_groups.find(msg.topic_id);
-//        if(cnit==conn_groups.end()){
-//            //can't find the conn group, push to the third platform
-//            //push_all();
-//            std::cout<<"third platform push"<<std::endl;
-//            return;
-//        }
-//
-//        std::multimap<int64_t, int64_t> clear_mp;
-//        for(auto uid : it->second){
-//            if(uid==msg.user_id) //don't send to self
-//                continue;
-//
-//            auto i = cnit->second.find(uid);
-//            if(i!=cnit->second.end()){
-//                i->second->async_send_msg(*back_msg, websocket::opcode_t::TEXT, [back_msg, topic_id = msg.topic_id, uid, &clear_mp](boost::system::error_code const &ec) {
-//                    if (ec) {
-//                        clear_mp.emplace(topic_id, uid);
-//                        std::cout << "Send websocket hello failed: " << ec.message() << std::endl;
-//                    }
-//                });
-//            }else{
-//                //push
-//                std::cout<<"third platform push"<<std::endl;
+//        conn->async_send_msg(*back_msg, websocket::opcode_t::TEXT, [back_msg](boost::system::error_code const& ec)
+//        {
+//            if (ec)
+//            {
+//                std::cout << "Send websocket hello failed: " << ec.message() << std::endl;
 //            }
-//        }
+//        });
 
+        std::unique_lock lock(mtx_);
+        auto it = groups_.find(msg.topic_id);
+        if(it == groups_.end()){
+            char reason[]  = "can't find the group";
+            conn->close(websocket::opcode_t::CLOSE, reason, strlen(reason));
+            return;
+        }
 
+        auto cnit = conn_groups.find(msg.topic_id);
+        if(cnit==conn_groups.end()){
+            //can't find the conn group, push to the third platform
+            //push_all();
+            std::cout<<"third platform push"<<std::endl;
+            return;
+        }
+
+        std::multimap<int64_t, int64_t> clear_mp;
+        for(auto uid : it->second){
+            if(uid==msg.user_id) //don't send to self
+                continue;
+
+            auto i = cnit->second.find(uid);
+            if(i!=cnit->second.end()){
+                i->second->async_send_msg(*back_msg, websocket::opcode_t::TEXT, [back_msg, topic_id = msg.topic_id, uid, &clear_mp](boost::system::error_code const &ec) {
+                    if (ec) {
+                        clear_mp.emplace(topic_id, uid);
+                        std::cout << "Send websocket hello failed: " << ec.message() << std::endl;
+                    }
+                });
+            }else{
+                //push
+                std::cout<<"third platform push"<<std::endl;
+            }
+        }
+
+        //clear the failed connection
+        erase_connection(clear_mp);
+    }
+
+    void erase_connection(const std::multimap<int64_t, int64_t>& clear_mp){
+        for(auto it = clear_mp.begin(), end = clear_mp.end(); it != end; it = clear_mp.upper_bound(it->first))
+        {
+            auto it2 = conn_groups.find(it->first);
+            if(it2==conn_groups.end())
+                continue;
+
+            auto p = clear_mp.equal_range(it->first);
+            for (auto it3 = p.first; it3 != p.second; ++it3) {
+                if(auto cnit = it2->second.find(it3->second); cnit!=it2->second.end()){
+                    it2->second.erase(it3->second);
+                }
+            }
+        }
     }
 
     void close(websocket::ws_conn_ptr_t conn){
