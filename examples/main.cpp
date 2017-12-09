@@ -118,7 +118,7 @@ int main()
             },
             nullptr, nullptr, nullptr,
             // on_error
-            [](boost::system::error_code const& ec)
+            [](websocket::ws_conn_ptr_t conn, boost::system::error_code const& ec)
             {
                 std::cout << "upgrade to websocket failed:" << ec.message() << std::endl;
             }
