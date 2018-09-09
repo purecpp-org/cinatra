@@ -1,4 +1,7 @@
 # 注意
+
+# Notice: it is not maintained here, you should go to （[https://github.com/qicosmos/cinatra](https://github.com/qicosmos/cinatra "cinatra")）, and it is maintaining there.
+
 这里的cinatra不再维护，请用新的cinatra，在这里维护（[https://github.com/qicosmos/cinatra](https://github.com/qicosmos/cinatra "cinatra")）
 
 #cinatra 
