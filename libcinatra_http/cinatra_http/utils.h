@@ -65,6 +65,7 @@ namespace cinatra
 	template<typename IteratorT, typename MapT>
 	void kv_parser(IteratorT begin, IteratorT end, MapT& result, int kv_sep, int field_sep, bool unescape, bool trim)
 	{
+		result.clear();
 		std::string key, val;
 		auto result_add = [&result, trim](std::string key, std::string val)
 		{
